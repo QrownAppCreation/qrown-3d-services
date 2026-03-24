@@ -1,0 +1,242 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ── ENUMS ────────────────────────────────────────────────────────────────────
+
+enum Tier {
+  STANDARD
+  PREMIUM
+  ELITE
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  PAID
+  IN_DESIGN
+  AWAITING_APPROVAL
+  APPROVED
+  PRINTING
+  COMPLETE
+  CANCELLED
+}
+
+enum DesignCategory {
+  CAKE_TOPPER
+  BRIDAL_GIFT
+  GUEST_FAVOR
+  FRIDGE_MAGNET
+}
+
+enum GenerationMethod {
+  AI_PHOTO
+  DB_TEMPLATE
+  EINSTAR_SCAN
+}
+
+enum DesignStatus {
+  QUEUED
+  GENERATING
+  REVIEW
+  CLIENT_SENT
+  APPROVED
+  REJECTED
+  PRINT_READY
+  FAILED
+}
+
+enum PrinterType {
+  BAMBU_X1C
+  BAMBU_P1S
+  CREATBOT
+}
+
+enum PrintJobStatus {
+  QUEUED
+  PRINTING
+  DONE
+  FAILED
+}
+
+enum StyleTier {
+  FUN
+  ELEGANT
+  ROMANTIC
+  ADVENTUROUS
+  CUSTOM
+}
+
+enum AddOnType {
+  HAND_PAINTING
+  GIFT_BOX
+  ENGRAVED_BASE
+  RUSH_ORDER
+  STL_LICENSE
+  REORDER_FEE
+  TRAVEL_FEE
+  RESIN_COAT
+}
+
+// ── TABLES ───────────────────────────────────────────────────────────────────
+
+model Couple {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  name            String
+  phone           String?
+  magicLinkToken  String?
+  tokenExpiry     DateTime?
+  tier            Tier      @default(STANDARD)
+  createdAt       DateTime  @default(now())
+
+  orders          Order[]
+}
+
+model Order {
+  id               String      @id @default(cuid())
+  coupleId         String
+  status           OrderStatus @default(PENDING_PAYMENT)
+  stripePaymentId  String?
+  stripeSessionId  String?
+  depositCents     Int         @default(0)
+  balanceCents     Int         @default(0)
+  weddingDate      DateTime?
+  colorPalette     String?
+  styleNotes       String?
+  styleTier        StyleTier   @default(ELEGANT)
+  createdAt        DateTime    @default(now())
+
+  couple           Couple      @relation(fields: [coupleId], references: [id])
+  designs          Design[]
+  addOns           AddOn[]
+}
+
+model Design {
+  id                String           @id @default(cuid())
+  orderId           String
+  category          DesignCategory
+  quantity          Int              @default(1)
+  generationMethod  GenerationMethod @default(AI_PHOTO)
+  styleTemplateId   String?
+  meshyJobId        String?
+  status            DesignStatus     @default(QUEUED)
+  rawMeshUrl        String?
+  cleanedMeshUrl    String?
+  stlUrl            String?
+  previewImageUrl   String?
+  approvalToken     String?          @unique
+  tokenExpiry       DateTime?
+  revisionRound     Int              @default(1)
+  clientNotes       String?
+  approvedAt        DateTime?
+  createdAt         DateTime         @default(now())
+
+  order             Order            @relation(fields: [orderId], references: [id])
+  styleTemplate     StyleTemplate?   @relation(fields: [styleTemplateId], references: [id])
+  printJobs         PrintJob[]
+
+  // Photo URLs stored as JSON object
+  photoUrls         Json?
+  partner1Name      String?
+  partner2Name      String?
+}
+
+model PrintJob {
+  id              String         @id @default(cuid())
+  designId        String
+  printer         PrinterType
+  material        String
+  layerHeightMm   Float
+  nozzleMm        Float
+  estimatedMins   Int
+  supportStrategy String?
+  status          PrintJobStatus @default(QUEUED)
+  queuedAt        DateTime       @default(now())
+  startedAt       DateTime?
+  completedAt     DateTime?
+  notes           String?
+
+  design          Design         @relation(fields: [designId], references: [id])
+}
+
+model StyleTemplate {
+  id              String         @id @default(cuid())
+  name            String
+  category        DesignCategory
+  styleTier       StyleTier
+  themeTag        String
+  silhouetteType  String?
+  baseStlUrl      String?
+  previewImageUrl String?
+  timesUsed       Int            @default(0)
+  avgRating       Float          @default(0)
+  isActive        Boolean        @default(true)
+  createdAt       DateTime       @default(now())
+
+  designs         Design[]
+}
+
+model AddOn {
+  id          String    @id @default(cuid())
+  orderId     String
+  type        AddOnType
+  priceCents  Int
+  quantity    Int       @default(1)
+  notes       String?
+
+  order       Order     @relation(fields: [orderId], references: [id])
+}
+
+// NextAuth required tables
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          String    @default("couple")
+  passwordHash  String?
+
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
