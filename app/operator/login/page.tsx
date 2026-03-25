@@ -51,7 +51,7 @@ export default function OperatorLoginPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <Heart className="h-6 w-6 text-wedprint-blush fill-wedprint-blush" />
+            <Heart className="h-6 w-6 fill-current" style={{ color: "var(--wp-gold)" }} />
             <span className="font-bold text-2xl text-white">WedPrint</span>
           </Link>
           <div className="flex items-center justify-center gap-2 text-white/60 text-sm">

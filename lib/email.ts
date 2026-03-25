@@ -48,50 +48,148 @@ export async function sendMagicLinkEmail(
 export async function sendOrderConfirmationEmail(params: {
   email: string;
   coupleName: string;
+  partner1Name: string | null;
+  partner2Name: string | null;
   orderId: string;
-  depositPaid: string;
-  balanceDue: string;
-  products: string[];
+  depositPaidCents: number;
+  balanceDueCents: number;
+  productLines: string[];
+  addOnLines: string[];
+  magicLinkUrl?: string | null;
 }) {
-  const { email, coupleName, orderId, depositPaid, balanceDue, products } =
-    params;
+  const {
+    email,
+    coupleName,
+    partner1Name,
+    partner2Name,
+    orderId,
+    depositPaidCents,
+    balanceDueCents,
+    productLines,
+    addOnLines,
+    magicLinkUrl,
+  } = params;
+
+  const fmt = (cents: number) =>
+    new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 0,
+    }).format(cents / 100);
+
+  const greeting =
+    partner1Name && partner2Name
+      ? `${partner1Name} & ${partner2Name}`
+      : coupleName;
+
+  const allLines = [...productLines, ...addOnLines];
 
   await getResend().emails.send({
     from: FROM,
     to: email,
-    subject: `Order confirmed — WedPrint #${orderId.slice(-8).toUpperCase()}`,
+    subject: "Your WedPrint order is confirmed!",
     html: `
-      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: #1a1a1a; padding: 32px; text-align: center;">
-          <h1 style="color: white; margin: 0; font-size: 28px;">WedPrint</h1>
+      <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; background: #FAFAF7;">
+        <!-- Header -->
+        <div style="background: #2d2d2a; padding: 32px; text-align: center;">
+          <h1 style="color: #C9A84C; margin: 0; font-size: 28px; letter-spacing: 2px;">WedPrint</h1>
+          <p style="color: #fff; margin: 8px 0 0; font-size: 13px; letter-spacing: 1px;">Handcrafted 3D Keepsakes</p>
         </div>
-        <div style="padding: 32px;">
-          <h2>You're all set, ${coupleName}! 🎉</h2>
-          <p>Your order has been confirmed. Our team will start working on your design within 24 hours.</p>
-          
-          <div style="background: #f9f9f9; border-radius: 8px; padding: 20px; margin: 20px 0;">
-            <h3 style="margin-top: 0;">Order Summary</h3>
-            <p><strong>Order ID:</strong> #${orderId.slice(-8).toUpperCase()}</p>
-            ${products.map((p) => `<p>• ${p}</p>`).join("")}
-            <hr style="border: none; border-top: 1px solid #eee; margin: 16px 0;" />
-            <p><strong>Deposit paid:</strong> ${depositPaid}</p>
-            <p><strong>Balance due on delivery:</strong> ${balanceDue}</p>
+
+        <!-- Body -->
+        <div style="padding: 40px 36px;">
+          <h2 style="color: #2d2d2a; margin-top: 0;">Your order is confirmed! 🎉</h2>
+          <p style="color: #555; line-height: 1.7;">
+            Hi <strong>${greeting}</strong>, thank you so much for placing your order with WedPrint.
+            We are absolutely thrilled to be a small part of your big day.
+          </p>
+
+          <!-- Order summary box -->
+          <div style="background: #fff; border: 1px solid #e5e5e0; border-radius: 10px; padding: 24px; margin: 28px 0;">
+            <h3 style="color: #2d2d2a; margin-top: 0; font-size: 16px;">Order Summary</h3>
+            <p style="color: #888; font-size: 13px; margin: 0 0 16px;">
+              Reference: <strong style="color: #2d2d2a;">#${orderId.slice(-8).toUpperCase()}</strong>
+            </p>
+
+            ${allLines.map((line) => `
+              <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f0f0ea; font-size: 14px; color: #555;">
+                <span>• ${line}</span>
+              </div>
+            `).join("")}
+
+            <div style="margin-top: 16px; padding-top: 16px; border-top: 2px solid #e5e5e0;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                <span style="color: #555; font-size: 14px;">Deposit paid today:</span>
+                <strong style="color: #8FAF8F; font-size: 14px;">${fmt(depositPaidCents)}</strong>
+              </div>
+              <div style="margin-top: 12px; background: #f0f4f0; border-radius: 6px; padding: 12px; font-size: 14px; color: #444; line-height: 1.6;">
+                Your 50% deposit has been received. The remaining balance of
+                <strong>${fmt(balanceDueCents)}</strong> will be collected once you
+                approve your design preview. We will send your design preview within 48 hours.
+              </div>
+            </div>
           </div>
 
-          <p>We'll email you as soon as your 3D design is ready for approval.</p>
-          
-          <a href="${APP_URL}/order/${orderId}" style="
-            display: inline-block;
-            background: #1a1a1a;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 600;
-          ">View Your Order</a>
-          
-          <p style="color: #666; font-size: 14px; margin-top: 32px;">
-            Questions? Reply to this email and we'll get back to you right away.
+          <!-- What happens next -->
+          <h3 style="color: #2d2d2a; font-size: 16px;">What happens next?</h3>
+          <ol style="color: #555; line-height: 2; padding-left: 20px; font-size: 14px;">
+            <li>Our team begins designing your piece within 24 hours</li>
+            <li>You'll receive an email with an interactive 3D preview to review and approve</li>
+            <li>Once you approve, we print and contact you to arrange delivery</li>
+            <li>The balance (${fmt(balanceDueCents)}) is due on delivery</li>
+          </ol>
+
+          <p style="color: #8FAF8F; font-weight: bold; font-size: 15px;">
+            ⏱ Estimated turnaround: 7–10 business days
+          </p>
+
+          <!-- CTA -->
+          ${magicLinkUrl ? `
+          <div style="text-align: center; margin: 32px 0;">
+            <a href="${magicLinkUrl}" style="
+              display: inline-block;
+              background: #8FAF8F;
+              color: white;
+              padding: 14px 32px;
+              border-radius: 8px;
+              text-decoration: none;
+              font-weight: 600;
+              font-size: 15px;
+              font-family: sans-serif;
+            ">View your order status →</a>
+            <p style="color:#888;font-size:12px;font-family:sans-serif;margin-top:8px;">
+              Bookmark this link — it gives you access to your order anytime (valid 30 days).
+            </p>
+          </div>
+          ` : `
+          <div style="text-align: center; margin: 32px 0;">
+            <a href="${APP_URL}/order-confirmed" style="
+              display: inline-block;
+              background: #C4622D;
+              color: white;
+              padding: 14px 32px;
+              border-radius: 8px;
+              text-decoration: none;
+              font-weight: 600;
+              font-size: 15px;
+              font-family: sans-serif;
+            ">View Order Confirmation</a>
+          </div>
+          `}
+
+          <p style="color: #888; font-size: 13px; line-height: 1.7; border-top: 1px solid #e5e5e0; padding-top: 24px; margin-top: 32px;">
+            We can't wait to create something truly special for you both. If you have any questions at all,
+            simply reply to this email and we'll get back to you right away. 💛
+            <br /><br />
+            With love,<br />
+            <strong style="color: #2d2d2a;">The WedPrint Team</strong>
+          </p>
+        </div>
+
+        <!-- Footer -->
+        <div style="background: #2d2d2a; padding: 20px; text-align: center;">
+          <p style="color: #666; font-size: 12px; margin: 0;">
+            © ${new Date().getFullYear()} WedPrint · Made with love
           </p>
         </div>
       </div>
@@ -205,6 +303,85 @@ export async function sendApprovalConfirmationEmail(params: {
   });
 }
 
+export async function sendBalancePaymentEmail(params: {
+  email: string;
+  coupleName: string;
+  balanceCents: number;
+  paymentUrl: string;
+  orderId: string;
+}) {
+  const { email, coupleName, balanceCents, paymentUrl, orderId } = params;
+
+  const fmt = (c: number) =>
+    new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 0,
+    }).format(c / 100);
+
+  await getResend().emails.send({
+    from: FROM,
+    to: email,
+    subject: "Your WedPrint design is approved — pay your balance to go to print!",
+    html: `
+      <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; background: #FAFAF7;">
+        <div style="background: #2d2d2a; padding: 32px; text-align: center;">
+          <h1 style="color: #C9A84C; margin: 0; font-size: 28px; letter-spacing: 2px;">WedPrint</h1>
+          <p style="color: #fff; margin: 8px 0 0; font-size: 13px; letter-spacing: 1px;">Handcrafted 3D Keepsakes</p>
+        </div>
+        <div style="padding: 40px 36px;">
+          <h2 style="color: #2d2d2a; margin-top: 0;">Great news, ${coupleName}! 🎉</h2>
+          <p style="color: #555; line-height: 1.7;">
+            Your design has been approved and is ready to go to print. To complete your order,
+            please pay the remaining balance of <strong style="color: #2d2d2a;">${fmt(balanceCents)}</strong>
+            using the secure link below.
+          </p>
+
+          <div style="background: #fff; border: 1px solid #e5e5e0; border-radius: 10px; padding: 20px; margin: 24px 0; text-align: center;">
+            <p style="color: #555; font-size: 14px; margin: 0 0 16px;">
+              Order reference: <strong>#${orderId.slice(-8).toUpperCase()}</strong>
+            </p>
+            <p style="color: #2d2d2a; font-size: 22px; font-weight: bold; margin: 0 0 20px;">
+              Balance due: ${fmt(balanceCents)}
+            </p>
+            <a href="${paymentUrl}" style="
+              display: inline-block;
+              background: #C4622D;
+              color: white;
+              padding: 16px 36px;
+              border-radius: 8px;
+              text-decoration: none;
+              font-weight: 600;
+              font-size: 16px;
+              font-family: sans-serif;
+            ">Pay Balance Now →</a>
+            <p style="color: #888; font-size: 12px; margin: 16px 0 0;">
+              Secure payment powered by Stripe. This link is unique to your order.
+            </p>
+          </div>
+
+          <p style="color: #555; line-height: 1.7; font-size: 14px;">
+            Once your payment is confirmed, your piece will go straight into the print queue.
+            We'll be in touch as soon as it's ready to arrange delivery.
+          </p>
+
+          <p style="color: #888; font-size: 13px; line-height: 1.7; border-top: 1px solid #e5e5e0; padding-top: 24px; margin-top: 32px;">
+            Questions? Simply reply to this email and we'll get back to you right away. 💛
+            <br /><br />
+            With love,<br />
+            <strong style="color: #2d2d2a;">The WedPrint Team</strong>
+          </p>
+        </div>
+        <div style="background: #2d2d2a; padding: 20px; text-align: center;">
+          <p style="color: #666; font-size: 12px; margin: 0;">
+            © ${new Date().getFullYear()} WedPrint · Made with love
+          </p>
+        </div>
+      </div>
+    `,
+  });
+}
+
 export async function sendOrderCompleteEmail(params: {
   email: string;
   coupleName: string;
@@ -230,6 +407,49 @@ export async function sendOrderCompleteEmail(params: {
           </div>
           
           <p>Please reply to this email to arrange pickup or confirm your delivery address.</p>
+        </div>
+      </div>
+    `,
+  });
+}
+
+// ── Magic link for order tracking ───────────────────────────────────────────
+export async function sendOrderTrackingLinkEmail(params: {
+  email: string;
+  name: string;
+  magicLinkUrl: string;
+}) {
+  const { email, name, magicLinkUrl } = params;
+
+  await getResend().emails.send({
+    from:    FROM,
+    to:      email,
+    subject: "Your WedPrint order tracking link",
+    html: `
+      <div style="font-family:sans-serif;max-width:540px;margin:0 auto;background:#FAFAF7;">
+        <div style="background:#2d2d2a;padding:28px;text-align:center;">
+          <h1 style="color:#C9A84C;margin:0;font-size:24px;letter-spacing:2px;">WedPrint</h1>
+        </div>
+        <div style="padding:36px;">
+          <h2 style="color:#2d2d2a;margin-top:0;">Here's your order tracking link 🔗</h2>
+          <p style="color:#555;line-height:1.7;">
+            Hi <strong>${name}</strong>, as requested here is a fresh link to view your order status.
+            No password needed — just click and go.
+          </p>
+          <div style="text-align:center;margin:28px 0;">
+            <a href="${magicLinkUrl}" style="
+              display:inline-block;background:#8FAF8F;color:white;
+              padding:14px 32px;border-radius:8px;text-decoration:none;
+              font-weight:600;font-size:15px;
+            ">View my order →</a>
+            <p style="color:#888;font-size:12px;margin-top:10px;">
+              This link is valid for 30 days.
+            </p>
+          </div>
+          <p style="color:#888;font-size:13px;border-top:1px solid #e5e5e0;padding-top:20px;">
+            Didn't request this? You can safely ignore this email.<br/>
+            — The WedPrint Team
+          </p>
         </div>
       </div>
     `,

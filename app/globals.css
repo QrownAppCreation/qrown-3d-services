@@ -48,68 +48,77 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 
   /* ── WedPrint Brand Colors ─────────────────────────────────── */
-  --color-wedprint-blush:    var(--wedprint-blush);
-  --color-wedprint-rose:     var(--wedprint-rose);
-  --color-wedprint-sage:     var(--wedprint-sage);
-  --color-wedprint-ivory:    var(--wedprint-ivory);
-  --color-wedprint-charcoal: var(--wedprint-charcoal);
-  --color-wedprint-gold:     var(--wedprint-gold);
+  --color-wp-sage:    var(--wp-sage);
+  --color-wp-sage-light: var(--wp-sage-light);
+  --color-wp-gold:    var(--wp-gold);
+  --color-wp-cta:     var(--wp-cta);
+  --color-wp-cta-hover: var(--wp-cta-hover);
+  --color-wp-ivory:   var(--wp-ivory);
+  --color-wp-charcoal: var(--wp-charcoal);
 }
 
 :root {
-  /* ── Neutral base ─────────────────────────────────────────── */
-  --background: oklch(0.99 0.004 60);        /* warm off-white */
-  --foreground: oklch(0.18 0.01 30);          /* deep charcoal */
+  /* ── Base ─────────────────────────────────────────────────────
+     #FAFAF7 ivory white as background                           */
+  --background: oklch(0.982 0.005 100);
+  --foreground: oklch(0.20 0.015 50);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.01 30);
+  --card-foreground: oklch(0.20 0.015 50);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.01 30);
+  --popover-foreground: oklch(0.20 0.015 50);
 
-  /* ── Brand primary: deep charcoal/black ───────────────────── */
-  --primary: oklch(0.18 0.01 30);
-  --primary-foreground: oklch(0.99 0 0);
+  /* ── Primary: sage green #8FAF8F ──────────────────────────────
+     Used for interactive states, step indicators, checkmarks    */
+  --primary: oklch(0.685 0.072 148);
+  --primary-foreground: oklch(1 0 0);
 
-  /* ── Secondary: soft blush ────────────────────────────────── */
-  --secondary: oklch(0.94 0.025 15);
-  --secondary-foreground: oklch(0.3 0.02 15);
+  /* ── Secondary: warm ivory tint ──────────────────────────────  */
+  --secondary: oklch(0.95 0.010 100);
+  --secondary-foreground: oklch(0.30 0.015 50);
 
-  --muted: oklch(0.96 0.008 60);
-  --muted-foreground: oklch(0.55 0.01 30);
+  --muted: oklch(0.955 0.007 100);
+  --muted-foreground: oklch(0.52 0.012 50);
 
-  /* ── Accent: dusty rose ───────────────────────────────────── */
-  --accent: oklch(0.88 0.04 15);
-  --accent-foreground: oklch(0.25 0.04 15);
+  /* ── Accent: gold tint ────────────────────────────────────── */
+  --accent: oklch(0.92 0.040 80);
+  --accent-foreground: oklch(0.30 0.050 70);
 
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.90 0.008 60);
-  --input: oklch(0.92 0.006 60);
-  --ring: oklch(0.65 0.02 15);
+  --border: oklch(0.898 0.012 100);
+  --input: oklch(0.918 0.010 100);
+  --ring: oklch(0.685 0.072 148);
   --radius: 0.75rem;
 
-  /* ── WedPrint brand palette ───────────────────────────────── */
-  --wedprint-blush:    oklch(0.90 0.04 15);   /* #f2d6d4 equivalent */
-  --wedprint-rose:     oklch(0.60 0.12 15);   /* dusty rose */
-  --wedprint-sage:     oklch(0.72 0.06 150);  /* sage green */
-  --wedprint-ivory:    oklch(0.97 0.015 80);  /* ivory */
-  --wedprint-charcoal: oklch(0.22 0.01 30);   /* charcoal */
-  --wedprint-gold:     oklch(0.72 0.10 75);   /* gold accent */
+  /* ── WedPrint brand palette ───────────────────────────────────
+     sage   #8FAF8F  → oklch(0.685 0.072 148)
+     gold   #C9A84C  → oklch(0.715 0.115 78)
+     cta    #C4622D  → oklch(0.555 0.155 44)
+     ivory  #FAFAF7  → oklch(0.982 0.005 100)
+     charcoal        → oklch(0.22 0.015 50)               */
+  --wp-sage:        oklch(0.685 0.072 148);
+  --wp-sage-light:  oklch(0.90 0.040 148);
+  --wp-gold:        oklch(0.715 0.115 78);
+  --wp-cta:         oklch(0.555 0.155 44);
+  --wp-cta-hover:   oklch(0.490 0.145 44);
+  --wp-ivory:       oklch(0.982 0.005 100);
+  --wp-charcoal:    oklch(0.220 0.015 50);
 
   /* Charts */
-  --chart-1: oklch(0.60 0.12 15);
-  --chart-2: oklch(0.72 0.06 150);
-  --chart-3: oklch(0.72 0.10 75);
-  --chart-4: oklch(0.88 0.04 15);
-  --chart-5: oklch(0.22 0.01 30);
+  --chart-1: oklch(0.685 0.072 148);
+  --chart-2: oklch(0.715 0.115 78);
+  --chart-3: oklch(0.555 0.155 44);
+  --chart-4: oklch(0.90 0.040 148);
+  --chart-5: oklch(0.220 0.015 50);
 
-  /* Sidebar */
-  --sidebar: oklch(0.18 0.01 30);
+  /* Operator sidebar stays dark */
+  --sidebar: oklch(0.220 0.015 50);
   --sidebar-foreground: oklch(0.95 0 0);
-  --sidebar-primary: oklch(0.60 0.12 15);
-  --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.28 0.01 30);
+  --sidebar-primary: oklch(0.685 0.072 148);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.310 0.015 50);
   --sidebar-accent-foreground: oklch(0.95 0 0);
-  --sidebar-border: oklch(0.30 0.01 30);
-  --sidebar-ring: oklch(0.65 0.02 15);
+  --sidebar-border: oklch(0.330 0.015 50);
+  --sidebar-ring: oklch(0.685 0.072 148);
 }
 
 .dark {
@@ -119,8 +128,8 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
+  --primary: oklch(0.685 0.072 148);
+  --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
@@ -130,20 +139,20 @@
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.60 0.12 15);
-  --chart-2: oklch(0.72 0.06 150);
-  --chart-3: oklch(0.72 0.10 75);
-  --chart-4: oklch(0.88 0.04 15);
-  --chart-5: oklch(0.22 0.01 30);
+  --ring: oklch(0.685 0.072 148);
+  --chart-1: oklch(0.685 0.072 148);
+  --chart-2: oklch(0.715 0.115 78);
+  --chart-3: oklch(0.555 0.155 44);
+  --chart-4: oklch(0.90 0.040 148);
+  --chart-5: oklch(0.220 0.015 50);
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.60 0.12 15);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.685 0.072 148);
+  --sidebar-primary-foreground: oklch(1 0 0);
   --sidebar-accent: oklch(0.269 0 0);
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar-ring: oklch(0.685 0.072 148);
 }
 
 @layer base {
@@ -160,13 +169,44 @@
 
 /* ── WedPrint Utility Classes ─────────────────────────────────────────────── */
 @layer utilities {
+  /* Ivory → light sage gradient used in hero and CTA sections */
   .wedding-gradient {
     background: linear-gradient(
       135deg,
-      oklch(0.97 0.015 80) 0%,
-      oklch(0.94 0.025 15) 50%,
-      oklch(0.90 0.04 15) 100%
+      oklch(0.982 0.005 100) 0%,
+      oklch(0.945 0.025 120) 50%,
+      oklch(0.90 0.040 148) 100%
     );
+  }
+
+  /* CTA button — burnt orange #C4622D */
+  .btn-cta {
+    background-color: var(--wp-cta);
+    color: oklch(1 0 0);
+  }
+  .btn-cta:hover {
+    background-color: var(--wp-cta-hover);
+  }
+
+  /* Gold highlight text */
+  .text-wp-gold {
+    color: var(--wp-gold);
+  }
+
+  .text-wp-sage {
+    color: var(--wp-sage);
+  }
+
+  .text-wp-cta {
+    color: var(--wp-cta);
+  }
+
+  .bg-wp-sage-light {
+    background-color: var(--wp-sage-light);
+  }
+
+  .border-wp-sage {
+    border-color: var(--wp-sage);
   }
 
   .text-balance {

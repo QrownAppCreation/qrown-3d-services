@@ -1,20 +1,43 @@
 export const dynamic = "force-dynamic";
 
+import React from "react";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { formatCents } from "@/lib/order-store";
-import { ArrowLeft, Heart } from "lucide-react";
+import { ArrowLeft, Heart, Zap } from "lucide-react";
 import OrderDetailClient from "./OrderDetailClient";
+
+function fmt(cents: number) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 0,
+  }).format(cents / 100);
+}
 
 interface Props {
   params: Promise<{ id: string }>;
 }
 
 export default async function OperatorOrderDetailPage({ params }: Props) {
+  const session = await auth();
+  if (!session || session.user.role !== "operator") {
+    redirect("/operator/login");
+  }
+
   const { id } = await params;
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function daysUntil(date: Date | null): number | null {
+    if (!date) return null;
+    const today  = new Date(); today.setHours(0, 0, 0, 0);
+    const target = new Date(date); target.setHours(0, 0, 0, 0);
+    return Math.ceil((target.getTime() - today.getTime()) / 86_400_000);
+  }
 
   const order = await db.order.findUnique({
     where: { id },
@@ -29,10 +52,26 @@ export default async function OperatorOrderDetailPage({ params }: Props) {
 
   if (!order) notFound();
 
+  const isRush = order.addOns.some((a) => a.type === "RUSH_ORDER");
+  const days   = daysUntil(order.weddingDate);
+
+  // Turnaround badge config
+  let turnaroundEl: React.ReactNode = null;
+  if (days !== null) {
+    if (days <= 0)
+      turnaroundEl = <span className="text-xs font-semibold text-red-600 bg-red-50 border border-red-200 px-2.5 py-1 rounded-full">Wedding passed</span>;
+    else if (days < 7)
+      turnaroundEl = <span className="text-xs font-semibold text-red-600 bg-red-50 border border-red-200 px-2.5 py-1 rounded-full">{days} days until wedding</span>;
+    else if (days <= 14)
+      turnaroundEl = <span className="text-xs font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">{days} days until wedding</span>;
+    else
+      turnaroundEl = <span className="text-xs font-semibold text-green-700 bg-green-50 border border-green-200 px-2.5 py-1 rounded-full">{days} days until wedding</span>;
+  }
+
   return (
     <div className="min-h-screen bg-muted/20">
       {/* Sidebar */}
-      <div className="fixed left-0 top-0 bottom-0 w-56 bg-primary text-primary-foreground flex flex-col">
+      <div className="fixed left-0 top-0 bottom-0 w-56 flex flex-col text-white" style={{ backgroundColor: "var(--wp-charcoal)" }}>
         <div className="p-5 border-b border-white/10">
           <div className="flex items-center gap-2">
             <Heart className="h-5 w-5 fill-current" />
@@ -53,11 +92,30 @@ export default async function OperatorOrderDetailPage({ params }: Props) {
 
       {/* Main */}
       <div className="pl-56">
-        <header className="bg-white border-b border-border px-8 py-5">
-          <div className="flex items-center gap-3">
+        {/* Rush alert banner — only shown for expedited orders */}
+        {isRush && (
+          <div className="bg-orange-500 text-white px-8 py-3 flex items-center gap-3">
+            <Zap className="h-5 w-5 flex-shrink-0" />
+            <div>
+              <span className="font-bold text-sm tracking-wide">RUSH ORDER</span>
+              <span className="text-orange-100 text-sm ml-2">
+                — This order has the Rush add-on selected. Prioritise it in the production queue.
+              </span>
+            </div>
+          </div>
+        )}
+
+        <header className={`bg-white border-b border-border px-8 py-5 ${isRush ? "border-t-2 border-t-orange-400" : ""}`}>
+          <div className="flex items-center gap-3 flex-wrap">
             <h1 className="text-2xl font-bold">
               Order #{id.slice(-8).toUpperCase()}
             </h1>
+            {isRush && (
+              <span className="inline-flex items-center gap-1 bg-orange-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
+                <Zap className="h-3 w-3" />
+                RUSH
+              </span>
+            )}
             <span
               className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                 STATUS_COLORS[order.status] ?? "bg-muted text-muted-foreground"
@@ -65,6 +123,7 @@ export default async function OperatorOrderDetailPage({ params }: Props) {
             >
               {order.status.replace(/_/g, " ")}
             </span>
+            {turnaroundEl}
           </div>
           <p className="text-muted-foreground text-sm mt-1">
             {order.couple.name} — {order.couple.email}
@@ -148,13 +207,13 @@ export default async function OperatorOrderDetailPage({ params }: Props) {
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Deposit paid:</span>
                   <span className="font-medium text-green-700">
-                    {formatCents(order.depositCents)}
+                    {fmt(order.depositCents)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Balance due:</span>
                   <span className="font-medium">
-                    {formatCents(order.balanceCents)}
+                    {fmt(order.balanceCents)}
                   </span>
                 </div>
                 {order.stripePaymentId && (
@@ -174,7 +233,7 @@ export default async function OperatorOrderDetailPage({ params }: Props) {
                         className="flex justify-between text-xs text-muted-foreground"
                       >
                         <span>{a.type.replace(/_/g, " ")}</span>
-                        <span>{formatCents(a.priceCents)}</span>
+                        <span>{fmt(a.priceCents)}</span>
                       </div>
                     ))}
                   </div>
@@ -183,8 +242,16 @@ export default async function OperatorOrderDetailPage({ params }: Props) {
             </div>
           </div>
 
-          {/* Designs */}
-          <OrderDetailClient order={order} />
+          {/* Designs + complete button */}
+          <OrderDetailClient
+            order={{
+              id:           order.id,
+              status:       order.status,
+              balanceCents: order.balanceCents,
+              coupleEmail:  order.couple.email,
+              designs:      order.designs,
+            }}
+          />
         </main>
       </div>
     </div>
@@ -192,12 +259,13 @@ export default async function OperatorOrderDetailPage({ params }: Props) {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  PENDING_PAYMENT: "bg-yellow-100 text-yellow-800",
-  PAID: "bg-blue-100 text-blue-800",
-  IN_DESIGN: "bg-purple-100 text-purple-800",
-  AWAITING_APPROVAL: "bg-orange-100 text-orange-800",
-  APPROVED: "bg-green-100 text-green-800",
-  PRINTING: "bg-cyan-100 text-cyan-800",
-  COMPLETE: "bg-gray-100 text-gray-600",
-  CANCELLED: "bg-red-100 text-red-600",
+  PENDING_PAYMENT:   "bg-gray-100 text-gray-600",
+  PAID:              "bg-green-100 text-green-700",
+  IN_DESIGN:         "bg-blue-100 text-blue-700",
+  AWAITING_APPROVAL: "bg-amber-100 text-amber-700",
+  APPROVED:          "bg-green-100 text-green-700",
+  BALANCE_PAID:      "bg-indigo-100 text-indigo-700",
+  PRINTING:          "bg-cyan-100 text-cyan-700",
+  COMPLETE:          "bg-purple-100 text-purple-700",
+  CANCELLED:         "bg-red-100 text-red-600",
 };

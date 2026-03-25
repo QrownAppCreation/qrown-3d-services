@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Upload, Send, ExternalLink, Check } from "lucide-react";
+import { Upload, Send, ExternalLink, Check, CheckCircle2, CreditCard, Link2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +25,9 @@ interface Design {
 interface Props {
   order: {
     id: string;
+    status: string;
+    balanceCents: number;
+    coupleEmail: string;
     designs: Design[];
   };
 }
@@ -40,9 +44,15 @@ const DESIGN_STATUS_COLORS: Record<string, string> = {
 };
 
 export default function OrderDetailClient({ order }: Props) {
+  const router = useRouter();
   const [designs, setDesigns] = useState(order.designs);
+  const [orderStatus, setOrderStatus] = useState(order.status);
   const [uploadingDesignId, setUploadingDesignId] = useState<string | null>(null);
   const [sendingApprovalId, setSendingApprovalId] = useState<string | null>(null);
+  const [markingComplete, setMarkingComplete] = useState(false);
+  const [collectingBalance, setCollectingBalance] = useState(false);
+  const [balanceLinkSent, setBalanceLinkSent] = useState(false);
+  const [balancePaymentUrl, setBalancePaymentUrl] = useState<string | null>(null);
   const fileInputRefs = useRef<Record<string, HTMLInputElement>>({});
 
   async function handleSTLUpload(designId: string, file: File) {
@@ -80,6 +90,41 @@ export default function OrderDetailClient({ order }: Props) {
     }
   }
 
+  async function handleMarkComplete() {
+    setMarkingComplete(true);
+    try {
+      const res = await fetch(`/api/orders/${order.id}/complete`, {
+        method: "POST",
+      });
+      if (!res.ok) throw new Error("Failed");
+      setOrderStatus("COMPLETE");
+      toast.success("Order marked as complete!");
+      router.refresh();
+    } catch {
+      toast.error("Could not mark order as complete. Please try again.");
+    } finally {
+      setMarkingComplete(false);
+    }
+  }
+
+  async function handleCollectBalance() {
+    setCollectingBalance(true);
+    try {
+      const res = await fetch(`/api/orders/${order.id}/payment-link`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Failed");
+      setBalanceLinkSent(true);
+      setBalancePaymentUrl(data.paymentUrl);
+      toast.success(`Balance payment link emailed to ${order.coupleEmail}`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not send balance link.");
+    } finally {
+      setCollectingBalance(false);
+    }
+  }
+
   async function handleSendApproval(designId: string) {
     setSendingApprovalId(designId);
     try {
@@ -107,7 +152,66 @@ export default function OrderDetailClient({ order }: Props) {
 
   return (
     <div className="space-y-4">
-      <h2 className="font-semibold text-lg">Designs</h2>
+      {/* Action bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="font-semibold text-lg">Designs</h2>
+
+        <div className="flex flex-wrap gap-2">
+          {/* Collect balance — shown when design is approved and balance not yet paid */}
+          {orderStatus === "APPROVED" && order.balanceCents > 0 && (
+            balanceLinkSent ? (
+              <div className="flex flex-col gap-1">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-green-100 text-green-700">
+                  <Check className="h-3.5 w-3.5" />
+                  Balance link emailed to {order.coupleEmail}
+                </span>
+                {balancePaymentUrl && (
+                  <a
+                    href={balancePaymentUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline px-1"
+                  >
+                    <Link2 className="h-3 w-3" />
+                    Copy / open link
+                  </a>
+                )}
+              </div>
+            ) : (
+              <Button
+                size="sm"
+                className="gap-2 border-0 text-white"
+                style={{ backgroundColor: "var(--wp-cta)" }}
+                disabled={collectingBalance}
+                onClick={handleCollectBalance}
+              >
+                <CreditCard className="h-3.5 w-3.5" />
+                {collectingBalance ? "Sending..." : "Collect balance payment"}
+              </Button>
+            )
+          )}
+
+          {/* Mark as complete */}
+          {orderStatus !== "COMPLETE" && orderStatus !== "CANCELLED" && (
+            <Button
+              size="sm"
+              className="gap-2 bg-purple-600 hover:bg-purple-700 text-white border-0"
+              disabled={markingComplete}
+              onClick={handleMarkComplete}
+            >
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              {markingComplete ? "Updating..." : "Mark as complete"}
+            </Button>
+          )}
+
+          {orderStatus === "COMPLETE" && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              Order complete
+            </span>
+          )}
+        </div>
+      </div>
 
       {designs.map((design) => {
         const photoUrls = design.photoUrls as Record<string, string> | null;

@@ -205,7 +205,7 @@ export default function Step5PaymentPage() {
               </div>
 
               <div className="mt-4 pt-4 border-t border-border space-y-2">
-                <div className="flex justify-between text-wedprint-rose font-semibold text-base">
+                <div className="flex justify-between font-semibold text-base" style={{ color: "var(--wp-cta)" }}>
                   <span>Deposit due now</span>
                   <span>{formatCents(pricing.deposit)}</span>
                 </div>
