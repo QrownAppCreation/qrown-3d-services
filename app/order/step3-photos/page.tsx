@@ -24,6 +24,7 @@ interface PhotoSlot {
 interface UploadEntry {
   url: string;
   name: string;
+  size: number; // bytes
   status: "done" | "error";
 }
 
@@ -62,7 +63,7 @@ export default function Step3PhotosPage() {
     if (draft.photoUrls) {
       const restored: Partial<Record<PhotoType, UploadEntry>> = {};
       for (const [k, v] of Object.entries(draft.photoUrls)) {
-        if (v) restored[k as PhotoType] = { url: v, name: "photo selected", status: "done" };
+        if (v) restored[k as PhotoType] = { url: v, name: "photo selected", size: 0, status: "done" };
       }
       setUploads(restored);
     }
@@ -82,7 +83,10 @@ export default function Step3PhotosPage() {
     }
     const objectUrl = URL.createObjectURL(file);
     objectUrlsRef.current.push(objectUrl);
-    setUploads((prev) => ({ ...prev, [type]: { url: objectUrl, name: file.name, status: "done" } }));
+    setUploads((prev) => ({
+      ...prev,
+      [type]: { url: objectUrl, name: file.name, size: file.size, status: "done" },
+    }));
     toast.success(`${PHOTO_SLOTS.find((s) => s.type === type)?.label} added!`);
   }, []);
 
@@ -155,15 +159,21 @@ export default function Step3PhotosPage() {
         {/* Photo upload slots */}
         <div className="space-y-3">
           <h2 className="font-semibold text-lg">Photos</h2>
-          <p className="text-sm text-muted-foreground -mt-1">
-            Drag &amp; drop a file onto a slot, or click &ldquo;Choose file&rdquo;.
+          <p className="text-sm -mt-1" style={{ color: "var(--wp-muted)" }}>
+            Click any slot or drag a photo directly onto it. JPG, PNG, WebP, and HEIC accepted.
           </p>
 
-          <div className="grid sm:grid-cols-2 gap-3">
+          <div className="grid sm:grid-cols-2 gap-4">
             {PHOTO_SLOTS.map((slot) => {
-              const upload    = uploads[slot.type];
-              const isDone    = upload?.status === "done";
-              const isOver    = dragOver === slot.type;
+              const upload = uploads[slot.type];
+              const isDone = upload?.status === "done";
+              const isOver = dragOver === slot.type;
+
+              const fileSizeLabel = upload?.size
+                ? upload.size < 1024 * 1024
+                  ? `${Math.round(upload.size / 1024)} KB`
+                  : `${(upload.size / (1024 * 1024)).toFixed(1)} MB`
+                : null;
 
               return (
                 <div
@@ -171,30 +181,32 @@ export default function Step3PhotosPage() {
                   onDragOver={(e) => !isDone && onDragOver(e, slot.type)}
                   onDragLeave={(e) => !isDone && onDragLeave(e)}
                   onDrop={(e)      => !isDone && onDrop(e, slot.type)}
+                  // Clicking anywhere on an empty zone opens the file picker
+                  onClick={() => !isDone && fileInputRefs.current[slot.type]?.click()}
                   className={cn(
-                    "rounded-xl border-2 p-4 transition-all duration-150",
+                    "rounded-2xl border-2 p-5 transition-all duration-150",
                     isDone
-                      ? "border-[var(--wp-sage)] bg-[var(--wp-sage-light)]/30"
+                      ? "border-[var(--wp-sage)] bg-[var(--wp-sage-light)]/40"
                       : isOver
-                      ? "border-[var(--wp-cta)] bg-[var(--wp-cta)]/5 scale-[1.01] shadow-md"
-                      : "border-dashed border-border hover:border-[var(--wp-sage)] hover:bg-[var(--wp-sage-light)]/20"
+                      ? "border-[var(--wp-sage)] bg-[var(--wp-sage-light)] scale-[1.01] shadow-md cursor-copy"
+                      : "border-dashed border-border hover:border-[var(--wp-sage)] hover:bg-[var(--wp-sage-light)]/20 cursor-pointer"
                   )}
                 >
-                  {/* Slot header */}
+                  {/* Header row */}
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1">
                       <div className="flex items-center gap-1.5 mb-0.5">
-                        <p className="font-medium text-sm">{slot.label}</p>
-                        {slot.required && (
-                          <span className="text-destructive text-xs">*</span>
-                        )}
+                        <p className="font-medium text-sm" style={{ color: "var(--wp-charcoal)" }}>
+                          {slot.label}
+                        </p>
+                        {slot.required && <span className="text-destructive text-xs font-bold">*</span>}
                       </div>
-                      <p className="text-muted-foreground text-xs">{slot.description}</p>
+                      <p className="text-xs" style={{ color: "var(--wp-muted)" }}>{slot.description}</p>
                     </div>
                     {isDone && (
                       <button
-                        onClick={() => removeUpload(slot.type)}
-                        className="text-muted-foreground hover:text-destructive transition-colors flex-shrink-0"
+                        onClick={(e) => { e.stopPropagation(); removeUpload(slot.type); }}
+                        className="text-muted-foreground hover:text-destructive transition-colors flex-shrink-0 p-0.5 rounded hover:bg-red-50"
                         aria-label="Remove photo"
                       >
                         <X className="h-4 w-4" />
@@ -202,57 +214,65 @@ export default function Step3PhotosPage() {
                     )}
                   </div>
 
-                  {/* Drag-over instruction */}
+                  {/* Drop-active state */}
                   {isOver && !isDone && (
-                    <div className="mt-3 flex items-center justify-center gap-2 text-wp-cta text-sm font-medium">
-                      <Upload className="h-4 w-4" />
-                      Drop to add
+                    <div className="mt-4 py-6 flex flex-col items-center justify-center gap-2"
+                         style={{ color: "var(--wp-sage)" }}>
+                      <Upload className="h-8 w-8" />
+                      <span className="text-sm font-semibold">Drop to upload</span>
                     </div>
                   )}
 
-                  {/* Thumbnail once uploaded */}
+                  {/* Thumbnail after upload */}
                   {isDone && upload?.url && (
-                    <div className="mt-3">
+                    <div className="mt-4">
                       <img
                         src={upload.url}
                         alt={slot.label}
-                        className="h-20 w-20 rounded-lg object-cover border-2 border-[var(--wp-sage)]"
+                        className="w-full h-36 rounded-xl object-cover border-2"
+                        style={{ borderColor: "var(--wp-sage)" }}
                       />
+                      <div className="mt-2 flex items-center gap-2"
+                           style={{ color: "var(--wp-sage)" }}>
+                        <Check className="h-3.5 w-3.5 flex-shrink-0" />
+                        <span className="text-xs truncate font-medium">{upload.name}</span>
+                        {fileSizeLabel && (
+                          <span className="text-xs ml-auto flex-shrink-0" style={{ color: "var(--wp-muted)" }}>
+                            {fileSizeLabel}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   )}
 
-                  {/* Status / action */}
-                  {!isOver && (
-                    <div className="mt-3">
-                      {isDone ? (
-                        <div className="flex items-center gap-2 text-sm font-medium" style={{ color: "var(--wp-sage)" }}>
-                          <Check className="h-4 w-4 flex-shrink-0" />
-                          <span className="truncate text-xs">{upload?.name}</span>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => fileInputRefs.current[slot.type]?.click()}
-                          className="flex items-center gap-2 text-sm hover:underline"
-                          style={{ color: "var(--wp-sage)" }}
-                        >
-                          <Upload className="h-4 w-4" />
-                          Choose file
-                        </button>
-                      )}
-
-                      <input
-                        ref={(el) => { if (el) fileInputRefs.current[slot.type] = el; }}
-                        type="file"
-                        accept={ALLOWED_TYPES.join(",")}
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) acceptFile(slot.type, file);
-                          e.target.value = "";
-                        }}
-                      />
+                  {/* Empty state prompt */}
+                  {!isOver && !isDone && (
+                    <div className="mt-4 py-5 flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed"
+                         style={{ borderColor: "var(--wp-border)" }}>
+                      <Upload className="h-6 w-6" style={{ color: "var(--wp-sage)" }} />
+                      <p className="text-xs text-center" style={{ color: "var(--wp-muted)" }}>
+                        <span className="font-semibold" style={{ color: "var(--wp-sage)" }}>
+                          Click or drag &amp; drop
+                        </span>
+                        <br />
+                        JPG, PNG, WebP, HEIC · max 20 MB
+                      </p>
                     </div>
                   )}
+
+                  {/* Hidden file input */}
+                  <input
+                    ref={(el) => { if (el) fileInputRefs.current[slot.type] = el; }}
+                    type="file"
+                    accept={ALLOWED_TYPES.join(",")}
+                    className="hidden"
+                    onClick={(e) => e.stopPropagation()}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) acceptFile(slot.type, file);
+                      e.target.value = "";
+                    }}
+                  />
                 </div>
               );
             })}

@@ -48,111 +48,123 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 
   /* ── WedPrint Brand Colors ─────────────────────────────────── */
-  --color-wp-sage:    var(--wp-sage);
-  --color-wp-sage-light: var(--wp-sage-light);
-  --color-wp-gold:    var(--wp-gold);
-  --color-wp-cta:     var(--wp-cta);
-  --color-wp-cta-hover: var(--wp-cta-hover);
-  --color-wp-ivory:   var(--wp-ivory);
-  --color-wp-charcoal: var(--wp-charcoal);
+  --color-wp-sage:         var(--wp-sage);
+  --color-wp-sage-light:   var(--wp-sage-light);
+  --color-wp-gold:         var(--wp-gold);
+  --color-wp-cta:          var(--wp-cta);
+  --color-wp-cta-hover:    var(--wp-cta-hover);
+  --color-wp-ivory:        var(--wp-ivory);
+  --color-wp-secondary-bg: var(--wp-secondary-bg);
+  --color-wp-charcoal:     var(--wp-charcoal);
+  --color-wp-muted:        var(--wp-muted);
+  --color-wp-border:       var(--wp-border);
 }
 
 :root {
-  /* ── Base ─────────────────────────────────────────────────────
-     #FAFAF7 ivory white as background                           */
-  --background: oklch(0.982 0.005 100);
-  --foreground: oklch(0.20 0.015 50);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.20 0.015 50);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.20 0.015 50);
+  /* ─────────────────────────────────────────────────────────────
+     WedPrint Premium Wedding Palette
+     #FAFAF7  warm ivory white   — primary background
+     #F2F5F0  soft sage tint     — secondary background / cards
+     #8B9D77  sage green         — primary accent / interactive
+     #C9A84C  warm gold          — highlights / icons
+     #C4622D  burnt orange       — CTA buttons
+     #2C2C2A  warm charcoal      — headings / dark text
+     #6B6B67  warm gray          — body / muted text
+     #E8E5DF  warm light border  — borders / dividers
+  ──────────────────────────────────────────────────────────── */
 
-  /* ── Primary: sage green #8FAF8F ──────────────────────────────
-     Used for interactive states, step indicators, checkmarks    */
-  --primary: oklch(0.685 0.072 148);
-  --primary-foreground: oklch(1 0 0);
+  /* Base */
+  --background:          #FAFAF7;
+  --foreground:          #2C2C2A;
+  --card:                #FFFFFF;
+  --card-foreground:     #2C2C2A;
+  --popover:             #FFFFFF;
+  --popover-foreground:  #2C2C2A;
 
-  /* ── Secondary: warm ivory tint ──────────────────────────────  */
-  --secondary: oklch(0.95 0.010 100);
-  --secondary-foreground: oklch(0.30 0.015 50);
+  /* Primary: sage green #8B9D77 */
+  --primary:             #8B9D77;
+  --primary-foreground:  #FFFFFF;
 
-  --muted: oklch(0.955 0.007 100);
-  --muted-foreground: oklch(0.52 0.012 50);
+  /* Secondary: soft sage tint #F2F5F0 */
+  --secondary:           #F2F5F0;
+  --secondary-foreground:#2C2C2A;
 
-  /* ── Accent: gold tint ────────────────────────────────────── */
-  --accent: oklch(0.92 0.040 80);
-  --accent-foreground: oklch(0.30 0.050 70);
+  /* Muted */
+  --muted:               #F2F5F0;
+  --muted-foreground:    #6B6B67;
 
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.898 0.012 100);
-  --input: oklch(0.918 0.010 100);
-  --ring: oklch(0.685 0.072 148);
-  --radius: 0.75rem;
+  /* Accent: very light sage */
+  --accent:              #EEF2E8;
+  --accent-foreground:   #4A5C3A;
 
-  /* ── WedPrint brand palette ───────────────────────────────────
-     sage   #8FAF8F  → oklch(0.685 0.072 148)
-     gold   #C9A84C  → oklch(0.715 0.115 78)
-     cta    #C4622D  → oklch(0.555 0.155 44)
-     ivory  #FAFAF7  → oklch(0.982 0.005 100)
-     charcoal        → oklch(0.22 0.015 50)               */
-  --wp-sage:        oklch(0.685 0.072 148);
-  --wp-sage-light:  oklch(0.90 0.040 148);
-  --wp-gold:        oklch(0.715 0.115 78);
-  --wp-cta:         oklch(0.555 0.155 44);
-  --wp-cta-hover:   oklch(0.490 0.145 44);
-  --wp-ivory:       oklch(0.982 0.005 100);
-  --wp-charcoal:    oklch(0.220 0.015 50);
+  --destructive:         #C0392B;
+  --border:              #E8E5DF;
+  --input:               #E8E5DF;
+  --ring:                #8B9D77;
+  --radius:              0.75rem;
+
+  /* ── WedPrint Brand Palette ───────────────────────────────── */
+  --wp-sage:          #8B9D77;
+  --wp-sage-light:    #EEF2E8;
+  --wp-gold:          #C9A84C;
+  --wp-cta:           #C4622D;
+  --wp-cta-hover:     #A8501F;
+  --wp-ivory:         #FAFAF7;
+  --wp-secondary-bg:  #F2F5F0;
+  --wp-charcoal:      #2C2C2A;
+  --wp-muted:         #6B6B67;
+  --wp-border:        #E8E5DF;
 
   /* Charts */
-  --chart-1: oklch(0.685 0.072 148);
-  --chart-2: oklch(0.715 0.115 78);
-  --chart-3: oklch(0.555 0.155 44);
-  --chart-4: oklch(0.90 0.040 148);
-  --chart-5: oklch(0.220 0.015 50);
+  --chart-1: #8B9D77;
+  --chart-2: #C9A84C;
+  --chart-3: #C4622D;
+  --chart-4: #EEF2E8;
+  --chart-5: #2C2C2A;
 
-  /* Operator sidebar stays dark */
-  --sidebar: oklch(0.220 0.015 50);
-  --sidebar-foreground: oklch(0.95 0 0);
-  --sidebar-primary: oklch(0.685 0.072 148);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.310 0.015 50);
-  --sidebar-accent-foreground: oklch(0.95 0 0);
-  --sidebar-border: oklch(0.330 0.015 50);
-  --sidebar-ring: oklch(0.685 0.072 148);
+  /* Operator sidebar — stays dark charcoal */
+  --sidebar:                  #2C2C2A;
+  --sidebar-foreground:       #F5F4F1;
+  --sidebar-primary:          #8B9D77;
+  --sidebar-primary-foreground:#FFFFFF;
+  --sidebar-accent:           #3D3D3B;
+  --sidebar-accent-foreground:#F5F4F1;
+  --sidebar-border:           #3D3D3B;
+  --sidebar-ring:             #8B9D77;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.685 0.072 148);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.685 0.072 148);
-  --chart-1: oklch(0.685 0.072 148);
-  --chart-2: oklch(0.715 0.115 78);
-  --chart-3: oklch(0.555 0.155 44);
-  --chart-4: oklch(0.90 0.040 148);
-  --chart-5: oklch(0.220 0.015 50);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.685 0.072 148);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.685 0.072 148);
+  --background:         #1A1A18;
+  --foreground:         #F5F4F1;
+  --card:               #242422;
+  --card-foreground:    #F5F4F1;
+  --popover:            #242422;
+  --popover-foreground: #F5F4F1;
+  --primary:            #8B9D77;
+  --primary-foreground: #FFFFFF;
+  --secondary:          #2E2E2C;
+  --secondary-foreground:#F5F4F1;
+  --muted:              #2E2E2C;
+  --muted-foreground:   #9A9A96;
+  --accent:             #2E2E2C;
+  --accent-foreground:  #F5F4F1;
+  --destructive:        #E74C3C;
+  --border:             rgba(255,255,255,0.1);
+  --input:              rgba(255,255,255,0.15);
+  --ring:               #8B9D77;
+  --chart-1: #8B9D77;
+  --chart-2: #C9A84C;
+  --chart-3: #C4622D;
+  --chart-4: #EEF2E8;
+  --chart-5: #2C2C2A;
+  --sidebar:                  #242422;
+  --sidebar-foreground:       #F5F4F1;
+  --sidebar-primary:          #8B9D77;
+  --sidebar-primary-foreground:#FFFFFF;
+  --sidebar-accent:           #2E2E2C;
+  --sidebar-accent-foreground:#F5F4F1;
+  --sidebar-border:           rgba(255,255,255,0.1);
+  --sidebar-ring:             #8B9D77;
 }
 
 @layer base {
@@ -169,59 +181,46 @@
 
 /* ── WedPrint Utility Classes ─────────────────────────────────────────────── */
 @layer utilities {
-  /* Ivory → light sage gradient used in hero and CTA sections */
+  /* Ivory → light sage gradient — hero, CTA sections */
   .wedding-gradient {
     background: linear-gradient(
       135deg,
-      oklch(0.982 0.005 100) 0%,
-      oklch(0.945 0.025 120) 50%,
-      oklch(0.90 0.040 148) 100%
+      #FAFAF7 0%,
+      #F2F5F0 50%,
+      #EEF2E8 100%
     );
   }
 
   /* CTA button — burnt orange #C4622D */
   .btn-cta {
     background-color: var(--wp-cta);
-    color: oklch(1 0 0);
+    color: #FFFFFF;
   }
   .btn-cta:hover {
     background-color: var(--wp-cta-hover);
   }
 
-  /* Gold highlight text */
-  .text-wp-gold {
-    color: var(--wp-gold);
-  }
+  /* Text utilities */
+  .text-wp-gold    { color: var(--wp-gold);     }
+  .text-wp-sage    { color: var(--wp-sage);     }
+  .text-wp-cta     { color: var(--wp-cta);      }
+  .text-wp-charcoal{ color: var(--wp-charcoal); }
+  .text-wp-muted   { color: var(--wp-muted);    }
 
-  .text-wp-sage {
-    color: var(--wp-sage);
-  }
+  /* Background utilities */
+  .bg-wp-ivory        { background-color: var(--wp-ivory);        }
+  .bg-wp-secondary    { background-color: var(--wp-secondary-bg); }
+  .bg-wp-sage-light   { background-color: var(--wp-sage-light);   }
+  .bg-wp-charcoal     { background-color: var(--wp-charcoal);     }
 
-  .text-wp-cta {
-    color: var(--wp-cta);
-  }
+  /* Border utilities */
+  .border-wp-sage   { border-color: var(--wp-sage);   }
+  .border-wp-border { border-color: var(--wp-border); }
 
-  .bg-wp-sage-light {
-    background-color: var(--wp-sage-light);
-  }
+  .text-balance { text-wrap: balance; }
 
-  .border-wp-sage {
-    border-color: var(--wp-sage);
-  }
-
-  .text-balance {
-    text-wrap: balance;
-  }
-
-  .step-indicator-active {
-    @apply bg-primary text-primary-foreground;
-  }
-
-  .step-indicator-complete {
-    @apply bg-green-600 text-white;
-  }
-
-  .step-indicator-inactive {
-    @apply bg-muted text-muted-foreground;
-  }
+  /* Wizard step indicators */
+  .step-indicator-active   { @apply bg-primary text-primary-foreground; }
+  .step-indicator-complete { @apply bg-green-600 text-white; }
+  .step-indicator-inactive { @apply bg-muted text-muted-foreground; }
 }

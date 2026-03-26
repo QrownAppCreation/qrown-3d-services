@@ -14,9 +14,9 @@ import {
 import { ArrowLeft, ArrowRight, Minus, Plus } from "lucide-react";
 
 const SIZES = [
-  { value: "small", label: "Small (10cm)", priceMod: 0 },
-  { value: "standard", label: "Standard (14cm)", priceMod: 1000 },
-  { value: "large", label: "Large (18cm)", priceMod: 2000 },
+  { value: "small",    label: "Small",    mm: "100mm", priceMod: 0    },
+  { value: "standard", label: "Standard", mm: "140mm", priceMod: 1000 },
+  { value: "large",    label: "Large",    mm: "180mm", priceMod: 2000 },
 ];
 
 export default function Step2ProductsPage() {
@@ -56,7 +56,13 @@ export default function Step2ProductsPage() {
           <div className="flex items-start gap-4">
             <span className="text-4xl">🎂</span>
             <div className="flex-1">
-              <h3 className="font-semibold text-xl mb-1">Custom Cake Topper</h3>
+              <div className="flex items-start justify-between flex-wrap gap-2 mb-1">
+                <h3 className="font-semibold text-xl">Custom Cake Topper</h3>
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full border"
+                      style={{ borderColor: "var(--wp-sage)", color: "var(--wp-sage)", background: "var(--wp-sage-light)" }}>
+                  100–180mm tall
+                </span>
+              </div>
               <p className="text-muted-foreground text-sm mb-4">
                 A personalised 3D printed miniature of you two, designed from
                 your photos. Printed in food-safe PLA with optional hand-painted
@@ -78,12 +84,10 @@ export default function Step2ProductsPage() {
                           : "border-border bg-white hover:border-primary/50"
                       )}
                     >
-                      <div>{size.label.split(" ")[0]}</div>
-                      <div className="text-xs opacity-70">
-                        {size.label.split(" ")[1]}
-                      </div>
+                      <div>{size.label}</div>
+                      <div className="text-xs opacity-75 font-normal mt-0.5">{size.mm} tall</div>
                       {size.priceMod > 0 && (
-                        <div className="text-xs mt-0.5">
+                        <div className="text-xs mt-0.5 font-normal">
                           +{formatCents(size.priceMod)}
                         </div>
                       )}
