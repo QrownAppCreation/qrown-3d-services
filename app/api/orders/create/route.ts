@@ -195,7 +195,11 @@ export async function POST(req: NextRequest) {
     });
 
     // ── Emails (fire immediately — does not require Stripe webhook) ──────────
-    const resend = new Resend(process.env.RESEND_API_KEY);
+    // FROM_EMAIL must be a verified Resend sender in production.
+    // Set FROM_EMAIL=hello@wedprint3d.com in Vercel env vars after domain verification.
+    // In development "onboarding@resend.dev" works without domain verification.
+    const resend    = new Resend(process.env.RESEND_API_KEY);
+    const FROM_ADDR = process.env.FROM_EMAIL ?? "onboarding@resend.dev";
     const shortId = order.id.slice(-8).toUpperCase();
     const fmt = (c: number) =>
       new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(c / 100);
@@ -204,7 +208,7 @@ export async function POST(req: NextRequest) {
     console.log(`[orders/create] Sending confirmation email to ${email} …`);
     try {
       const customerResult = await resend.emails.send({
-        from:    "onboarding@resend.dev",
+        from:    FROM_ADDR,
         to:      email,
         subject: "Your WedPrint order is confirmed!",
         html: `
@@ -258,7 +262,7 @@ export async function POST(req: NextRequest) {
     console.log(`[orders/create] Sending operator alert to ${OPERATOR_EMAIL} …`);
     try {
       const operatorResult = await resend.emails.send({
-        from:    "onboarding@resend.dev",
+        from:    FROM_ADDR,
         to:      OPERATOR_EMAIL,
         subject: "New WedPrint order received",
         html: `

@@ -226,18 +226,103 @@ export default function HomePage() {
       </section>
 
       {/* ── Footer ────────────────────────────────────────────────── */}
-      <footer className="py-10 px-4 text-white" style={{ backgroundColor: "var(--wp-charcoal)" }}>
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Heart className="h-4 w-4 fill-current" />
-            <span className="font-bold">WedPrint</span>
+      <footer style={{ backgroundColor: "var(--wp-charcoal)" }}>
+        <div className="max-w-6xl mx-auto px-6 pt-14 pb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 mb-12">
+
+            {/* Brand */}
+            <div className="sm:col-span-2 md:col-span-1 space-y-4">
+              <div className="flex items-center gap-2 text-white">
+                <Heart className="h-5 w-5 fill-current" style={{ color: "var(--wp-cta)" }} />
+                <span className="font-bold text-xl tracking-tight">WedPrint</span>
+              </div>
+              <p className="text-white/50 text-sm leading-relaxed">
+                Custom 3D printed wedding keepsakes, handcrafted from your photos.
+                Serving the Miami area.
+              </p>
+              {/* Social placeholders */}
+              <div className="flex items-center gap-3">
+                {[
+                  { label: "Instagram", href: "https://instagram.com/wedprint3d", icon: "📸" },
+                  { label: "Facebook",  href: "https://facebook.com/wedprint3d",  icon: "📘" },
+                  { label: "TikTok",    href: "https://tiktok.com/@wedprint3d",   icon: "🎵" },
+                ].map((s) => (
+                  <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
+                     title={s.label}
+                     className="w-9 h-9 rounded-full flex items-center justify-center text-sm bg-white/10 hover:bg-white/20 transition-colors">
+                    {s.icon}
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* Quick links */}
+            <div>
+              <h4 className="text-white font-semibold text-sm mb-4 uppercase tracking-wider">Quick links</h4>
+              <ul className="space-y-2.5">
+                {[
+                  { label: "Home",            href: "/" },
+                  { label: "Start your order", href: "/order/step1-style" },
+                  { label: "Track my order",  href: "/track-order" },
+                  { label: "Contact us",      href: "/contact" },
+                ].map((l) => (
+                  <li key={l.label}>
+                    <Link href={l.href} className="text-white/50 text-sm hover:text-white/90 transition-colors">
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Products */}
+            <div>
+              <h4 className="text-white font-semibold text-sm mb-4 uppercase tracking-wider">Products</h4>
+              <ul className="space-y-2.5">
+                {[
+                  "Cake Toppers",
+                  "Bridal Party Gifts",
+                  "Guest Favours",
+                  "Fridge Magnets",
+                ].map((p) => (
+                  <li key={p}>
+                    <Link href="/order/step1-style" className="text-white/50 text-sm hover:text-white/90 transition-colors">
+                      {p}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Support */}
+            <div>
+              <h4 className="text-white font-semibold text-sm mb-4 uppercase tracking-wider">Support</h4>
+              <ul className="space-y-2.5">
+                <li>
+                  <a href="mailto:support@wedprint3d.com"
+                     className="text-white/50 text-sm hover:text-white/90 transition-colors">
+                    support@wedprint3d.com
+                  </a>
+                </li>
+                <li><Link href="/contact"  className="text-white/50 text-sm hover:text-white/90 transition-colors">Contact form</Link></li>
+                <li><Link href="/privacy"  className="text-white/50 text-sm hover:text-white/90 transition-colors">Privacy Policy</Link></li>
+                <li><Link href="/terms"    className="text-white/50 text-sm hover:text-white/90 transition-colors">Terms of Service</Link></li>
+              </ul>
+            </div>
           </div>
-          <p className="text-white/50 text-sm">
-            © {new Date().getFullYear()} WedPrint · wedprint3d.com · Made with love.
-          </p>
-          <Link href="/operator/login" className="text-white/30 text-xs hover:text-white/60 transition-colors">
-            Operator login
-          </Link>
+
+          {/* Bottom bar */}
+          <div className="border-t pt-6 flex flex-col sm:flex-row items-center justify-between gap-3"
+               style={{ borderColor: "rgba(255,255,255,0.1)" }}>
+            <p className="text-white/30 text-xs">
+              © {new Date().getFullYear()} WedPrint. All rights reserved. · wedprint3d.com
+            </p>
+            <div className="flex items-center gap-4">
+              <Link href="/privacy" className="text-white/30 text-xs hover:text-white/60 transition-colors">Privacy</Link>
+              <Link href="/terms"   className="text-white/30 text-xs hover:text-white/60 transition-colors">Terms</Link>
+              <Link href="/operator/login" className="text-white/20 text-xs hover:text-white/50 transition-colors">Operator</Link>
+            </div>
+          </div>
         </div>
       </footer>
     </div>

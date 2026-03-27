@@ -22,6 +22,9 @@ interface Design {
   photoUrls: unknown;
 }
 
+interface UploadMeta { fileName: string; uploadedAt: string; }
+interface ApprovalMeta { sentAt: string; }
+
 interface Props {
   order: {
     id: string;
@@ -50,6 +53,9 @@ export default function OrderDetailClient({ order }: Props) {
   const [uploadingDesignId, setUploadingDesignId] = useState<string | null>(null);
   const [sendingApprovalId, setSendingApprovalId] = useState<string | null>(null);
   const [markingComplete, setMarkingComplete] = useState(false);
+  const [stlMeta,    setStlMeta]    = useState<Record<string, UploadMeta>>({});
+  const [approvalMeta, setApprovalMeta] = useState<Record<string, ApprovalMeta>>({});
+  const [completedAt, setCompletedAt] = useState<string | null>(null);
   const [collectingBalance, setCollectingBalance] = useState(false);
   const [balanceLinkSent, setBalanceLinkSent] = useState(false);
   const [balancePaymentUrl, setBalancePaymentUrl] = useState<string | null>(null);
@@ -81,8 +87,12 @@ export default function OrderDetailClient({ order }: Props) {
           d.id === designId ? { ...d, stlUrl: data.stlUrl, status: "REVIEW" } : d
         )
       );
+      setStlMeta((prev) => ({
+        ...prev,
+        [designId]: { fileName: data.fileName ?? file.name, uploadedAt: data.uploadedAt ?? new Date().toISOString() },
+      }));
 
-      toast.success("STL uploaded successfully! Status updated to REVIEW.");
+      toast.success("STL uploaded! Status updated to REVIEW.");
     } catch {
       toast.error("Upload failed. Please try again.");
     } finally {
@@ -98,7 +108,8 @@ export default function OrderDetailClient({ order }: Props) {
       });
       if (!res.ok) throw new Error("Failed");
       setOrderStatus("COMPLETE");
-      toast.success("Order marked as complete!");
+      setCompletedAt(new Date().toISOString());
+      toast.success("Order marked as complete! Completion email sent to couple.");
       router.refresh();
     } catch {
       toast.error("Could not mark order as complete. Please try again.");
@@ -141,6 +152,10 @@ export default function OrderDetailClient({ order }: Props) {
           d.id === designId ? { ...d, status: "CLIENT_SENT" } : d
         )
       );
+      setApprovalMeta((prev) => ({
+        ...prev,
+        [designId]: { sentAt: new Date().toISOString() },
+      }));
 
       toast.success("Approval email sent to the couple!");
     } catch {
@@ -205,10 +220,17 @@ export default function OrderDetailClient({ order }: Props) {
           )}
 
           {orderStatus === "COMPLETE" && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
-              <CheckCircle2 className="h-3.5 w-3.5" />
-              Order complete
-            </span>
+            <div className="flex flex-col items-end gap-0.5">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                Order complete
+              </span>
+              {completedAt && (
+                <span className="text-[11px] text-muted-foreground">
+                  Completed {new Date(completedAt).toLocaleString()}
+                </span>
+              )}
+            </div>
           )}
         </div>
       </div>
@@ -251,16 +273,25 @@ export default function OrderDetailClient({ order }: Props) {
               </div>
 
               {design.stlUrl && (
-                <a
-                  href={design.stlUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Button variant="outline" size="sm" className="gap-1.5">
-                    <ExternalLink className="h-3.5 w-3.5" />
-                    Download STL
-                  </Button>
-                </a>
+                <div className="flex flex-col items-end gap-0.5">
+                  {design.stlUrl.startsWith("local://") ? (
+                    <span className="inline-flex items-center gap-1.5 text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full border border-blue-200">
+                      📎 {design.stlUrl.replace("local://", "")}
+                    </span>
+                  ) : (
+                    <a href={design.stlUrl} target="_blank" rel="noopener noreferrer">
+                      <Button variant="outline" size="sm" className="gap-1.5">
+                        <ExternalLink className="h-3.5 w-3.5" />
+                        Download STL
+                      </Button>
+                    </a>
+                  )}
+                  {stlMeta[design.id] && (
+                    <span className="text-[11px] text-muted-foreground text-right">
+                      {stlMeta[design.id].fileName} · uploaded {new Date(stlMeta[design.id].uploadedAt).toLocaleString()}
+                    </span>
+                  )}
+                </div>
               )}
             </div>
 
@@ -370,9 +401,16 @@ export default function OrderDetailClient({ order }: Props) {
                 )}
 
               {design.status === "CLIENT_SENT" && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Check className="h-4 w-4 text-green-500" />
-                  Approval email sent — waiting for client response
+                <div className="flex flex-col gap-0.5">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Check className="h-4 w-4 text-green-500" />
+                    Approval email sent — waiting for client
+                  </div>
+                  {approvalMeta[design.id] && (
+                    <span className="text-[11px] text-muted-foreground ml-6">
+                      Sent {new Date(approvalMeta[design.id].sentAt).toLocaleString()}
+                    </span>
+                  )}
                 </div>
               )}
 

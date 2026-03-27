@@ -12,7 +12,12 @@ function getResend(): Resend {
   return _resend;
 }
 
-const FROM = process.env.FROM_EMAIL ?? "hello@wedprint.com";
+// IMPORTANT — Resend domain verification required before going live:
+// 1. Go to https://resend.com/domains and add "wedprint3d.com"
+// 2. Resend will give you TXT + MX DNS records to add in Namecheap
+// 3. Once verified, set FROM_EMAIL=hello@wedprint3d.com in your .env / Vercel env vars
+// 4. In development you can use "onboarding@resend.dev" with no verification needed
+const FROM = process.env.FROM_EMAIL ?? "onboarding@resend.dev";
 const OPERATOR_EMAIL = process.env.OPERATOR_EMAIL ?? "";
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
