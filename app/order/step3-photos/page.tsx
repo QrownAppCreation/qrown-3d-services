@@ -135,7 +135,7 @@ export default function Step3PhotosPage() {
   }
 
   return (
-    <WizardLayout currentStep={3}>
+    <WizardLayout currentStep={4}>
       <div className="space-y-8">
 
         <div>
@@ -346,7 +346,7 @@ export default function Step3PhotosPage() {
           <Button
             variant="outline"
             size="lg"
-            onClick={() => router.push("/order/step2-products")}
+            onClick={() => router.push("/order/step3-color")}
             className="gap-2"
           >
             <ArrowLeft className="h-4 w-4" />

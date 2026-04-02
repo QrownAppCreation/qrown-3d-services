@@ -13,6 +13,7 @@ import {
   formatCents,
   ADDON_LABELS,
   ADDON_PRICES,
+  COLOR_TIER_PRICES,
   type AddOnKey,
 } from "@/lib/order-store";
 import { ArrowLeft, CreditCard, Shield } from "lucide-react";
@@ -88,7 +89,7 @@ export default function Step5PaymentPage() {
   }
 
   return (
-    <WizardLayout currentStep={5}>
+    <WizardLayout currentStep={6}>
       <div className="space-y-8">
         <div>
           <h1 className="text-3xl font-bold mb-2">Review & pay</h1>
@@ -159,15 +160,23 @@ export default function Step5PaymentPage() {
               <h3 className="font-semibold mb-4">Order summary</h3>
 
               <div className="space-y-2 text-sm">
+                {/* Color tier badge */}
+                {draft.colorTier && (
+                  <div className="flex items-center justify-between pb-2 mb-1 border-b border-border">
+                    <span className="text-muted-foreground">Color tier</span>
+                    <span className="font-semibold text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
+                      {COLOR_TIER_PRICES[draft.colorTier].label.toUpperCase()}
+                      {" · "}
+                      {COLOR_TIER_PRICES[draft.colorTier].colors === 4 ? "4+ colors" : `${COLOR_TIER_PRICES[draft.colorTier].colors} color${COLOR_TIER_PRICES[draft.colorTier].colors > 1 ? "s" : ""}`}
+                    </span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">
-                    {draft.styleTier
-                      ? `${draft.styleTier.charAt(0) + draft.styleTier.slice(1).toLowerCase()} cake topper`
-                      : "Cake topper"}{" "}
-                    ×{draft.quantity ?? 1}
+                    Cake topper ×{draft.quantity ?? 1}
                   </span>
                   <span>
-                    {formatCents((draft.quantity ?? 1) * 7900)}
+                    {formatCents(COLOR_TIER_PRICES[draft.colorTier ?? "CLASSIC"].CAKE_TOPPER * (draft.quantity ?? 1))}
                   </span>
                 </div>
 

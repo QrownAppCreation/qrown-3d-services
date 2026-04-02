@@ -8,7 +8,21 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Heart, Zap } from "lucide-react";
+import { ArrowLeft, Heart, Zap, Layers } from "lucide-react";
+
+const COLOR_TIER_BADGE: Record<string, string> = {
+  CLASSIC:   "bg-gray-100 text-gray-700 border border-gray-200",
+  DUO:       "bg-blue-100 text-blue-700 border border-blue-200",
+  SIGNATURE: "bg-purple-100 text-purple-700 border border-purple-200",
+  HEIRLOOM:  "bg-amber-100 text-amber-800 border border-amber-200",
+};
+
+const COLOR_TIER_FILAMENT: Record<string, string> = {
+  CLASSIC:   "1 filament — no changes needed",
+  DUO:       "2 filaments — 1 change",
+  SIGNATURE: "3 filaments — 2 changes (Bambu X1C only)",
+  HEIRLOOM:  "4+ filaments — 3+ changes (Bambu X1C only)",
+};
 import OrderDetailClient from "./OrderDetailClient";
 
 function fmt(cents: number) {
@@ -52,7 +66,9 @@ export default async function OperatorOrderDetailPage({ params }: Props) {
 
   if (!order) notFound();
 
-  const isRush = order.addOns.some((a) => a.type === "RUSH_ORDER");
+  const isRush      = order.addOns.some((a) => a.type === "RUSH_ORDER");
+  const colorTier   = order.colorTier as string;
+  const needsX1C    = colorTier === "SIGNATURE" || colorTier === "HEIRLOOM";
   const days   = daysUntil(order.weddingDate);
 
   // Turnaround badge config
@@ -104,6 +120,24 @@ export default async function OperatorOrderDetailPage({ params }: Props) {
             </div>
           </div>
         )}
+
+        {/* Color tier / filament prep banner */}
+        <div className={`px-8 py-3 flex items-center gap-3 ${needsX1C ? "bg-purple-50 border-b border-purple-100" : "bg-gray-50 border-b border-gray-100"}`}>
+          <Layers className={`h-4 w-4 flex-shrink-0 ${needsX1C ? "text-purple-500" : "text-gray-400"}`} />
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${COLOR_TIER_BADGE[colorTier] ?? "bg-muted text-muted-foreground"}`}>
+              {colorTier} TIER
+            </span>
+            <span className={`text-xs ${needsX1C ? "text-purple-700 font-medium" : "text-gray-500"}`}>
+              {COLOR_TIER_FILAMENT[colorTier] ?? "—"}
+            </span>
+            {needsX1C && (
+              <span className="text-xs font-semibold text-white bg-purple-600 px-2 py-0.5 rounded">
+                Route to Bambu X1C
+              </span>
+            )}
+          </div>
+        </div>
 
         <header className={`bg-white border-b border-border px-8 py-5 ${isRush ? "border-t-2 border-t-orange-400" : ""}`}>
           <div className="flex items-center gap-3 flex-wrap">

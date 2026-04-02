@@ -17,6 +17,22 @@ import {
 } from "lucide-react";
 import { signOut } from "@/lib/auth";
 
+// ── Color tier helpers ────────────────────────────────────────────────────────
+
+const COLOR_TIER_BADGE: Record<string, string> = {
+  CLASSIC:   "bg-gray-100 text-gray-600",
+  DUO:       "bg-blue-100 text-blue-700",
+  SIGNATURE: "bg-purple-100 text-purple-700",
+  HEIRLOOM:  "bg-amber-100 text-amber-700",
+};
+
+const COLOR_TIER_FILAMENT: Record<string, { count: string; note: string; printer: string }> = {
+  CLASSIC:   { count: "1 filament",   note: "no changes needed",  printer: "Any printer"       },
+  DUO:       { count: "2 filaments",  note: "1 change",           printer: "Any printer"       },
+  SIGNATURE: { count: "3 filaments",  note: "2 changes",          printer: "Bambu X1C only"    },
+  HEIRLOOM:  { count: "4+ filaments", note: "3+ changes",         printer: "Bambu X1C only"    },
+};
+
 // ── Constants ────────────────────────────────────────────────────────────────
 
 const STATUS_COLORS: Record<string, string> = {
@@ -69,6 +85,7 @@ export default async function OperatorDashboardPage() {
   // ── Fetch ─────────────────────────────────────────────────────────────────
   const raw = await db.order.findMany({
     include: { couple: true, designs: true, addOns: true },
+    orderBy: { createdAt: "desc" },
   });
 
   // ── Sort: rush first → wedding date asc (no date = Infinity) → createdAt asc
@@ -94,6 +111,16 @@ export default async function OperatorDashboardPage() {
   const revenueMonth = orders
     .filter((o) => o.status !== "CANCELLED" && o.createdAt >= monthStart)
     .reduce((sum, o) => sum + o.depositCents, 0);
+
+  // Revenue breakdown by color tier
+  const tierRevenue = (["CLASSIC", "DUO", "SIGNATURE", "HEIRLOOM"] as const).map((tier) => {
+    const tierOrders = orders.filter((o) => o.colorTier === tier && o.status !== "CANCELLED");
+    return {
+      tier,
+      count:   tierOrders.length,
+      revenue: tierOrders.reduce((s, o) => s + o.depositCents, 0),
+    };
+  });
 
   // ── Shared row renderer ───────────────────────────────────────────────────
   function OrderRow({ order }: { order: typeof orders[number] }) {
@@ -136,15 +163,35 @@ export default async function OperatorDashboardPage() {
           </span>
         </td>
 
-        {/* Products */}
+        {/* Products + color tier */}
         <td className="px-5 py-4">
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-1 mb-1.5">
             {order.designs.map((d) => (
               <span key={d.id} className="text-xs bg-muted px-2 py-0.5 rounded-full">
                 {d.category.replace(/_/g, " ")} ×{d.quantity}
               </span>
             ))}
           </div>
+          {order.colorTier && (() => {
+            const tier    = order.colorTier as string;
+            const filament = COLOR_TIER_FILAMENT[tier];
+            const needsX1C = tier === "SIGNATURE" || tier === "HEIRLOOM";
+            return (
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${COLOR_TIER_BADGE[tier] ?? "bg-muted text-muted-foreground"}`}>
+                  {tier}
+                </span>
+                <span className="text-[10px] text-muted-foreground">
+                  {filament?.count} · {filament?.note}
+                </span>
+                {needsX1C && (
+                  <span className="text-[10px] font-semibold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded">
+                    X1C
+                  </span>
+                )}
+              </div>
+            );
+          })()}
         </td>
 
         {/* Deposit */}
@@ -229,9 +276,37 @@ export default async function OperatorDashboardPage() {
 
       {/* ── Main ──────────────────────────────────────────────────── */}
       <div className="pl-56">
+        {/* Stripe mode banner */}
+        {(() => {
+          const key = process.env.STRIPE_SECRET_KEY ?? "";
+          if (key.startsWith("sk_live_")) {
+            return (
+              <div className="bg-green-600 text-white px-8 py-2 text-xs font-semibold flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-green-200 animate-pulse inline-block" />
+                LIVE MODE — Taking real payments
+              </div>
+            );
+          }
+          return (
+            <div className="bg-amber-500 text-white px-8 py-2 text-xs font-semibold flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-amber-200 animate-pulse inline-block" />
+              TEST MODE — Stripe is in test mode · No real payments are being taken
+            </div>
+          );
+        })()}
+
         <header className="bg-white border-b border-border px-8 py-5">
-          <h1 className="text-2xl font-bold">Order Queue</h1>
-          <p className="text-muted-foreground text-sm">Manage all WedPrint orders</p>
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <h1 className="text-2xl font-bold">Order Queue</h1>
+              <p className="text-muted-foreground text-sm">Manage all WedPrint orders</p>
+            </div>
+            <Link href="/operator/launch-checklist">
+              <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+                🚀 Launch checklist
+              </Button>
+            </Link>
+          </div>
         </header>
 
         <main className="p-8 space-y-6">
@@ -266,6 +341,25 @@ export default async function OperatorDashboardPage() {
                 <span className="text-sm text-muted-foreground font-medium">Revenue this month</span>
               </div>
               <p className="text-3xl font-bold">{fmt(revenueMonth)}</p>
+            </div>
+          </div>
+
+          {/* ── Color tier revenue breakdown ── */}
+          <div className="bg-white rounded-2xl border border-border p-5">
+            <h3 className="font-semibold text-sm mb-4">Revenue by color tier</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {tierRevenue.map(({ tier, count, revenue }) => (
+                <div key={tier} className="text-center">
+                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${COLOR_TIER_BADGE[tier]}`}>
+                    {tier}
+                  </span>
+                  <p className="text-xl font-bold mt-2">{fmt(revenue)}</p>
+                  <p className="text-xs text-muted-foreground">{count} order{count !== 1 ? "s" : ""}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">
+                    {COLOR_TIER_FILAMENT[tier]?.count}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
 

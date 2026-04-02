@@ -82,7 +82,7 @@ export default function Step4AddonsPage() {
   }
 
   return (
-    <WizardLayout currentStep={4}>
+    <WizardLayout currentStep={5}>
       <div className="space-y-8">
         <div>
           <h1 className="text-3xl font-bold mb-2">Finishing touches</h1>

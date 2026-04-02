@@ -121,6 +121,7 @@ export async function POST(req: NextRequest) {
           depositCents,
           balanceCents,
           styleTier:    (draft.styleTier as StyleTier) ?? "ELEGANT",
+          colorTier:    (draft.colorTier as "CLASSIC" | "DUO" | "SIGNATURE" | "HEIRLOOM") ?? "CLASSIC",
           weddingDate:  draft.weddingDate ? new Date(draft.weddingDate) : null,
           colorPalette: draft.colorPalette ?? null,
           styleNotes:   draft.styleNotes   ?? null,

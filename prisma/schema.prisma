@@ -71,6 +71,13 @@ enum StyleTier {
   CUSTOM
 }
 
+enum ColorTier {
+  CLASSIC
+  DUO
+  SIGNATURE
+  HEIRLOOM
+}
+
 enum AddOnType {
   HAND_PAINTING
   GIFT_BOX
@@ -109,6 +116,7 @@ model Order {
   colorPalette     String?
   styleNotes       String?
   styleTier        StyleTier   @default(ELEGANT)
+  colorTier        ColorTier   @default(CLASSIC)
   createdAt        DateTime    @default(now())
 
   couple           Couple      @relation(fields: [coupleId], references: [id])

@@ -16,6 +16,11 @@ export default function HomePage() {
             <span className="font-bold text-xl tracking-tight" style={{ color: "var(--wp-charcoal)" }}>WedPrint</span>
           </div>
           <div className="flex items-center gap-3">
+            <Link href="/pricing">
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                Pricing
+              </Button>
+            </Link>
             <Link href="/track-order">
               <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
                 Track my order
@@ -261,10 +266,11 @@ export default function HomePage() {
               <h4 className="text-white font-semibold text-sm mb-4 uppercase tracking-wider">Quick links</h4>
               <ul className="space-y-2.5">
                 {[
-                  { label: "Home",            href: "/" },
+                  { label: "Home",             href: "/" },
+                  { label: "Pricing",          href: "/pricing" },
                   { label: "Start your order", href: "/order/step1-style" },
-                  { label: "Track my order",  href: "/track-order" },
-                  { label: "Contact us",      href: "/contact" },
+                  { label: "Track my order",   href: "/track-order" },
+                  { label: "Contact us",       href: "/contact" },
                 ].map((l) => (
                   <li key={l.label}>
                     <Link href={l.href} className="text-white/50 text-sm hover:text-white/90 transition-colors">
@@ -336,33 +342,33 @@ const PRODUCTS = [
     icon: "🎂",
     name: "Cake Toppers",
     description: "Custom miniature figures of you and your partner, crafted from your photos.",
-    price: "From $79",
+    price: "From $79 to $154",
     size: "100–180mm tall",
-    note: null,
+    note: "1 to 4+ colors",
   },
   {
     icon: "💝",
     name: "Bridal Party Gifts",
     description: "Personalised keepsakes for your bridesmaids, groomsmen, and flower girls.",
-    price: "From $49 each",
+    price: "From $49 to $95",
     size: "80–150mm tall",
-    note: null,
+    note: "per piece · 1 to 4+ colors",
   },
   {
     icon: "🎁",
     name: "Guest Favours",
     description: "Miniature custom prints your guests will treasure long after the big day.",
-    price: "From $85 per 10 pieces",
+    price: "From $85 to $165",
     size: "40–80mm tall",
-    note: "Minimum order: 10 pieces",
+    note: "per 10 pieces · min 10",
   },
   {
     icon: "🧲",
     name: "Fridge Magnets",
     description: "Beautiful relief portraits of you two — a daily reminder of your special day.",
-    price: "From $18 each",
+    price: "From $18 to $38",
     size: "40–70mm wide · flat relief",
-    note: null,
+    note: "1 to 4+ colors",
   },
 ];
 

@@ -37,11 +37,11 @@ export default function Step2ProductsPage() {
 
   function handleNext() {
     saveOrderDraft({ quantity, sizeCm });
-    router.push("/order/step3-photos");
+    router.push("/order/step3-color");
   }
 
   return (
-    <WizardLayout currentStep={2}>
+    <WizardLayout currentStep={2}>   {/* Step 2 of 6 */}
       <div className="space-y-8">
         <div>
           <h1 className="text-3xl font-bold mb-2">Your cake topper</h1>
@@ -154,7 +154,7 @@ export default function Step2ProductsPage() {
             Back
           </Button>
           <Button size="lg" onClick={handleNext} className="gap-2 px-8">
-            Next: Upload photos
+            Next: Choose colors
             <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
