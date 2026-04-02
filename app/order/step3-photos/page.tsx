@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { saveOrderDraft, getOrderDraft } from "@/lib/order-store";
-import { ArrowLeft, ArrowRight, Upload, X, Check, Info } from "lucide-react";
+import { ArrowLeft, ArrowRight, Upload, X, Check, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -22,9 +22,9 @@ interface PhotoSlot {
 }
 
 interface UploadEntry {
-  url: string;
+  url: string;     // permanent Supabase Storage public URL
   name: string;
-  size: number; // bytes
+  size: number;
   status: "done" | "error";
 }
 
@@ -39,20 +39,35 @@ const PHOTO_SLOTS: PhotoSlot[] = [
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/heic"];
 const MAX_SIZE_MB = 20;
 
+// One stable draft ID per browser session — groups all photos in the same
+// Supabase Storage folder so they're easy to find by order.
+function getOrCreateDraftId(): string {
+  const KEY = "wedprint_draft_id";
+  let id = sessionStorage.getItem(KEY);
+  if (!id) {
+    id = crypto.randomUUID();
+    sessionStorage.setItem(KEY, id);
+  }
+  return id;
+}
+
 export default function Step3PhotosPage() {
   const router = useRouter();
-  const [uploads, setUploads]         = useState<Partial<Record<PhotoType, UploadEntry>>>({});
-  const [dragOver, setDragOver]       = useState<PhotoType | null>(null);
+  const [uploads, setUploads]           = useState<Partial<Record<PhotoType, UploadEntry>>>({});
+  const [uploading, setUploading]       = useState<Partial<Record<PhotoType, boolean>>>({});
+  const [dragOver, setDragOver]         = useState<PhotoType | null>(null);
   const [partner1Name, setPartner1Name] = useState("");
   const [partner2Name, setPartner2Name] = useState("");
   const [weddingDate, setWeddingDate]   = useState("");
   const [colorPalette, setColorPalette] = useState("");
   const [styleNotes, setStyleNotes]     = useState("");
+  const draftIdRef = useRef<string>("");
 
-  const fileInputRefs  = useRef<Partial<Record<PhotoType, HTMLInputElement>>>({});
-  const objectUrlsRef  = useRef<string[]>([]);
+  const fileInputRefs = useRef<Partial<Record<PhotoType, HTMLInputElement>>>({});
 
   useEffect(() => {
+    draftIdRef.current = getOrCreateDraftId();
+
     const draft = getOrderDraft();
     if (draft.partner1Name) setPartner1Name(draft.partner1Name);
     if (draft.partner2Name) setPartner2Name(draft.partner2Name);
@@ -60,19 +75,20 @@ export default function Step3PhotosPage() {
     if (draft.colorPalette) setColorPalette(draft.colorPalette);
     if (draft.styleNotes)   setStyleNotes(draft.styleNotes);
 
+    // Restore previously uploaded photos (already Supabase URLs)
     if (draft.photoUrls) {
       const restored: Partial<Record<PhotoType, UploadEntry>> = {};
       for (const [k, v] of Object.entries(draft.photoUrls)) {
-        if (v) restored[k as PhotoType] = { url: v, name: "photo selected", size: 0, status: "done" };
+        if (v) {
+          restored[k as PhotoType] = { url: v, name: "photo uploaded", size: 0, status: "done" };
+        }
       }
       setUploads(restored);
     }
-
-    return () => { objectUrlsRef.current.forEach((u) => URL.revokeObjectURL(u)); };
   }, []);
 
-  // ── Core file handler ─────────────────────────────────────────────────────
-  const acceptFile = useCallback((type: PhotoType, file: File) => {
+  // ── Core upload handler ───────────────────────────────────────────────────
+  const acceptFile = useCallback(async (type: PhotoType, file: File) => {
     if (!ALLOWED_TYPES.includes(file.type)) {
       toast.error("Please use a JPG, PNG, WebP, or HEIC image.");
       return;
@@ -81,54 +97,82 @@ export default function Step3PhotosPage() {
       toast.error(`Image must be under ${MAX_SIZE_MB} MB.`);
       return;
     }
-    const objectUrl = URL.createObjectURL(file);
-    objectUrlsRef.current.push(objectUrl);
-    setUploads((prev) => ({
-      ...prev,
-      [type]: { url: objectUrl, name: file.name, size: file.size, status: "done" },
-    }));
-    toast.success(`${PHOTO_SLOTS.find((s) => s.type === type)?.label} added!`);
+
+    // Mark this slot as uploading
+    setUploading((prev) => ({ ...prev, [type]: true }));
+
+    try {
+      const form = new FormData();
+      form.append("file",      file);
+      form.append("photoType", type);
+      form.append("draftId",   draftIdRef.current);
+
+      const res = await fetch("/api/photos/upload", {
+        method: "POST",
+        body: form,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error ?? "Upload failed");
+      }
+
+      // data.url is the permanent Supabase Storage public URL
+      setUploads((prev) => ({
+        ...prev,
+        [type]: { url: data.url, name: file.name, size: file.size, status: "done" },
+      }));
+
+      toast.success(`${PHOTO_SLOTS.find((s) => s.type === type)?.label} uploaded!`);
+    } catch (err) {
+      console.error("[step3-photos] Upload error:", err);
+      toast.error(
+        err instanceof Error ? err.message : "Upload failed — please try again."
+      );
+      setUploads((prev) => ({
+        ...prev,
+        [type]: { url: "", name: file.name, size: file.size, status: "error" },
+      }));
+    } finally {
+      setUploading((prev) => ({ ...prev, [type]: false }));
+    }
   }, []);
 
   // ── Drag handlers ─────────────────────────────────────────────────────────
   function onDragOver(e: React.DragEvent, type: PhotoType) {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragOver(type);
+    e.preventDefault(); e.stopPropagation(); setDragOver(type);
   }
-
   function onDragLeave(e: React.DragEvent) {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragOver(null);
+    e.preventDefault(); e.stopPropagation(); setDragOver(null);
   }
-
   function onDrop(e: React.DragEvent, type: PhotoType) {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragOver(null);
+    e.preventDefault(); e.stopPropagation(); setDragOver(null);
     const file = e.dataTransfer.files?.[0];
     if (file) acceptFile(type, file);
   }
 
   function removeUpload(type: PhotoType) {
-    const existing = uploads[type];
-    if (existing?.url?.startsWith("blob:")) URL.revokeObjectURL(existing.url);
-    setUploads((prev) => { const next = { ...prev }; delete next[type]; return next; });
+    setUploads((prev) => { const n = { ...prev }; delete n[type]; return n; });
   }
 
   function handleNext() {
     if (!uploads.partner1?.url || !uploads.partner2?.url) {
-      toast.error("Please add photos for both partners.");
+      toast.error("Please upload photos for both partners.");
       return;
     }
     if (!partner1Name || !partner2Name) {
       toast.error("Please enter both partner names.");
       return;
     }
+    if (Object.values(uploading).some(Boolean)) {
+      toast.error("Please wait for all uploads to finish.");
+      return;
+    }
+
     const photoUrls: Record<string, string> = {};
     for (const [k, v] of Object.entries(uploads)) {
-      if (v?.url) photoUrls[k] = v.url;
+      if (v?.url && v.status === "done") photoUrls[k] = v.url;
     }
     saveOrderDraft({ partner1Name, partner2Name, weddingDate, colorPalette, styleNotes, photoUrls });
     router.push("/order/step4-addons");
@@ -146,16 +190,6 @@ export default function Step3PhotosPage() {
           </p>
         </div>
 
-        {/* Dev notice */}
-        <div className="flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
-          <Info className="h-4 w-4 text-blue-500 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-blue-700">
-            <span className="font-medium">Note:</span> Photo storage will be
-            configured before launch. Photos are held locally in your browser
-            session for now.
-          </p>
-        </div>
-
         {/* Photo upload slots */}
         <div className="space-y-3">
           <h2 className="font-semibold text-lg">Photos</h2>
@@ -165,9 +199,11 @@ export default function Step3PhotosPage() {
 
           <div className="grid sm:grid-cols-2 gap-4">
             {PHOTO_SLOTS.map((slot) => {
-              const upload = uploads[slot.type];
-              const isDone = upload?.status === "done";
-              const isOver = dragOver === slot.type;
+              const upload    = uploads[slot.type];
+              const isLoading = !!uploading[slot.type];
+              const isDone    = upload?.status === "done" && !!upload?.url;
+              const isError   = upload?.status === "error";
+              const isOver    = dragOver === slot.type;
 
               const fileSizeLabel = upload?.size
                 ? upload.size < 1024 * 1024
@@ -178,15 +214,18 @@ export default function Step3PhotosPage() {
               return (
                 <div
                   key={slot.type}
-                  onDragOver={(e) => !isDone && onDragOver(e, slot.type)}
-                  onDragLeave={(e) => !isDone && onDragLeave(e)}
-                  onDrop={(e)      => !isDone && onDrop(e, slot.type)}
-                  // Clicking anywhere on an empty zone opens the file picker
-                  onClick={() => !isDone && fileInputRefs.current[slot.type]?.click()}
+                  onDragOver={(e) => !isDone && !isLoading && onDragOver(e, slot.type)}
+                  onDragLeave={(e) => !isDone && !isLoading && onDragLeave(e)}
+                  onDrop={(e)      => !isDone && !isLoading && onDrop(e, slot.type)}
+                  onClick={() => !isDone && !isLoading && fileInputRefs.current[slot.type]?.click()}
                   className={cn(
                     "rounded-2xl border-2 p-5 transition-all duration-150",
                     isDone
                       ? "border-[var(--wp-sage)] bg-[var(--wp-sage-light)]/40"
+                      : isError
+                      ? "border-red-300 bg-red-50"
+                      : isLoading
+                      ? "border-[var(--wp-sage)] bg-[var(--wp-sage-light)]/20 cursor-wait"
                       : isOver
                       ? "border-[var(--wp-sage)] bg-[var(--wp-sage-light)] scale-[1.01] shadow-md cursor-copy"
                       : "border-dashed border-border hover:border-[var(--wp-sage)] hover:bg-[var(--wp-sage-light)]/20 cursor-pointer"
@@ -214,8 +253,17 @@ export default function Step3PhotosPage() {
                     )}
                   </div>
 
+                  {/* Loading spinner */}
+                  {isLoading && (
+                    <div className="mt-4 py-8 flex flex-col items-center justify-center gap-3"
+                         style={{ color: "var(--wp-sage)" }}>
+                      <Loader2 className="h-8 w-8 animate-spin" />
+                      <span className="text-sm font-medium">Uploading…</span>
+                    </div>
+                  )}
+
                   {/* Drop-active state */}
-                  {isOver && !isDone && (
+                  {isOver && !isDone && !isLoading && (
                     <div className="mt-4 py-6 flex flex-col items-center justify-center gap-2"
                          style={{ color: "var(--wp-sage)" }}>
                       <Upload className="h-8 w-8" />
@@ -223,7 +271,7 @@ export default function Step3PhotosPage() {
                     </div>
                   )}
 
-                  {/* Thumbnail after upload */}
+                  {/* Thumbnail after successful upload */}
                   {isDone && upload?.url && (
                     <div className="mt-4">
                       <img
@@ -245,8 +293,15 @@ export default function Step3PhotosPage() {
                     </div>
                   )}
 
+                  {/* Error state */}
+                  {isError && !isLoading && (
+                    <div className="mt-4 py-4 flex flex-col items-center justify-center gap-2">
+                      <p className="text-sm text-red-600 font-medium">Upload failed — click to retry</p>
+                    </div>
+                  )}
+
                   {/* Empty state prompt */}
-                  {!isOver && !isDone && (
+                  {!isOver && !isDone && !isLoading && !isError && (
                     <div className="mt-4 py-5 flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed"
                          style={{ borderColor: "var(--wp-border)" }}>
                       <Upload className="h-6 w-6" style={{ color: "var(--wp-sage)" }} />
@@ -355,10 +410,20 @@ export default function Step3PhotosPage() {
           <Button
             size="lg"
             onClick={handleNext}
+            disabled={Object.values(uploading).some(Boolean)}
             className="gap-2 px-8"
           >
-            Next: Add-ons
-            <ArrowRight className="h-4 w-4" />
+            {Object.values(uploading).some(Boolean) ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Uploading…
+              </>
+            ) : (
+              <>
+                Next: Add-ons
+                <ArrowRight className="h-4 w-4" />
+              </>
+            )}
           </Button>
         </div>
       </div>
