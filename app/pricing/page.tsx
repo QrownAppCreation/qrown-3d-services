@@ -5,7 +5,20 @@ export const metadata = { title: "Pricing — WedPrint" };
 
 // ── Data ─────────────────────────────────────────────────────────────────────
 
-const TIERS = [
+interface TierDef {
+  key: string;
+  label: string;
+  colors: number;
+  description: string;
+  tagline: string;
+  badge: string;
+  accent: string;
+  dots: string[];
+  popular?: boolean;
+  prices: Record<string, number>;
+}
+
+const TIERS: TierDef[] = [
   {
     key:         "CLASSIC",
     label:       "Classic",
@@ -71,7 +84,7 @@ const TIERS = [
       "Fridge Magnet":  3800,
     },
   },
-] as const;
+];
 
 const PRODUCTS = ["Cake Topper", "Bridal Gift", "Guest Favours", "Fridge Magnet"] as const;
 

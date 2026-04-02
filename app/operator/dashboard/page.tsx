@@ -255,6 +255,13 @@ export default async function OperatorDashboardPage() {
             <Package className="h-4 w-4" />
             Orders
           </Link>
+          <Link
+            href="/launch-checklist"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/10 text-sm font-medium text-white/70 hover:text-white transition-colors"
+          >
+            <CheckCircle2 className="h-4 w-4" />
+            Launch checklist
+          </Link>
         </nav>
 
         <form
@@ -283,13 +290,13 @@ export default async function OperatorDashboardPage() {
             return (
               <div className="bg-green-600 text-white px-8 py-2 text-xs font-semibold flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-green-200 animate-pulse inline-block" />
-                LIVE MODE — Taking real payments
+                LIVE MODE ACTIVE — Real payments are being processed
               </div>
             );
           }
           return (
-            <div className="bg-amber-500 text-white px-8 py-2 text-xs font-semibold flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-amber-200 animate-pulse inline-block" />
+            <div className="bg-yellow-400 text-black px-8 py-2 text-xs font-semibold flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-yellow-700 animate-pulse inline-block" />
               TEST MODE — Stripe is in test mode · No real payments are being taken
             </div>
           );
