@@ -16,6 +16,11 @@ export default function HomePage() {
             <span className="font-bold text-xl tracking-tight" style={{ color: "var(--wp-charcoal)" }}>WedPrint</span>
           </div>
           <div className="flex items-center gap-3">
+            <Link href="/gallery">
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                Gallery
+              </Button>
+            </Link>
             <Link href="/pricing">
               <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
                 Pricing
@@ -267,6 +272,7 @@ export default function HomePage() {
               <ul className="space-y-2.5">
                 {[
                   { label: "Home",             href: "/" },
+                  { label: "Gallery",          href: "/gallery" },
                   { label: "Pricing",          href: "/pricing" },
                   { label: "Start your order", href: "/order/step1-style" },
                   { label: "Track my order",   href: "/track-order" },
