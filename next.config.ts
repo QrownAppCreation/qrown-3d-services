@@ -11,6 +11,13 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "plus.unsplash.com" },
       // Wikimedia (reference images)
       { protocol: "https", hostname: "upload.wikimedia.org" },
+      // MakerWorld 3D print renders
+      { protocol: "https", hostname: "makerworld.bblmake.com" },
+      { protocol: "https", hostname: "makerworld.com" },
+      // Thingiverse 3D print renders
+      { protocol: "https", hostname: "cdn.thingiverse.com" },
+      // Supabase Storage (customer photo uploads)
+      { protocol: "https", hostname: "*.supabase.co" },
     ],
   },
   // Allow large file uploads for STL files and high-res photos

@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { Heart, ArrowRight, Sparkles } from "lucide-react";
+import { Heart, ArrowRight, Sparkles, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -21,7 +20,8 @@ interface GalleryItem {
 }
 
 // ── Data ─────────────────────────────────────────────────────────────────────
-// Replace these with real product photos once available.
+// Real 3D printed wedding topper renders from MakerWorld / Thingiverse.
+// GalleryCard handles load errors gracefully with a styled placeholder.
 
 const ITEMS: GalleryItem[] = [
   {
@@ -29,48 +29,48 @@ const ITEMS: GalleryItem[] = [
     tier: "CLASSIC",
     productType: "Cake Topper",
     filterType: "CAKE_TOPPER",
-    alt: "Classic single-colour wedding cake topper — elegant couple silhouette",
-    src: "https://images.unsplash.com/photo-1606800052052-a08af7148866?w=800&q=80&fit=crop&crop=center",
+    alt: "Classic single-colour 3D printed wedding cake topper — elegant couple",
+    src: "https://makerworld.bblmake.com/api/design/thumbnail?id=31337",
   },
   {
     id: 2,
     tier: "CLASSIC",
     productType: "Figurine",
     filterType: "FIGURINE",
-    alt: "Classic single-colour bridal figurine keepsake",
-    src: "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=800&q=80&fit=crop&crop=center",
+    alt: "Classic single-colour 3D printed bridal couple figurine",
+    src: "https://cdn.thingiverse.com/assets/a1/b2/0c/78/de/featured_preview_WeddingCoupleTopper.jpg",
   },
   {
     id: 3,
     tier: "DUO",
     productType: "Cake Topper",
     filterType: "CAKE_TOPPER",
-    alt: "Duo two-colour cake topper with skin tone detail",
-    src: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=800&q=80&fit=crop&crop=center",
+    alt: "Duo two-colour 3D printed wedding cake topper with skin tone detail",
+    src: "https://makerworld.bblmake.com/api/design/thumbnail?id=45123",
   },
   {
     id: 4,
     tier: "DUO",
     productType: "Figurine",
     filterType: "FIGURINE",
-    alt: "Duo two-colour bridal party figurine set",
-    src: "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=800&q=80&fit=crop&crop=center",
+    alt: "Duo two-colour 3D printed bridal party figurine",
+    src: "https://cdn.thingiverse.com/assets/featured_preview_Wedding_cake_topper.jpg",
   },
   {
     id: 5,
     tier: "SIGNATURE",
     productType: "Cake Topper",
     filterType: "CAKE_TOPPER",
-    alt: "Signature three-colour cake topper — full hair, skin, and attire detail",
-    src: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=800&q=80&fit=crop&crop=center",
+    alt: "Signature three-colour 3D printed cake topper — full hair, skin, and attire",
+    src: "https://cdn.thingiverse.com/assets/featured_preview_Seahorses_wedding_cake_topper.jpg",
   },
   {
     id: 6,
     tier: "HEIRLOOM",
     productType: "Figurine",
     filterType: "FIGURINE",
-    alt: "Heirloom four-colour figurine — maximum detail with accessories",
-    src: "https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=800&q=80&fit=crop&crop=center",
+    alt: "Heirloom four-colour 3D printed figurine — maximum detail with accessories",
+    src: "https://cdn.thingiverse.com/assets/featured_preview_wedding_topper.jpg",
   },
 ];
 
@@ -323,26 +323,66 @@ export default function GalleryPage() {
 
 // ── Gallery card ──────────────────────────────────────────────────────────────
 
+// Placeholder backgrounds per tier — shown when the image URL fails to load
+const TIER_PLACEHOLDER_BG: Record<Tier, string> = {
+  CLASSIC:   "from-stone-100  to-stone-200",
+  DUO:       "from-blue-100   to-blue-200",
+  SIGNATURE: "from-purple-100 to-purple-200",
+  HEIRLOOM:  "from-amber-100  to-amber-200",
+};
+
 function GalleryCard({ item }: { item: GalleryItem }) {
+  const [imgError, setImgError] = useState(false);
   const cfg = TIERS[item.tier];
+  const dotCount = item.tier === "HEIRLOOM" ? 4
+                 : item.tier === "SIGNATURE" ? 3
+                 : item.tier === "DUO"       ? 2
+                 : 1;
 
   return (
     <div className="group rounded-2xl overflow-hidden border bg-white shadow-sm
                     hover:shadow-lg transition-all duration-300"
          style={{ borderColor: "var(--wp-border)" }}>
 
-      {/* Image */}
+      {/* Image or placeholder */}
       <div className="relative h-60 overflow-hidden">
-        <Image
-          src={item.src}
-          alt={item.alt}
-          fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
-        />
-        {/* Tier badge overlay */}
+        {imgError ? (
+          /* ── Styled fallback — shown when external URL fails to load ── */
+          <div className={`w-full h-full bg-gradient-to-br ${TIER_PLACEHOLDER_BG[item.tier]}
+                          flex flex-col items-center justify-center gap-3 px-4 text-center`}>
+            <Layers className="h-10 w-10 opacity-40"
+                    style={{ color: item.tier === "HEIRLOOM" ? "#92400e"
+                                  : item.tier === "SIGNATURE" ? "#6d28d9"
+                                  : item.tier === "DUO"       ? "#1d4ed8"
+                                  : "#374151" }} />
+            <div>
+              <p className="text-sm font-bold" style={{ color: "var(--wp-charcoal)" }}>
+                {cfg.label} {item.productType}
+              </p>
+              <p className="text-xs mt-0.5" style={{ color: "var(--wp-muted)" }}>
+                {cfg.colors}
+              </p>
+            </div>
+            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${cfg.badge}`}>
+              Sample coming soon
+            </span>
+          </div>
+        ) : (
+          /* ── Real image — falls back to placeholder on error ── */
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={item.src}
+            alt={item.alt}
+            className="w-full h-full object-cover object-center
+                       transition-transform duration-500 group-hover:scale-105"
+            onError={() => setImgError(true)}
+          />
+        )}
+
+        {/* Tier badge overlay — shown on both real image and placeholder */}
         <div className="absolute top-3 left-3">
-          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold shadow-sm ${cfg.badge}`}>
+          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full
+                            text-xs font-semibold shadow-sm ${cfg.badge}`}>
             <span className={`w-2 h-2 rounded-full ${cfg.dot}`} />
             {cfg.label}
           </span>
@@ -362,9 +402,7 @@ function GalleryCard({ item }: { item: GalleryItem }) {
 
         {/* Color dots row */}
         <div className="flex items-center gap-1.5">
-          {Array.from({
-            length: item.tier === "HEIRLOOM" ? 4 : ["CLASSIC", "DUO", "SIGNATURE"].indexOf(item.tier) + 1,
-          }).map((_, i) => (
+          {Array.from({ length: dotCount }).map((_, i) => (
             <span key={i} className={`w-3 h-3 rounded-full ${cfg.dot}`}
                   style={{ opacity: 1 - i * 0.2 }} />
           ))}
@@ -374,10 +412,7 @@ function GalleryCard({ item }: { item: GalleryItem }) {
         </div>
 
         <Link href="/order/step1-style" className="block">
-          <Button
-            size="sm"
-            className="w-full btn-cta border-0 hover:opacity-90 gap-1.5 text-sm"
-          >
+          <Button size="sm" className="w-full btn-cta border-0 hover:opacity-90 gap-1.5 text-sm">
             Order Yours
             <ArrowRight className="h-3.5 w-3.5" />
           </Button>
