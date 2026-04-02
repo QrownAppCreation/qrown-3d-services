@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Upload, Send, ExternalLink, Check, CheckCircle2, CreditCard, Link2 } from "lucide-react";
+import { Upload, Send, ExternalLink, Check, CheckCircle2, CreditCard, Link2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -31,6 +31,8 @@ interface Props {
     status: string;
     balanceCents: number;
     coupleEmail: string;
+    coupleName: string;
+    stripePaymentId: string | null;
     designs: Design[];
   };
 }
@@ -59,6 +61,7 @@ export default function OrderDetailClient({ order }: Props) {
   const [collectingBalance, setCollectingBalance] = useState(false);
   const [balanceLinkSent, setBalanceLinkSent] = useState(false);
   const [balancePaymentUrl, setBalancePaymentUrl] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState(false);
   const fileInputRefs = useRef<Record<string, HTMLInputElement>>({});
 
   async function handleSTLUpload(designId: string, file: File) {
@@ -165,6 +168,27 @@ export default function OrderDetailClient({ order }: Props) {
     }
   }
 
+  async function handleCancelRefund() {
+    const confirmed = window.confirm(
+      `Are you sure you want to cancel this order and issue a full refund to ${order.coupleEmail}?\n\nThis cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    setCancelling(true);
+    try {
+      const res = await fetch(`/api/orders/${order.id}/cancel`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Failed");
+      setOrderStatus("CANCELLED");
+      toast.success(data.message ?? "Order cancelled and refund issued.");
+      router.refresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not cancel order. Please try again.");
+    } finally {
+      setCancelling(false);
+    }
+  }
+
   return (
     <div className="space-y-4">
       {/* Action bar */}
@@ -231,6 +255,27 @@ export default function OrderDetailClient({ order }: Props) {
                 </span>
               )}
             </div>
+          )}
+
+          {/* Cancel & Refund — shown unless already cancelled or complete */}
+          {orderStatus !== "COMPLETE" && orderStatus !== "CANCELLED" && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-2 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
+              disabled={cancelling}
+              onClick={handleCancelRefund}
+            >
+              <XCircle className="h-3.5 w-3.5" />
+              {cancelling ? "Cancelling..." : "Cancel & Refund"}
+            </Button>
+          )}
+
+          {orderStatus === "CANCELLED" && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-600">
+              <XCircle className="h-3.5 w-3.5" />
+              Order cancelled
+            </span>
           )}
         </div>
       </div>

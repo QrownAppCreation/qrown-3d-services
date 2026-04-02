@@ -7,7 +7,7 @@ import { AddOnType, StyleTier } from "@prisma/client";
 import type Stripe from "stripe";
 import { Resend } from "resend";
 
-const OPERATOR_EMAIL = "quin3030@hotmail.com";
+const OPERATOR_EMAIL = process.env.OPERATOR_EMAIL ?? "hello@wedprint3d.com";
 const APP_URL        = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
 /**
@@ -205,51 +205,95 @@ export async function POST(req: NextRequest) {
     const fmt = (c: number) =>
       new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(c / 100);
 
+    // Build display strings for the email
+    const greeting = (draft.partner1Name && draft.partner2Name)
+      ? `${draft.partner1Name} & ${draft.partner2Name}`
+      : name;
+    const weddingDateDisplay = draft.weddingDate
+      ? new Date(draft.weddingDate).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })
+      : "Not specified";
+    const colorTierDisplay = draft.colorTier ?? "CLASSIC";
+    const orderDate = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+
     // 1. Customer confirmation
     console.log(`[orders/create] Sending confirmation email to ${email} …`);
     try {
       const customerResult = await resend.emails.send({
         from:    FROM_ADDR,
         to:      email,
-        subject: "Your WedPrint order is confirmed!",
+        subject: "Your WedPrint order is confirmed! 🎉",
         html: `
-          <div style="font-family:sans-serif;max-width:560px;margin:0 auto;background:#FAFAF7;">
-            <div style="background:#2d2d2a;padding:28px;text-align:center;">
-              <h1 style="color:#C9A84C;margin:0;font-size:26px;letter-spacing:2px;">WedPrint</h1>
+          <div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;background:#FAFAF7;">
+            <div style="background:#2d2d2a;padding:32px;text-align:center;">
+              <h1 style="color:#C9A84C;margin:0;font-size:28px;letter-spacing:2px;">WedPrint</h1>
+              <p style="color:#fff;margin:8px 0 0;font-size:13px;letter-spacing:1px;">Handcrafted 3D Keepsakes</p>
             </div>
-            <div style="padding:36px;">
-              <h2 style="color:#2d2d2a;margin-top:0;">Order Confirmed! 🎉</h2>
+            <div style="padding:40px 36px;">
+              <h2 style="color:#2d2d2a;margin-top:0;">Your order is confirmed! 🎉</h2>
               <p style="color:#555;line-height:1.7;">
-                Hi <strong>${name}</strong>, thank you for your WedPrint order.
-                We're excited to start creating something beautiful for your big day.
+                Hi <strong>${greeting}</strong>, thank you so much for placing your order with WedPrint.
+                We are absolutely thrilled to be a small part of your big day.
               </p>
-              <div style="background:#fff;border:1px solid #e5e5e0;border-radius:10px;padding:20px;margin:20px 0;">
-                <p style="margin:0 0 8px;color:#888;font-size:13px;">Order reference</p>
-                <p style="margin:0 0 16px;font-size:18px;font-weight:bold;color:#2d2d2a;">#${shortId}</p>
-                <div style="border-top:1px solid #f0f0ea;padding-top:12px;">
-                  <p style="margin:4px 0;font-size:14px;color:#555;">Deposit paid: <strong style="color:#8FAF8F;">${fmt(depositCents)}</strong></p>
-                  <p style="margin:4px 0;font-size:14px;color:#555;">Balance due upon design approval: <strong>${fmt(balanceCents)}</strong></p>
-                </div>
+
+              <div style="background:#fff;border:1px solid #e5e5e0;border-radius:10px;padding:24px;margin:28px 0;">
+                <h3 style="color:#2d2d2a;margin-top:0;font-size:16px;">Order Summary</h3>
+                <p style="color:#888;font-size:13px;margin:0 0 16px;">
+                  Reference: <strong style="color:#2d2d2a;">#${shortId}</strong>
+                  &nbsp;·&nbsp; Placed: ${orderDate}
+                </p>
+
+                <table style="width:100%;border-collapse:collapse;font-size:14px;">
+                  <tr style="border-bottom:1px solid #f0f0ea;">
+                    <td style="padding:6px 0;color:#888;">Couple</td>
+                    <td style="padding:6px 0;color:#2d2d2a;font-weight:600;text-align:right;">${greeting}</td>
+                  </tr>
+                  <tr style="border-bottom:1px solid #f0f0ea;">
+                    <td style="padding:6px 0;color:#888;">Wedding date</td>
+                    <td style="padding:6px 0;color:#2d2d2a;text-align:right;">${weddingDateDisplay}</td>
+                  </tr>
+                  <tr style="border-bottom:1px solid #f0f0ea;">
+                    <td style="padding:6px 0;color:#888;">Color tier</td>
+                    <td style="padding:6px 0;color:#2d2d2a;text-align:right;">${colorTierDisplay}</td>
+                  </tr>
+                  <tr style="border-bottom:1px solid #f0f0ea;">
+                    <td style="padding:6px 0;color:#888;">Quantity</td>
+                    <td style="padding:6px 0;color:#2d2d2a;text-align:right;">${qty}</td>
+                  </tr>
+                  <tr style="border-bottom:2px solid #e5e5e0;">
+                    <td style="padding:10px 0 6px;color:#555;">Deposit paid today</td>
+                    <td style="padding:10px 0 6px;color:#8FAF8F;font-weight:700;text-align:right;">${fmt(depositCents)}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:6px 0;color:#555;">Balance due upon design approval</td>
+                    <td style="padding:6px 0;color:#2d2d2a;font-weight:600;text-align:right;">${fmt(balanceCents)}</td>
+                  </tr>
+                </table>
               </div>
-              <p style="color:#555;line-height:1.7;">
+
+              <div style="background:#f0f4f0;border-radius:8px;padding:16px;font-size:14px;color:#444;line-height:1.6;">
                 Your 50% deposit has been received. The remaining balance of <strong>${fmt(balanceCents)}</strong>
-                will be collected once you approve your design preview.
-                We will send your design preview within 48 hours.
-              </p>
-              <div style="text-align:center;margin:28px 0;">
+                will be collected once you approve your design preview. We will send your design preview within 48 hours.
+              </div>
+
+              <div style="text-align:center;margin:32px 0;">
                 <a href="${magicLinkUrl}" style="
                   display:inline-block;background:#8FAF8F;color:white;
                   padding:14px 32px;border-radius:8px;text-decoration:none;
-                  font-weight:600;font-size:15px;
+                  font-weight:600;font-size:15px;font-family:sans-serif;
                 ">View your order status →</a>
-                <p style="color:#888;font-size:12px;margin-top:10px;">
+                <p style="color:#888;font-size:12px;margin-top:10px;font-family:sans-serif;">
                   This link is valid for 30 days. Bookmark it to track your order anytime.
                 </p>
               </div>
-              <p style="color:#888;font-size:13px;border-top:1px solid #e5e5e0;padding-top:20px;">
-                Questions? Reply to this email and we'll get back to you right away. 💛<br/>
-                — The WedPrint Team
+
+              <p style="color:#888;font-size:13px;line-height:1.7;border-top:1px solid #e5e5e0;padding-top:24px;margin-top:32px;">
+                Questions? Reply to this email and we'll get back to you right away. 💛<br/><br/>
+                With love,<br/>
+                <strong style="color:#2d2d2a;">The WedPrint Team</strong>
               </p>
+            </div>
+            <div style="background:#2d2d2a;padding:20px;text-align:center;">
+              <p style="color:#666;font-size:12px;margin:0;">© ${new Date().getFullYear()} WedPrint · Made with love</p>
             </div>
           </div>
         `,
@@ -265,25 +309,74 @@ export async function POST(req: NextRequest) {
       const operatorResult = await resend.emails.send({
         from:    FROM_ADDR,
         to:      OPERATOR_EMAIL,
-        subject: "New WedPrint order received",
+        subject: `[WedPrint] New order #${shortId} — ${name}`,
         html: `
-          <h2 style="font-family:sans-serif;">New Order — #${shortId}</h2>
-          <p style="font-family:sans-serif;">
-            <strong>Couple:</strong> ${name}<br/>
-            <strong>Email:</strong> ${email}<br/>
-            <strong>Style tier:</strong> ${draft.styleTier ?? "ELEGANT"}<br/>
-            <strong>Quantity:</strong> ${qty}<br/>
-            <strong>Deposit:</strong> ${fmt(depositCents)}<br/>
-            <strong>Balance:</strong> ${fmt(balanceCents)}<br/>
-            <strong>Wedding date:</strong> ${draft.weddingDate ?? "not provided"}<br/>
-            <strong>Add-ons:</strong> ${addOnInputs.length > 0
-              ? addOnInputs.map((a) => `${a.type} (${fmt(a.priceCents)})`).join(", ")
-              : "none"
-            }
-          </p>
-          <p style="font-family:sans-serif;">
-            <a href="${APP_URL}/operator/orders/${order.id}">View order in dashboard →</a>
-          </p>
+          <div style="font-family:sans-serif;max-width:560px;margin:0 auto;background:#FAFAF7;">
+            <div style="background:#2d2d2a;padding:24px;text-align:center;">
+              <h1 style="color:#C9A84C;margin:0;font-size:22px;letter-spacing:2px;">WedPrint Operator</h1>
+            </div>
+            <div style="padding:32px;">
+              <h2 style="color:#2d2d2a;margin-top:0;">New order received 🎉</h2>
+
+              <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:20px;">
+                <tr style="border-bottom:1px solid #e5e5e0;">
+                  <td style="padding:8px 0;color:#888;width:40%;">Order number</td>
+                  <td style="padding:8px 0;color:#2d2d2a;font-weight:700;">#${shortId}</td>
+                </tr>
+                <tr style="border-bottom:1px solid #e5e5e0;">
+                  <td style="padding:8px 0;color:#888;">Order date</td>
+                  <td style="padding:8px 0;color:#2d2d2a;">${orderDate}</td>
+                </tr>
+                <tr style="border-bottom:1px solid #e5e5e0;">
+                  <td style="padding:8px 0;color:#888;">Couple</td>
+                  <td style="padding:8px 0;color:#2d2d2a;font-weight:600;">${greeting}</td>
+                </tr>
+                <tr style="border-bottom:1px solid #e5e5e0;">
+                  <td style="padding:8px 0;color:#888;">Customer email</td>
+                  <td style="padding:8px 0;"><a href="mailto:${email}" style="color:#8FAF8F;">${email}</a></td>
+                </tr>
+                <tr style="border-bottom:1px solid #e5e5e0;">
+                  <td style="padding:8px 0;color:#888;">Wedding date</td>
+                  <td style="padding:8px 0;color:#2d2d2a;">${weddingDateDisplay}</td>
+                </tr>
+                <tr style="border-bottom:1px solid #e5e5e0;">
+                  <td style="padding:8px 0;color:#888;">Color tier</td>
+                  <td style="padding:8px 0;color:#2d2d2a;font-weight:600;">${colorTierDisplay}</td>
+                </tr>
+                <tr style="border-bottom:1px solid #e5e5e0;">
+                  <td style="padding:8px 0;color:#888;">Style tier</td>
+                  <td style="padding:8px 0;color:#2d2d2a;">${draft.styleTier ?? "ELEGANT"}</td>
+                </tr>
+                <tr style="border-bottom:1px solid #e5e5e0;">
+                  <td style="padding:8px 0;color:#888;">Quantity</td>
+                  <td style="padding:8px 0;color:#2d2d2a;">${qty}</td>
+                </tr>
+                <tr style="border-bottom:1px solid #e5e5e0;">
+                  <td style="padding:8px 0;color:#888;">Add-ons</td>
+                  <td style="padding:8px 0;color:#2d2d2a;">${addOnInputs.length > 0
+                    ? addOnInputs.map((a) => `${a.type.replace(/_/g, " ")} (${fmt(a.priceCents)})`).join(", ")
+                    : "None"
+                  }</td>
+                </tr>
+                <tr style="border-bottom:1px solid #e5e5e0;">
+                  <td style="padding:8px 0;color:#888;">Deposit paid</td>
+                  <td style="padding:8px 0;color:#2d2d2a;font-weight:700;">${fmt(depositCents)}</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 0;color:#888;">Balance due</td>
+                  <td style="padding:8px 0;color:#2d2d2a;">${fmt(balanceCents)}</td>
+                </tr>
+              </table>
+
+              <div style="text-align:center;margin-top:24px;">
+                <a href="${APP_URL}/operator/orders/${order.id}" style="
+                  display:inline-block;background:#2d2d2a;color:white;
+                  padding:12px 28px;border-radius:8px;text-decoration:none;
+                  font-weight:600;font-size:14px;
+                ">View order in dashboard →</a>
+              </div>
+            </div>
+          </div>
         `,
       });
       console.log("[orders/create] Operator email result:", JSON.stringify(operatorResult));

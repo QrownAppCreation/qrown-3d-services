@@ -200,6 +200,17 @@ export default async function OperatorOrderDetailPage({ params }: Props) {
             <div className="bg-white rounded-2xl border border-border p-6 space-y-3">
               <h2 className="font-semibold">Order details</h2>
               <div className="space-y-2 text-sm">
+                <p>
+                  <span className="text-muted-foreground">Order date:</span>{" "}
+                  <span className="font-medium">
+                    {new Date(order.createdAt).toLocaleDateString("en-US", {
+                      weekday: "short",
+                      month: "long",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </span>
+                </p>
                 {order.weddingDate && (
                   <p>
                     <span className="text-muted-foreground">Wedding date:</span>{" "}
@@ -279,11 +290,13 @@ export default async function OperatorOrderDetailPage({ params }: Props) {
           {/* Designs + complete button */}
           <OrderDetailClient
             order={{
-              id:           order.id,
-              status:       order.status,
-              balanceCents: order.balanceCents,
-              coupleEmail:  order.couple.email,
-              designs:      order.designs,
+              id:               order.id,
+              status:           order.status,
+              balanceCents:     order.balanceCents,
+              coupleEmail:      order.couple.email,
+              coupleName:       order.couple.name,
+              stripePaymentId:  order.stripePaymentId ?? null,
+              designs:          order.designs,
             }}
           />
         </main>
