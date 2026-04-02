@@ -22,8 +22,8 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const email    = process.env.OPERATOR_EMAIL ?? "quincy_c_brown@hotmail.com";
-  const password = process.env.OPERATOR_SEED_PASSWORD ?? "WedPrint2026";
+  const email    = process.env.OPERATOR_EMAIL    ?? "hello@wedprint3d.com";
+  const password = process.env.OPERATOR_PASSWORD ?? process.env.OPERATOR_SEED_PASSWORD ?? "WedPrint2026";
 
   try {
     const passwordHash = hashSync(password, 12);
