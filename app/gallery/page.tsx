@@ -17,11 +17,11 @@ interface GalleryItem {
   filterType: "CAKE_TOPPER" | "FIGURINE";
   alt: string;
   src: string;
+  description: string;
 }
 
 // ── Data ─────────────────────────────────────────────────────────────────────
-// Real 3D printed wedding topper renders from MakerWorld / Thingiverse.
-// GalleryCard handles load errors gracefully with a styled placeholder.
+// Real WedPrint pieces — photos served from Supabase Storage.
 
 const ITEMS: GalleryItem[] = [
   {
@@ -29,49 +29,97 @@ const ITEMS: GalleryItem[] = [
     tier: "CLASSIC",
     productType: "Cake Topper",
     filterType: "CAKE_TOPPER",
-    alt: "Classic single-colour 3D printed wedding cake topper — elegant couple",
-    src: "https://makerworld.bblmake.com/api/design/thumbnail?id=31337",
+    alt: "Classic 1-color 3D printed wedding cake topper",
+    src: "https://ojlvahybqjaaxivaysuc.supabase.co/storage/v1/object/public/Gallery/Mini-Me-Cake-Topper-1.png",
+    description: "1 color · Clean, elegant, timeless",
   },
   {
     id: 2,
-    tier: "CLASSIC",
-    productType: "Figurine",
-    filterType: "FIGURINE",
-    alt: "Classic single-colour 3D printed bridal couple figurine",
-    src: "https://cdn.thingiverse.com/assets/a1/b2/0c/78/de/featured_preview_WeddingCoupleTopper.jpg",
+    tier: "DUO",
+    productType: "Cake Topper",
+    filterType: "CAKE_TOPPER",
+    alt: "Duo 2-color 3D printed wedding cake topper",
+    src: "https://ojlvahybqjaaxivaysuc.supabase.co/storage/v1/object/public/Gallery/Mini-Me-Cake-Topper-3.png",
+    description: "2 colors · Skin tones and outfit colors distinguished",
   },
   {
     id: 3,
-    tier: "DUO",
-    productType: "Cake Topper",
-    filterType: "CAKE_TOPPER",
-    alt: "Duo two-colour 3D printed wedding cake topper with skin tone detail",
-    src: "https://makerworld.bblmake.com/api/design/thumbnail?id=45123",
-  },
-  {
-    id: 4,
-    tier: "DUO",
-    productType: "Figurine",
-    filterType: "FIGURINE",
-    alt: "Duo two-colour 3D printed bridal party figurine",
-    src: "https://cdn.thingiverse.com/assets/featured_preview_Wedding_cake_topper.jpg",
-  },
-  {
-    id: 5,
     tier: "SIGNATURE",
     productType: "Cake Topper",
     filterType: "CAKE_TOPPER",
-    alt: "Signature three-colour 3D printed cake topper — full hair, skin, and attire",
-    src: "https://cdn.thingiverse.com/assets/featured_preview_Seahorses_wedding_cake_topper.jpg",
+    alt: "Signature 3-color 3D printed wedding cake topper",
+    src: "https://ojlvahybqjaaxivaysuc.supabase.co/storage/v1/object/public/Gallery/Mini-Me-Cake-Topper-7.png",
+    description: "3 colors · Full detail",
+  },
+  {
+    id: 4,
+    tier: "HEIRLOOM",
+    productType: "Figurine",
+    filterType: "FIGURINE",
+    alt: "Heirloom 4+ color 3D printed wedding figurine",
+    src: "https://ojlvahybqjaaxivaysuc.supabase.co/storage/v1/object/public/Gallery/Mini-Me-Cake-Topper-g1_1.png",
+    description: "4+ colors · Maximum detail",
+  },
+  {
+    id: 5,
+    tier: "CLASSIC",
+    productType: "Figurine",
+    filterType: "FIGURINE",
+    alt: "Classic black and white 3D printed bridal figurine",
+    src: "https://ojlvahybqjaaxivaysuc.supabase.co/storage/v1/object/public/Gallery/Black%20and%20White%20.JPG",
+    description: "1 color · Clean, elegant, timeless",
   },
   {
     id: 6,
     tier: "HEIRLOOM",
+    productType: "Cake Topper",
+    filterType: "CAKE_TOPPER",
+    alt: "Heirloom full-color 3D printed wedding cake topper",
+    src: "https://ojlvahybqjaaxivaysuc.supabase.co/storage/v1/object/public/Gallery/MIxed_full%20color.JPG",
+    description: "4+ colors · Maximum detail",
+  },
+  {
+    id: 7,
+    tier: "DUO",
     productType: "Figurine",
     filterType: "FIGURINE",
-    alt: "Heirloom four-colour 3D printed figurine — maximum detail with accessories",
-    src: "https://cdn.thingiverse.com/assets/featured_preview_wedding_topper.jpg",
+    alt: "Duo 2-color 3D printed wedding figurine",
+    src: "https://ojlvahybqjaaxivaysuc.supabase.co/storage/v1/object/public/Gallery/Wedding%201.PNG",
+    description: "2 colors · Skin tones and outfit colors distinguished",
   },
+  {
+    id: 8,
+    tier: "SIGNATURE",
+    productType: "Figurine",
+    filterType: "FIGURINE",
+    alt: "Signature 3-color 3D printed wedding figurine",
+    src: "https://ojlvahybqjaaxivaysuc.supabase.co/storage/v1/object/public/Gallery/Wedding%202.PNG",
+    description: "3 colors · Full detail",
+  },
+  {
+    id: 9,
+    tier: "CLASSIC",
+    productType: "Cake Topper",
+    filterType: "CAKE_TOPPER",
+    alt: "Classic 1-color 3D printed wedding cake topper",
+    src: "https://ojlvahybqjaaxivaysuc.supabase.co/storage/v1/object/public/Gallery/Wedding%203.PNG",
+    description: "1 color · Clean, elegant, timeless",
+  },
+  {
+    id: 10,
+    tier: "SIGNATURE",
+    productType: "Cake Topper",
+    filterType: "CAKE_TOPPER",
+    alt: "Signature 3-color 3D printed cake topper with gold heart detail",
+    src: "https://ojlvahybqjaaxivaysuc.supabase.co/storage/v1/object/public/Gallery/Couple%201%20before%20the%20other%20%2C%20gold%20heart.PNG",
+    description: "3 colors · Full detail",
+  },
+];
+
+// ── Videos ────────────────────────────────────────────────────────────────────
+const VIDEOS = [
+  "https://ojlvahybqjaaxivaysuc.supabase.co/storage/v1/object/public/Gallery/Webm_V2_04deabd4ad.webm",
+  "https://ojlvahybqjaaxivaysuc.supabase.co/storage/v1/object/public/Gallery/Webm_V4_d8134897af.webm",
 ];
 
 // ── Tier config ───────────────────────────────────────────────────────────────
@@ -269,6 +317,43 @@ export default function GalleryPage() {
         )}
       </main>
 
+      {/* ── Video section ─────────────────────────────────────────────────── */}
+      <section className="py-16 px-4 border-t" style={{ borderColor: "var(--wp-border)" }}>
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium mb-4"
+                 style={{ backgroundColor: "var(--wp-secondary-bg)", color: "var(--wp-sage)" }}>
+              <Sparkles className="h-3.5 w-3.5" />
+              Behind the scenes
+            </div>
+            <h2 className="text-3xl font-bold mb-3" style={{ color: "var(--wp-charcoal)" }}>
+              Watch the magic happen
+            </h2>
+            <p className="text-base" style={{ color: "var(--wp-muted)" }}>
+              Every piece is printed layer by layer on our Bambu Lab printers — right here in Miami.
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-6">
+            {VIDEOS.map((src, i) => (
+              <div key={i}
+                   className="rounded-2xl overflow-hidden border shadow-sm bg-black"
+                   style={{ borderColor: "var(--wp-border)" }}>
+                <video
+                  src={src}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  className="w-full h-full object-cover"
+                  style={{ maxHeight: "380px" }}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── CTA ───────────────────────────────────────────────────────────── */}
       <section className="py-20 px-4 text-center border-t" style={{ borderColor: "var(--wp-border)", backgroundColor: "var(--wp-secondary-bg)" }}>
         <div className="max-w-xl mx-auto space-y-6">
@@ -396,7 +481,7 @@ function GalleryCard({ item }: { item: GalleryItem }) {
             {item.productType}
           </p>
           <p className="text-xs mt-0.5" style={{ color: "var(--wp-muted)" }}>
-            {cfg.colors} · {cfg.description.split(" — ")[0]}
+            {item.description}
           </p>
         </div>
 
