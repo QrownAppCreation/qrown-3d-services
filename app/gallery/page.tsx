@@ -430,7 +430,7 @@ function GalleryCard({ item }: { item: GalleryItem }) {
          style={{ borderColor: "var(--wp-border)" }}>
 
       {/* Image or placeholder */}
-      <div className="relative h-60 overflow-hidden">
+      <div className="relative overflow-hidden" style={{ height: "280px", backgroundColor: "#F8F8F6" }}>
         {imgError ? (
           /* ── Styled fallback — shown when external URL fails to load ── */
           <div className={`w-full h-full bg-gradient-to-br ${TIER_PLACEHOLDER_BG[item.tier]}
