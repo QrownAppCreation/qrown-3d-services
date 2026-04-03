@@ -67,7 +67,9 @@ export async function POST(req: NextRequest) {
     const bytes  = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "(not set)";
     console.log(`[photos/upload] Uploading ${photoType} (${(file.size / 1024).toFixed(0)} KB) → ${path}`);
+    console.log(`[photos/upload] Supabase project: ${supabaseUrl}`);
 
     const publicUrl = await uploadToStorage(path, buffer, file.type);
 
