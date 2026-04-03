@@ -458,7 +458,7 @@ function GalleryCard({ item }: { item: GalleryItem }) {
           <img
             src={item.src}
             alt={item.alt}
-            className="w-full h-full object-cover object-center
+            className="w-full h-full object-contain p-3
                        transition-transform duration-500 group-hover:scale-105"
             onError={() => setImgError(true)}
           />
