@@ -7,7 +7,11 @@ import { createClient } from "@supabase/supabase-js";
 //
 // The service role key is NEVER sent to the browser — it only runs in API routes.
 
+/** Bucket for customer reference photos uploaded during the order wizard. */
 export const BUCKET = "order-photos";
+
+/** Bucket for operator-uploaded STL / OBJ design files. */
+export const STL_BUCKET = "stl-files";
 
 /** Admin Supabase client — only use in server-side API routes. */
 export function getStorageAdmin() {
@@ -25,74 +29,105 @@ export function getStorageAdmin() {
   });
 }
 
+// ── Internal helpers ──────────────────────────────────────────────────────────
+
+interface BucketOptions {
+  /** Make the bucket publicly readable (default: true). */
+  isPublic?: boolean;
+  fileSizeLimit?: number;
+  allowedMimeTypes?: string[];
+}
+
 /**
- * Ensure the "order-photos" bucket exists and is public.
- * Creates it automatically on first use so no manual setup step is needed.
+ * Ensure a named bucket exists, creating it if it doesn't.
+ * Safe to call on every upload — exits immediately if the bucket is already there.
  */
-async function ensureBucket() {
+async function ensureNamedBucket(
+  bucketName: string,
+  opts: BucketOptions = {}
+) {
   const supabase = getStorageAdmin();
 
-  // Check if the bucket already exists
   const { data: buckets, error: listErr } = await supabase.storage.listBuckets();
   if (listErr) {
-    console.warn("[supabase-storage] Could not list buckets:", listErr.message);
-    return; // proceed anyway — the upload will surface a clear error if needed
+    console.warn(`[supabase-storage] Could not list buckets: ${listErr.message}`);
+    return;
   }
 
-  const exists = buckets?.some((b) => b.name === BUCKET);
-  if (exists) return;
+  if (buckets?.some((b) => b.name === bucketName)) return; // already exists
 
-  // Create as public so photos are readable via a plain URL (no signed links needed)
-  const { error: createErr } = await supabase.storage.createBucket(BUCKET, {
-    public: true,
-    fileSizeLimit: 20_971_520, // 20 MB
-    allowedMimeTypes: [
-      "image/jpeg",
-      "image/png",
-      "image/webp",
-      "image/heic",
-      "image/heif",
-    ],
+  const { error: createErr } = await supabase.storage.createBucket(bucketName, {
+    public:           opts.isPublic       ?? true,
+    fileSizeLimit:    opts.fileSizeLimit   ?? 52_428_800, // 50 MB default
+    allowedMimeTypes: opts.allowedMimeTypes,
   });
 
-  if (createErr) {
-    // "already exists" race condition is fine — swallow it
-    if (!createErr.message.toLowerCase().includes("already")) {
-      console.error("[supabase-storage] Failed to create bucket:", createErr.message);
-    }
-  } else {
-    console.log(`[supabase-storage] Bucket "${BUCKET}" created successfully.`);
+  if (createErr && !createErr.message.toLowerCase().includes("already")) {
+    console.error(`[supabase-storage] Failed to create bucket "${bucketName}":`, createErr.message);
+  } else if (!createErr) {
+    console.log(`[supabase-storage] Bucket "${bucketName}" created.`);
   }
 }
 
 /**
- * Upload a file buffer to Supabase Storage and return the permanent public URL.
- * The bucket is created automatically if it does not exist yet.
- *
- * @param path   Storage path inside the bucket, e.g. "drafts/abc123/partner1/ts-photo.jpg"
- * @param buffer File contents as a Buffer
- * @param mime   MIME type, e.g. "image/jpeg"
+ * Core upload function — used by both photo and STL helpers.
+ */
+async function uploadBuffer(
+  bucketName: string,
+  path: string,
+  buffer: Buffer,
+  mime: string,
+  bucketOpts?: BucketOptions
+): Promise<string> {
+  const supabase = getStorageAdmin();
+  await ensureNamedBucket(bucketName, bucketOpts);
+
+  const { error } = await supabase.storage.from(bucketName).upload(path, buffer, {
+    contentType: mime,
+    upsert: true,
+  });
+
+  if (error) {
+    console.error(`[supabase-storage] Upload to "${bucketName}" failed:`, error);
+    throw new Error(`Supabase Storage upload failed: ${error.message}`);
+  }
+
+  const { data } = supabase.storage.from(bucketName).getPublicUrl(path);
+  return data.publicUrl;
+}
+
+// ── Public API ────────────────────────────────────────────────────────────────
+
+/**
+ * Upload a customer reference photo to the "order-photos" bucket.
+ * Bucket is created automatically on first use.
  */
 export async function uploadToStorage(
   path: string,
   buffer: Buffer,
   mime: string
 ): Promise<string> {
-  const supabase = getStorageAdmin();
-
-  // Auto-create bucket on first upload — no manual /api/setup/storage call needed
-  await ensureBucket();
-
-  const { error } = await supabase.storage.from(BUCKET).upload(path, buffer, {
-    contentType: mime,
-    upsert: true, // overwrite if the same draft re-uploads
+  return uploadBuffer(BUCKET, path, buffer, mime, {
+    isPublic: true,
+    fileSizeLimit: 20_971_520, // 20 MB
+    allowedMimeTypes: [
+      "image/jpeg", "image/png", "image/webp", "image/heic", "image/heif",
+    ],
   });
+}
 
-  if (error) {
-    console.error("[supabase-storage] Upload error:", error);
-    throw new Error(`Supabase Storage upload failed: ${error.message}`);
-  }
-
-  const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
-  return data.publicUrl;
+/**
+ * Upload an operator STL / OBJ design file to the "stl-files" bucket.
+ * Stored at path: {orderId}/{filename}
+ * Bucket is created automatically on first use.
+ */
+export async function uploadStlToStorage(
+  path: string,
+  buffer: Buffer,
+  mime: string
+): Promise<string> {
+  return uploadBuffer(STL_BUCKET, path, buffer, mime, {
+    isPublic: true,         // URL is only shown inside the protected operator dashboard
+    fileSizeLimit: 104_857_600, // 100 MB — STL files can be large
+  });
 }

@@ -1,32 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-
-// R2 storage is optional — fall back to a local placeholder when not configured.
-// In production, configure R2_* env vars to enable real cloud storage.
-const R2_CONFIGURED =
-  !!(process.env.R2_ACCOUNT_ID &&
-     process.env.R2_ACCESS_KEY_ID &&
-     process.env.R2_SECRET_ACCESS_KEY &&
-     process.env.R2_BUCKET_NAME);
+import { uploadStlToStorage } from "@/lib/supabase-storage";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // ── Operator-only ─────────────────────────────────────────────────────────
+  const session = await auth();
+  if (!session || session.user.role !== "operator") {
+    return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
+  }
+
   try {
     const { id: designId } = await params;
     const formData = await req.formData();
-    const file    = formData.get("file") as File | null;
-    const orderId = formData.get("orderId") as string;
+    const file    = formData.get("file")    as File   | null;
+    const orderId = formData.get("orderId") as string | null;
 
     if (!file || !orderId) {
       return NextResponse.json({ error: "Missing file or orderId" }, { status: 400 });
     }
 
     // Validate file type
-    const name = file.name.toLowerCase();
-    if (!name.endsWith(".stl") && !name.endsWith(".obj")) {
-      return NextResponse.json({ error: "Only .stl and .obj files are accepted." }, { status: 400 });
+    const lowerName = file.name.toLowerCase();
+    if (!lowerName.endsWith(".stl") && !lowerName.endsWith(".obj")) {
+      return NextResponse.json(
+        { error: "Only .stl and .obj files are accepted." },
+        { status: 400 }
+      );
     }
 
     const design = await db.design.findUnique({ where: { id: designId } });
@@ -34,32 +37,22 @@ export async function POST(
       return NextResponse.json({ error: "Design not found" }, { status: 404 });
     }
 
-    let stlUrl: string;
+    // ── Upload to Supabase Storage ──────────────────────────────────────────
+    // Path format: {orderId}/{filename}  (as specified)
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const storagePath = `${orderId}/${safeName}`;
+    const mime = file.type || "model/stl";
 
-    if (R2_CONFIGURED) {
-      // ── Real R2 upload ───────────────────────────────────────────────────────
-      const { createPresignedUploadUrl, getPublicUrl, buildDesignKey } =
-        await import("@/lib/storage");
+    console.log(`[stl/upload] Uploading "${file.name}" (${(file.size / 1024).toFixed(0)} KB) → stl-files/${storagePath}`);
 
-      const ext     = file.name.split(".").pop() ?? "stl";
-      const fileKey = buildDesignKey(orderId, designId, `final.${ext}`);
-      const presignedUrl = await createPresignedUploadUrl(fileKey, file.type || "model/stl");
-      const buffer  = await file.arrayBuffer();
+    const bytes  = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
 
-      await fetch(presignedUrl, {
-        method: "PUT",
-        body:   buffer,
-        headers: { "Content-Type": file.type || "model/stl" },
-      });
+    const stlUrl = await uploadStlToStorage(storagePath, buffer, mime);
 
-      stlUrl = getPublicUrl(fileKey);
-    } else {
-      // ── Dev fallback: store filename as placeholder ──────────────────────────
-      // R2 not configured — record the filename so the UI can show it.
-      // Configure R2_* env vars to enable real file storage.
-      stlUrl = `local://${file.name}`;
-    }
+    console.log(`[stl/upload] Success: ${stlUrl}`);
 
+    // ── Persist URL to the Design record ──────────────────────────────────
     await db.design.update({
       where: { id: designId },
       data: {
@@ -70,14 +63,17 @@ export async function POST(
     });
 
     return NextResponse.json({
-      success: true,
+      success:    true,
       stlUrl,
-      fileName:  file.name,
+      fileName:   file.name,
       uploadedAt: new Date().toISOString(),
-      storedIn:  R2_CONFIGURED ? "r2" : "placeholder",
+      storedIn:   "supabase",
     });
   } catch (err) {
-    console.error("STL upload error:", err);
-    return NextResponse.json({ error: "Upload failed" }, { status: 500 });
+    console.error("[stl/upload] Error:", err);
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Upload failed" },
+      { status: 500 }
+    );
   }
 }

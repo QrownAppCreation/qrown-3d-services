@@ -319,18 +319,12 @@ export default function OrderDetailClient({ order }: Props) {
 
               {design.stlUrl && (
                 <div className="flex flex-col items-end gap-0.5">
-                  {design.stlUrl.startsWith("local://") ? (
-                    <span className="inline-flex items-center gap-1.5 text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full border border-blue-200">
-                      📎 {design.stlUrl.replace("local://", "")}
-                    </span>
-                  ) : (
-                    <a href={design.stlUrl} target="_blank" rel="noopener noreferrer">
-                      <Button variant="outline" size="sm" className="gap-1.5">
-                        <ExternalLink className="h-3.5 w-3.5" />
-                        Download STL
-                      </Button>
-                    </a>
-                  )}
+                  <a href={design.stlUrl} target="_blank" rel="noopener noreferrer" download>
+                    <Button variant="outline" size="sm" className="gap-1.5">
+                      <ExternalLink className="h-3.5 w-3.5" />
+                      Download STL
+                    </Button>
+                  </a>
                   {stlMeta[design.id] && (
                     <span className="text-[11px] text-muted-foreground text-right">
                       {stlMeta[design.id].fileName} · uploaded {new Date(stlMeta[design.id].uploadedAt).toLocaleString()}
