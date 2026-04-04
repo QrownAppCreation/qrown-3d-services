@@ -105,23 +105,31 @@ model Couple {
 }
 
 model Order {
-  id               String      @id @default(cuid())
-  coupleId         String
-  status           OrderStatus @default(PENDING_PAYMENT)
-  stripePaymentId  String?
-  stripeSessionId  String?
-  depositCents     Int         @default(0)
-  balanceCents     Int         @default(0)
-  weddingDate      DateTime?
-  colorPalette     String?
-  styleNotes       String?
-  styleTier        StyleTier   @default(ELEGANT)
-  colorTier        ColorTier   @default(CLASSIC)
-  createdAt        DateTime    @default(now())
+  id                  String      @id @default(cuid())
+  coupleId            String
+  status              OrderStatus @default(PENDING_PAYMENT)
+  stripePaymentId     String?
+  stripeSessionId     String?
+  depositCents        Int         @default(0)
+  balanceCents        Int         @default(0)
+  weddingDate         DateTime?
+  colorPalette        String?
+  styleNotes          String?
+  styleTier           StyleTier   @default(ELEGANT)
+  colorTier           ColorTier   @default(CLASSIC)
+  createdAt           DateTime    @default(now())
+  /// When the order was cancelled (customer or operator).
+  cancelledAt         DateTime?
+  /// Free-text reason (required for operator; optional for customer self-serve).
+  cancellationReason  String?
+  /// Actual amount refunded via Stripe, in cents (0 if none).
+  refundAmountCents   Int?
+  /// "customer" | "operator"
+  cancelledBy         String?
 
-  couple           Couple      @relation(fields: [coupleId], references: [id])
-  designs          Design[]
-  addOns           AddOn[]
+  couple              Couple      @relation(fields: [coupleId], references: [id])
+  designs             Design[]
+  addOns              AddOn[]
 }
 
 model Design {

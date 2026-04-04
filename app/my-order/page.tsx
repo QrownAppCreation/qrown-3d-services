@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { OrderStatus } from "@prisma/client";
 import RequestTrackingLink from "./RequestTrackingLink";
+import CancelOrderButton from "./CancelOrderButton";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -292,7 +293,7 @@ export default async function MyOrderPage({ searchParams }: Props) {
               </div>
 
               {/* Payment summary */}
-              <div className="px-6 py-5">
+              <div className="px-6 py-5 border-t border-border">
                 <div className="flex justify-between text-sm mb-1">
                   <span className="text-gray-500">Deposit paid</span>
                   <span className="font-semibold" style={{ color: "var(--wp-sage)" }}>
@@ -306,6 +307,15 @@ export default async function MyOrderPage({ searchParams }: Props) {
                   </span>
                 </div>
               </div>
+
+              <CancelOrderButton
+                token={token}
+                orderId={order.id}
+                depositCents={order.depositCents}
+                createdAtIso={order.createdAt.toISOString()}
+                status={order.status}
+                stripePaymentId={order.stripePaymentId}
+              />
             </div>
           );
         })}

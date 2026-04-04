@@ -36,6 +36,10 @@ export default function TrackOrderPage() {
 
           <RequestTrackingLink />
 
+          <p className="text-center mt-6 text-sm text-gray-500 max-w-md mx-auto">
+            After you open the link we email you, you can view your order and request a cancellation
+            from your order page (refunds follow our time-based policy).
+          </p>
           <p className="text-center mt-8 text-sm text-gray-400">
             Haven't ordered yet?{" "}
             <Link href="/order/step1-style" className="underline"

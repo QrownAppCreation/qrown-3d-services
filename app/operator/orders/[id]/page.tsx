@@ -162,6 +162,23 @@ export default async function OperatorOrderDetailPage({ params }: Props) {
           <p className="text-muted-foreground text-sm mt-1">
             {order.couple.name} — {order.couple.email}
           </p>
+          {order.status === "CANCELLED" && order.cancelledAt && (
+            <div className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm">
+              <p className="font-semibold text-red-800">Cancellation record</p>
+              <p className="text-red-900/90 mt-1">
+                Cancelled {new Date(order.cancelledAt).toLocaleString()}
+                {order.cancelledBy && ` · ${order.cancelledBy === "operator" ? "Operator" : "Customer"}`}
+              </p>
+              {order.refundAmountCents != null && (
+                <p className="text-red-900/90 mt-1">
+                  Refund issued: {fmt(order.refundAmountCents)}
+                </p>
+              )}
+              {order.cancellationReason && (
+                <p className="text-red-900/80 mt-2 italic">&ldquo;{order.cancellationReason}&rdquo;</p>
+              )}
+            </div>
+          )}
         </header>
 
         <main className="p-8 space-y-6">
@@ -293,6 +310,7 @@ export default async function OperatorOrderDetailPage({ params }: Props) {
               id:               order.id,
               status:           order.status,
               balanceCents:     order.balanceCents,
+              depositCents:     order.depositCents,
               coupleEmail:      order.couple.email,
               coupleName:       order.couple.name,
               stripePaymentId:  order.stripePaymentId ?? null,

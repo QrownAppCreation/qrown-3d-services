@@ -418,21 +418,69 @@ export async function sendOrderCompleteEmail(params: {
   });
 }
 
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 export async function sendCancellationEmail(params: {
   email: string;
   coupleName: string;
   orderId: string;
   refundAmountCents: number;
+  cancelledBy: "customer" | "operator";
+  cancellationReason?: string | null;
+  policyNote?: string | null;
 }) {
-  const { email, coupleName, orderId, refundAmountCents } = params;
+  const {
+    email,
+    coupleName,
+    orderId,
+    refundAmountCents,
+    cancelledBy,
+    cancellationReason,
+    policyNote,
+  } = params;
 
   const fmt = (c: number) =>
     new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(c / 100);
 
+  const orderRef = `#${orderId.slice(-8).toUpperCase()}`;
+  const hasRefund = refundAmountCents > 0;
+
+  const reasonBlock =
+    cancelledBy === "operator" && cancellationReason?.trim()
+      ? `<p style="color:#555;line-height:1.7;font-size:14px;margin:16px 0 0;padding:12px 14px;background:#f5f5f0;border-radius:8px;border-left:3px solid #8B9D77;">
+          <strong style="color:#2d2d2a;">Note from our team:</strong><br/>
+          ${escapeHtml(cancellationReason.trim())}
+        </p>`
+      : "";
+
+  const policyBlock = policyNote?.trim()
+    ? `<p style="color:#666;font-size:14px;line-height:1.6;margin:16px 0 0;">${escapeHtml(policyNote.trim())}</p>`
+    : "";
+
+  const refundSection = hasRefund
+    ? `<div style="background: #fff; border: 1px solid #e5e5e0; border-radius: 10px; padding: 20px; margin: 24px 0;">
+          <p style="color: #555; font-size: 14px; margin: 0 0 8px;">Refund amount</p>
+          <p style="font-size: 22px; font-weight: bold; color: #2d2d2a; margin: 0 0 8px;">${fmt(refundAmountCents)}</p>
+          <p style="color: #888; font-size: 13px; margin: 0;">
+            Refunds typically appear on your card statement within <strong>3–5 business days</strong> (some banks may take longer).
+          </p>
+        </div>`
+    : `<div style="background: #fff; border: 1px solid #e5e5e0; border-radius: 10px; padding: 20px; margin: 24px 0;">
+          <p style="color: #555; font-size: 14px; margin: 0;">
+            <strong>No refund was issued</strong> for this cancellation, per our policy.
+          </p>
+        </div>`;
+
   await getResend().emails.send({
     from:    FROM,
     to:      email,
-    subject: "Your WedPrint order has been cancelled",
+    subject: `Your WedPrint order ${orderRef} has been cancelled`,
     html: `
       <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; background: #FAFAF7;">
         <div style="background: #2d2d2a; padding: 32px; text-align: center;">
@@ -440,26 +488,20 @@ export async function sendCancellationEmail(params: {
           <p style="color: #fff; margin: 8px 0 0; font-size: 13px; letter-spacing: 1px;">Handcrafted 3D Keepsakes</p>
         </div>
         <div style="padding: 40px 36px;">
-          <h2 style="color: #2d2d2a; margin-top: 0;">Order Cancelled</h2>
+          <h2 style="color: #2d2d2a; margin-top: 0;">Order cancelled</h2>
           <p style="color: #555; line-height: 1.7;">
-            Hi <strong>${coupleName}</strong>,<br/><br/>
-            Your WedPrint order <strong>#${orderId.slice(-8).toUpperCase()}</strong> has been cancelled
-            and a full refund of <strong style="color: #2d2d2a;">${fmt(refundAmountCents)}</strong> has been
-            issued to your original payment method.
+            Hi <strong>${escapeHtml(coupleName)}</strong>,<br/><br/>
+            Your WedPrint order <strong>${orderRef}</strong> has been cancelled.
           </p>
-          <div style="background: #fff; border: 1px solid #e5e5e0; border-radius: 10px; padding: 20px; margin: 24px 0;">
-            <p style="color: #555; font-size: 14px; margin: 0 0 8px;">Refund details</p>
-            <p style="font-size: 18px; font-weight: bold; color: #2d2d2a; margin: 0 0 8px;">${fmt(refundAmountCents)} refunded</p>
-            <p style="color: #888; font-size: 13px; margin: 0;">
-              Refunds typically appear on your statement within 5–10 business days, depending on your bank.
-            </p>
-          </div>
+          ${reasonBlock}
+          ${policyBlock}
+          ${refundSection}
           <p style="color: #555; line-height: 1.7; font-size: 14px;">
-            If you cancelled by mistake or would like to place a new order, we'd love to help —
-            just reply to this email or visit <a href="${APP_URL}" style="color: #8FAF8F;">wedprint3d.com</a>.
+            Questions? Reply to this email or contact us at
+            <a href="mailto:support@wedprint3d.com" style="color: #8FAF8F;">support@wedprint3d.com</a>.
+            You can also visit <a href="${APP_URL}" style="color: #8FAF8F;">wedprint3d.com</a>.
           </p>
           <p style="color: #888; font-size: 13px; line-height: 1.7; border-top: 1px solid #e5e5e0; padding-top: 24px; margin-top: 32px;">
-            Questions? Contact us at support@wedprint3d.com<br/><br/>
             — The WedPrint Team
           </p>
         </div>
