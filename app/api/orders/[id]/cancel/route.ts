@@ -94,7 +94,7 @@ export async function POST(req: NextRequest, { params }: Props) {
     let actualRefundCents = 0;
     if (refundCents > 0) {
       try {
-        actualRefundCents = await refundDepositViaStripe(order.stripePaymentId, refundCents);
+        actualRefundCents = await refundDepositViaStripe(order.paymentIntentId, refundCents);
         console.log(`[cancel/operator] Refunded ${actualRefundCents} cents for order ${id}`);
       } catch (stripeErr) {
         console.error("[cancel/operator] Stripe refund failed:", stripeErr);

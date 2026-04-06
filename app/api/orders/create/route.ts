@@ -154,7 +154,13 @@ export async function POST(req: NextRequest) {
       mode:           "payment",
       customer_email: email,
       line_items:     stripeLineItems,
-      metadata:       { orderId: order.id },
+      metadata:       { orderId: order.id, type: "deposit" },
+      payment_intent_data: {
+        metadata: {
+          orderId: order.id,
+          type:    "deposit",
+        },
+      },
       success_url:    `${APP_URL}/order-confirmed?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url:     `${APP_URL}/order/step5-payment`,
     });

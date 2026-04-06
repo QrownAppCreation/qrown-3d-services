@@ -61,6 +61,12 @@ export async function POST(_req: NextRequest, { params }: Context) {
         orderId,
         type: "balance",   // tells webhook this is a balance payment, not a deposit
       },
+      payment_intent_data: {
+        metadata: {
+          orderId,
+          type: "balance",
+        },
+      },
       success_url: `${APP_URL}/order-confirmed?balance_paid=1`,
       cancel_url:  `${APP_URL}/`,
     });

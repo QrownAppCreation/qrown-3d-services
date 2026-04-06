@@ -273,9 +273,9 @@ export default async function OperatorOrderDetailPage({ params }: Props) {
                     {fmt(order.balanceCents)}
                   </span>
                 </div>
-                {order.stripePaymentId && (
+                {order.paymentIntentId && (
                   <p className="text-xs text-muted-foreground pt-1 border-t border-border">
-                    Stripe: {order.stripePaymentId.slice(0, 24)}...
+                    Stripe: {order.paymentIntentId.slice(0, 24)}...
                   </p>
                 )}
               </div>
@@ -308,7 +308,7 @@ export default async function OperatorOrderDetailPage({ params }: Props) {
               depositCents:     order.depositCents,
               coupleEmail:      order.couple.email,
               coupleName:       order.couple.name,
-              stripePaymentId:  order.stripePaymentId ?? null,
+              paymentIntentId:  order.paymentIntentId ?? null,
               designs:          order.designs,
             }}
           />

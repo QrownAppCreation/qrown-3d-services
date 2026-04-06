@@ -57,8 +57,8 @@ export async function POST(req: NextRequest) {
 
     // ── Deposit payment (original flow) ───────────────────────────────────
     try {
-      const paymentIntentId = await checkoutSessionPaymentIntentId(session);
-      if (!paymentIntentId) {
+      const resolvedPiId = await checkoutSessionPaymentIntentId(session);
+      if (!resolvedPiId) {
         console.error("Webhook: could not resolve payment_intent for session", session.id);
       }
       const order = await db.order.update({
@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
         data: {
           status:          "PAID",
           stripeSessionId: session.id,
-          ...(paymentIntentId ? { stripePaymentId: paymentIntentId } : {}),
+          ...(resolvedPiId ? { paymentIntentId: resolvedPiId } : {}),
         },
         include: {
           couple: {
@@ -129,13 +129,35 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // ── payment_intent.succeeded ───────────────────────────────────────────────
+  // Backs up saving the deposit PaymentIntent id when session webhooks are delayed.
+  if (event.type === "payment_intent.succeeded") {
+    const pi = event.data.object as Stripe.PaymentIntent;
+    const metaOrderId = pi.metadata?.orderId;
+    const kind = pi.metadata?.type ?? "deposit";
+
+    if (metaOrderId && pi.id && kind !== "balance") {
+      try {
+        await db.order.update({
+          where: { id: metaOrderId },
+          data:  { paymentIntentId: pi.id },
+        });
+        console.log(`Webhook: payment_intent.succeeded → paymentIntentId for order ${metaOrderId}`);
+      } catch (err) {
+        console.error("Webhook: payment_intent.succeeded order update failed:", err);
+      }
+    }
+
+    return NextResponse.json({ received: true });
+  }
+
   // ── payment_intent.payment_failed ─────────────────────────────────────────
   if (event.type === "payment_intent.payment_failed") {
     const paymentIntent = event.data.object as Stripe.PaymentIntent;
 
     try {
       const order = await db.order.findFirst({
-        where: { stripePaymentId: paymentIntent.id },
+        where: { paymentIntentId: paymentIntent.id },
       });
 
       if (order) {

@@ -28,13 +28,13 @@ export default async function OrderConfirmedPage({ searchParams }: Props) {
       if (orderId && piId) {
         const existing = await db.order.findUnique({
           where: { id: orderId },
-          select: { stripePaymentId: true },
+          select: { paymentIntentId: true },
         });
-        if (existing && !existing.stripePaymentId) {
+        if (existing && !existing.paymentIntentId) {
           await db.order.update({
             where: { id: orderId },
             data: {
-              stripePaymentId: piId,
+              paymentIntentId: piId,
               stripeSessionId: stripeSession.id,
             },
           });

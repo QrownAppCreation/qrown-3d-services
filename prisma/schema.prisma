@@ -108,7 +108,8 @@ model Order {
   id                  String      @id @default(cuid())
   coupleId            String
   status              OrderStatus @default(PENDING_PAYMENT)
-  stripePaymentId     String?
+  /// Stripe PaymentIntent id for the deposit charge (used for refunds).
+  paymentIntentId     String?     @map("stripePaymentId")
   stripeSessionId     String?
   depositCents        Int         @default(0)
   balanceCents        Int         @default(0)

@@ -309,7 +309,7 @@ export default async function MyOrderPage({ searchParams }: Props) {
                 depositCents={order.depositCents}
                 createdAtIso={order.createdAt.toISOString()}
                 status={order.status}
-                stripePaymentId={order.stripePaymentId}
+                paymentIntentId={order.paymentIntentId}
               />
             </div>
           );

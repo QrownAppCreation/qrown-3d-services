@@ -34,7 +34,7 @@ interface Props {
     depositCents: number;
     coupleEmail: string;
     coupleName: string;
-    stripePaymentId: string | null;
+    paymentIntentId: string | null;
     designs: Design[];
   };
 }
@@ -265,7 +265,7 @@ export default function OrderDetailClient({ order }: Props) {
         onOpenChange={setCancelDialogOpen}
         orderId={order.id}
         depositCents={order.depositCents}
-        stripePaymentId={order.stripePaymentId}
+        paymentIntentId={order.paymentIntentId}
         onSuccess={() => {
           setOrderStatus("CANCELLED");
           toast.success("Order cancelled. Customer notified by email.");

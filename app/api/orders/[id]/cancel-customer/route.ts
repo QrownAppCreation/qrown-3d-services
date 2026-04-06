@@ -64,7 +64,7 @@ export async function POST(req: NextRequest, { params }: Props) {
     let policyNote: string | null = null;
 
     const hasPaidDeposit =
-      !!order.stripePaymentId &&
+      !!order.paymentIntentId &&
       order.status !== "PENDING_PAYMENT" &&
       order.depositCents > 0;
 
@@ -87,7 +87,7 @@ export async function POST(req: NextRequest, { params }: Props) {
     let actualRefundCents = 0;
     if (refundCents > 0) {
       try {
-        actualRefundCents = await refundDepositViaStripe(order.stripePaymentId, refundCents);
+        actualRefundCents = await refundDepositViaStripe(order.paymentIntentId, refundCents);
       } catch (stripeErr) {
         console.error("[cancel-customer] Stripe refund failed:", stripeErr);
         const msg =

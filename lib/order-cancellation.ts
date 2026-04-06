@@ -6,16 +6,16 @@ import { getStripe } from "@/lib/stripe";
  * @returns Actual refunded amount in cents (from Stripe).
  */
 export async function refundDepositViaStripe(
-  stripePaymentId: string | null,
+  paymentIntentId: string | null,
   refundCents: number
 ): Promise<number> {
   if (refundCents <= 0) return 0;
-  if (!stripePaymentId) {
+  if (!paymentIntentId) {
     throw new Error("No card payment on file for this order — cannot process a refund.");
   }
 
   const refund = await getStripe().refunds.create({
-    payment_intent: stripePaymentId,
+    payment_intent: paymentIntentId,
     amount: refundCents,
   });
 

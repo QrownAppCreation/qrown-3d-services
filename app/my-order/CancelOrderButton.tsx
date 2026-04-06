@@ -22,7 +22,7 @@ interface Props {
   depositCents: number;
   createdAtIso: string;
   status: OrderStatus;
-  stripePaymentId: string | null;
+  paymentIntentId: string | null;
 }
 
 export default function CancelOrderButton({
@@ -31,7 +31,7 @@ export default function CancelOrderButton({
   depositCents,
   createdAtIso,
   status,
-  stripePaymentId,
+  paymentIntentId,
 }: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -48,7 +48,7 @@ export default function CancelOrderButton({
   const ONE_HOUR = 60 * 60 * 1000;
   const DAY = 24 * 60 * 60 * 1000;
 
-  const hasDeposit = !!stripePaymentId && status !== "PENDING_PAYMENT" && depositCents > 0;
+  const hasDeposit = !!paymentIntentId && status !== "PENDING_PAYMENT" && depositCents > 0;
 
   let policyPreview = "";
   if (!hasDeposit) {

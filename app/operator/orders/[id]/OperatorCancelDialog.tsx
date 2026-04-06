@@ -29,7 +29,7 @@ interface Props {
   onOpenChange: (open: boolean) => void;
   orderId: string;
   depositCents: number;
-  stripePaymentId: string | null;
+  paymentIntentId: string | null;
   onSuccess: () => void;
 }
 
@@ -38,7 +38,7 @@ export default function OperatorCancelDialog({
   onOpenChange,
   orderId,
   depositCents,
-  stripePaymentId,
+  paymentIntentId,
   onSuccess,
 }: Props) {
   const [reason, setReason] = useState("");
@@ -130,7 +130,7 @@ export default function OperatorCancelDialog({
             <span className="font-semibold" style={{ color: "var(--wp-charcoal)" }}>
               {fmtUsd(depositCents)}
             </span>
-            {!stripePaymentId && (
+            {!paymentIntentId && (
               <p className="text-amber-700 text-xs mt-2">
                 No Stripe payment on file — only &quot;No refund&quot; applies.
               </p>
