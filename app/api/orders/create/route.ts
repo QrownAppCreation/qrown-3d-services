@@ -2,7 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomBytes } from "crypto";
 import { db } from "@/lib/db";
 import { getStripe } from "@/lib/stripe";
-import type { OrderDraft, AddOnKey } from "@/lib/order-store";
+import {
+  ADDON_PRICES,
+  calculateTotal,
+  formatCents,
+  type AddOnKey,
+  type OrderDraft,
+} from "@/lib/order-pricing";
 import { AddOnType, StyleTier } from "@prisma/client";
 import type Stripe from "stripe";
 import { Resend } from "resend";
@@ -10,33 +16,19 @@ import { Resend } from "resend";
 const OPERATOR_EMAIL = process.env.OPERATOR_EMAIL ?? "hello@wedprint3d.com";
 const APP_URL        = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
-/**
- * Authoritative server-side price table (cents) covering every AddOnType.
- * These are used as defaults when the client doesn't send a price.
- */
-const ADDON_PRICE_LOOKUP: Record<AddOnType, number> = {
-  HAND_PAINTING: 6500,
-  GIFT_BOX:      1200,
-  ENGRAVED_BASE: 1200,
-  RUSH_ORDER:    0,   // percentage surcharge — calculated from order total below
-  STL_LICENSE:   3500,
-  REORDER_FEE:   2900,
-  TRAVEL_FEE:    0,   // quoted case-by-case
-  RESIN_COAT:    4500,
-};
-
-/** Resolve the price for a single add-on row. */
+/** Same add-on prices as the wizard (`order-pricing.ts`). Rush is a % of pre-rush subtotal. */
 function resolveAddonPrice(
   type: AddOnType,
-  orderTotalCents: number,
+  preRushSubtotal: number,
   qty: number
 ): number {
   if (type === "RUSH_ORDER") {
-    // 50% surcharge of the pre-rush subtotal
-    return Math.round(orderTotalCents * 0.5);
+    return Math.round(preRushSubtotal * 0.5);
   }
-  const unitPrice = ADDON_PRICE_LOOKUP[type] ?? 0;
-  return unitPrice * qty;
+  if (Object.prototype.hasOwnProperty.call(ADDON_PRICES, type)) {
+    return ADDON_PRICES[type as AddOnKey] * qty;
+  }
+  return 0;
 }
 
 export async function POST(req: NextRequest) {
@@ -56,30 +48,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ── Pricing ──────────────────────────────────────────────────────────────
+    // ── Pricing (must match wizard `calculateTotal` — Stripe + DB match) ─────
     const qty             = Math.max(1, draft.quantity ?? 1);
-    const basePriceCents  = 7900; // $79 per cake topper
-    const subtotalCents   = basePriceCents * qty;
-
-    // Add-ons total (excluding rush, which is a surcharge)
-    let addOnSubtotal = 0;
-    if (draft.addOns) {
-      for (const [key, selected] of Object.entries(draft.addOns)) {
-        if (!selected || key === "RUSH_ORDER") continue;
-        const unitPrice = ADDON_PRICE_LOOKUP[key as AddOnType] ?? 0;
-        addOnSubtotal += unitPrice * qty;
-      }
-    }
-
-    const preRushTotal    = subtotalCents + addOnSubtotal;
-    const rushSurcharge   = draft.addOns?.RUSH_ORDER
-      ? Math.round(preRushTotal * 0.5)
-      : 0;
-
-    // Prefer client-calculated total (already includes rush) but fall back to server calc
-    const totalCents   = draft.totalCents ?? (preRushTotal + rushSurcharge);
-    const depositCents = draft.depositCents ?? Math.round(totalCents * 0.5);
-    const balanceCents = totalCents - depositCents;
+    const pricing         = calculateTotal(draft);
+    const totalCents      = pricing.total;
+    const depositCents    = pricing.deposit;
+    const balanceCents    = pricing.balance;
+    const subtotalCents   = pricing.subtotal;
+    const rushSurcharge   = pricing.rushSurcharge;
+    const preRushTotal    = subtotalCents;
 
     // ── Build add-on rows ─────────────────────────────────────────────────────
     const addOnInputs: { type: AddOnType; priceCents: number; quantity: number }[] = [];
@@ -158,33 +135,20 @@ export async function POST(req: NextRequest) {
     });
 
     // ── Stripe Checkout Session ──────────────────────────────────────────────
-    // Build one line item per product + one per add-on so the Stripe receipt
-    // shows a clear itemised breakdown.
+    // One line item for the exact deposit (cents) so the charge always matches `depositCents`.
     const stripeLineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
       {
         price_data: {
-          currency:     "usd",
+          currency: "usd",
           product_data: {
-            name: `${draft.styleTier ?? "Elegant"} Cake Topper ×${qty} — 50% deposit`,
+            name: `${draft.styleTier ?? "Elegant"} order — 50% deposit`,
+            description: `Order total ${formatCents(totalCents)} · Balance ${formatCents(balanceCents)} due at design approval`,
           },
-          unit_amount: Math.round(subtotalCents * 0.5),
+          unit_amount: depositCents,
         },
         quantity: 1,
       },
     ];
-
-    // Add-on deposit line items
-    for (const a of addOnInputs) {
-      if (a.priceCents === 0) continue; // skip zero-price rows (TRAVEL_FEE, etc.)
-      stripeLineItems.push({
-        price_data: {
-          currency:     "usd",
-          product_data: { name: `${a.type.replace(/_/g, " ")} — 50% deposit` },
-          unit_amount:  Math.round(a.priceCents * 0.5),
-        },
-        quantity: 1,
-      });
-    }
 
     const stripeSession = await getStripe().checkout.sessions.create({
       mode:           "payment",
@@ -202,8 +166,7 @@ export async function POST(req: NextRequest) {
     const resend    = new Resend(process.env.RESEND_API_KEY);
     const FROM_ADDR = process.env.FROM_EMAIL ?? "onboarding@resend.dev";
     const shortId = order.id.slice(-8).toUpperCase();
-    const fmt = (c: number) =>
-      new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(c / 100);
+    const fmt = formatCents;
 
     // Build display strings for the email
     const greeting = (draft.partner1Name && draft.partner2Name)
@@ -392,7 +355,6 @@ export async function POST(req: NextRequest) {
       _debug: {
         qty,
         subtotalCents,
-        addOnSubtotal,
         rushSurcharge,
         totalCents,
         depositCents,

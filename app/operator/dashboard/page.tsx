@@ -16,6 +16,7 @@ import {
   ArrowUpDown,
 } from "lucide-react";
 import { signOut } from "@/lib/auth";
+import { formatCents } from "@/lib/order-pricing";
 
 // ── Color tier helpers ────────────────────────────────────────────────────────
 
@@ -49,11 +50,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function fmt(cents: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency", currency: "USD", minimumFractionDigits: 0,
-  }).format(cents / 100);
-}
+const fmt = formatCents;
 
 /** Days from today until the given date. Negative = already passed. */
 function daysUntil(date: Date | null): number | null {

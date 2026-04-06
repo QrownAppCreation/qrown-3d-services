@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStripe } from "@/lib/stripe";
+import { checkoutSessionPaymentIntentId, getStripe } from "@/lib/stripe";
 import { db } from "@/lib/db";
 import { sendOrderConfirmationEmail, sendOperatorNotification } from "@/lib/email";
 import Stripe from "stripe";
@@ -57,12 +57,16 @@ export async function POST(req: NextRequest) {
 
     // ── Deposit payment (original flow) ───────────────────────────────────
     try {
+      const paymentIntentId = await checkoutSessionPaymentIntentId(session);
+      if (!paymentIntentId) {
+        console.error("Webhook: could not resolve payment_intent for session", session.id);
+      }
       const order = await db.order.update({
         where: { id: orderId },
         data: {
           status:          "PAID",
-          stripePaymentId: session.payment_intent as string,
           stripeSessionId: session.id,
+          ...(paymentIntentId ? { stripePaymentId: paymentIntentId } : {}),
         },
         include: {
           couple: {

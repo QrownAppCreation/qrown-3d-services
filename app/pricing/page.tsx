@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Heart, ArrowRight, Check } from "lucide-react";
+import { formatCents } from "@/lib/order-pricing";
 
 export const metadata = { title: "Pricing — WedPrint" };
 
@@ -110,11 +111,7 @@ const FAQS = [
   },
 ];
 
-function fmt(cents: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency", currency: "USD", minimumFractionDigits: 0,
-  }).format(cents / 100);
-}
+const fmt = formatCents;
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 

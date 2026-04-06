@@ -25,7 +25,38 @@ export function formatCurrency(cents: number): string {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(cents / 100);
+}
+
+/** Normalize Checkout Session → PaymentIntent id (string or expanded object). */
+export function paymentIntentIdFromSession(
+  session: Stripe.Checkout.Session
+): string | null {
+  const pi = session.payment_intent;
+  if (pi == null) return null;
+  if (typeof pi === "string") return pi;
+  if (typeof pi === "object" && "id" in pi) {
+    return (pi as Stripe.PaymentIntent).id;
+  }
+  return null;
+}
+
+/** Prefer session payload; if missing, retrieve session with expanded payment_intent. */
+export async function checkoutSessionPaymentIntentId(
+  session: Stripe.Checkout.Session
+): Promise<string | null> {
+  let id = paymentIntentIdFromSession(session);
+  if (id) return id;
+  try {
+    const full = await getStripe().checkout.sessions.retrieve(session.id, {
+      expand: ["payment_intent"],
+    });
+    return paymentIntentIdFromSession(full);
+  } catch {
+    return null;
+  }
 }
 
 export function calculateDeposit(totalCents: number): number {

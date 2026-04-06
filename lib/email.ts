@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { formatCents } from "@/lib/order-pricing";
 
 let _resend: Resend | null = null;
 
@@ -75,13 +76,6 @@ export async function sendOrderConfirmationEmail(params: {
     magicLinkUrl,
   } = params;
 
-  const fmt = (cents: number) =>
-    new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-    }).format(cents / 100);
-
   const greeting =
     partner1Name && partner2Name
       ? `${partner1Name} & ${partner2Name}`
@@ -125,11 +119,11 @@ export async function sendOrderConfirmationEmail(params: {
             <div style="margin-top: 16px; padding-top: 16px; border-top: 2px solid #e5e5e0;">
               <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
                 <span style="color: #555; font-size: 14px;">Deposit paid today:</span>
-                <strong style="color: #8FAF8F; font-size: 14px;">${fmt(depositPaidCents)}</strong>
+                <strong style="color: #8FAF8F; font-size: 14px;">${formatCents(depositPaidCents)}</strong>
               </div>
               <div style="margin-top: 12px; background: #f0f4f0; border-radius: 6px; padding: 12px; font-size: 14px; color: #444; line-height: 1.6;">
                 Your 50% deposit has been received. The remaining balance of
-                <strong>${fmt(balanceDueCents)}</strong> will be collected once you
+                <strong>${formatCents(balanceDueCents)}</strong> will be collected once you
                 approve your design preview. We will send your design preview within 48 hours.
               </div>
             </div>
@@ -141,7 +135,7 @@ export async function sendOrderConfirmationEmail(params: {
             <li>Our team begins designing your piece within 24 hours</li>
             <li>You'll receive an email with an interactive 3D preview to review and approve</li>
             <li>Once you approve, we print and contact you to arrange delivery</li>
-            <li>The balance (${fmt(balanceDueCents)}) is due on delivery</li>
+            <li>The balance (${formatCents(balanceDueCents)}) is due on delivery</li>
           </ol>
 
           <p style="color: #8FAF8F; font-weight: bold; font-size: 15px;">
@@ -317,13 +311,6 @@ export async function sendBalancePaymentEmail(params: {
 }) {
   const { email, coupleName, balanceCents, paymentUrl, orderId } = params;
 
-  const fmt = (c: number) =>
-    new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-    }).format(c / 100);
-
   await getResend().emails.send({
     from: FROM,
     to: email,
@@ -338,7 +325,7 @@ export async function sendBalancePaymentEmail(params: {
           <h2 style="color: #2d2d2a; margin-top: 0;">Great news, ${coupleName}! 🎉</h2>
           <p style="color: #555; line-height: 1.7;">
             Your design has been approved and is ready to go to print. To complete your order,
-            please pay the remaining balance of <strong style="color: #2d2d2a;">${fmt(balanceCents)}</strong>
+            please pay the remaining balance of <strong style="color: #2d2d2a;">${formatCents(balanceCents)}</strong>
             using the secure link below.
           </p>
 
@@ -347,7 +334,7 @@ export async function sendBalancePaymentEmail(params: {
               Order reference: <strong>#${orderId.slice(-8).toUpperCase()}</strong>
             </p>
             <p style="color: #2d2d2a; font-size: 22px; font-weight: bold; margin: 0 0 20px;">
-              Balance due: ${fmt(balanceCents)}
+              Balance due: ${formatCents(balanceCents)}
             </p>
             <a href="${paymentUrl}" style="
               display: inline-block;
@@ -445,9 +432,6 @@ export async function sendCancellationEmail(params: {
     policyNote,
   } = params;
 
-  const fmt = (c: number) =>
-    new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(c / 100);
-
   const orderRef = `#${orderId.slice(-8).toUpperCase()}`;
   const hasRefund = refundAmountCents > 0;
 
@@ -466,7 +450,7 @@ export async function sendCancellationEmail(params: {
   const refundSection = hasRefund
     ? `<div style="background: #fff; border: 1px solid #e5e5e0; border-radius: 10px; padding: 20px; margin: 24px 0;">
           <p style="color: #555; font-size: 14px; margin: 0 0 8px;">Refund amount</p>
-          <p style="font-size: 22px; font-weight: bold; color: #2d2d2a; margin: 0 0 8px;">${fmt(refundAmountCents)}</p>
+          <p style="font-size: 22px; font-weight: bold; color: #2d2d2a; margin: 0 0 8px;">${formatCents(refundAmountCents)}</p>
           <p style="color: #888; font-size: 13px; margin: 0;">
             Refunds typically appear on your card statement within <strong>3–5 business days</strong> (some banks may take longer).
           </p>

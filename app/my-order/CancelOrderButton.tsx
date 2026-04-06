@@ -14,13 +14,7 @@ import {
 import { Loader2 } from "lucide-react";
 import type { OrderStatus } from "@prisma/client";
 
-function fmtUsd(cents: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 0,
-  }).format(cents / 100);
-}
+import { formatCents } from "@/lib/order-pricing";
 
 interface Props {
   token: string;
@@ -61,9 +55,9 @@ export default function CancelOrderButton({
     policyPreview =
       "No deposit was collected yet — your order will be cancelled without a refund.";
   } else if (elapsed < ONE_HOUR) {
-    policyPreview = `Within 1 hour of ordering: full refund of ${fmtUsd(depositCents)}.`;
+    policyPreview = `Within 1 hour of ordering: full refund of ${formatCents(depositCents)}.`;
   } else if (elapsed < DAY) {
-    policyPreview = `Between 1–24 hours: 50% refund (${fmtUsd(Math.round(depositCents * 0.5))}). The rest covers setup.`;
+    policyPreview = `Between 1–24 hours: 50% refund (${formatCents(Math.round(depositCents * 0.5))}). The rest covers setup.`;
   } else {
     policyPreview =
       "After 24 hours: your deposit is non-refundable. You may still cancel your order.";

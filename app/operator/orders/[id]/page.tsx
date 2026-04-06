@@ -24,14 +24,9 @@ const COLOR_TIER_FILAMENT: Record<string, string> = {
   HEIRLOOM:  "4+ filaments — 3+ changes (Bambu X1C only)",
 };
 import OrderDetailClient from "./OrderDetailClient";
+import { formatCents } from "@/lib/order-pricing";
 
-function fmt(cents: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 0,
-  }).format(cents / 100);
-}
+const fmt = formatCents;
 
 interface Props {
   params: Promise<{ id: string }>;

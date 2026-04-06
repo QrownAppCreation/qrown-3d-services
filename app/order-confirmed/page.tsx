@@ -1,21 +1,14 @@
 export const dynamic = "force-dynamic";
 
-import { getStripe } from "@/lib/stripe";
+import { getStripe, paymentIntentIdFromSession } from "@/lib/stripe";
 import { db } from "@/lib/db";
+import { formatCents } from "@/lib/order-pricing";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Heart, Mail, Package, Calendar } from "lucide-react";
 
 interface Props {
   searchParams: Promise<{ session_id?: string }>;
-}
-
-function fmt(cents: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 0,
-  }).format(cents / 100);
 }
 
 export default async function OrderConfirmedPage({ searchParams }: Props) {
@@ -31,6 +24,22 @@ export default async function OrderConfirmedPage({ searchParams }: Props) {
         { expand: ["payment_intent"] }
       );
       orderId = stripeSession.metadata?.orderId ?? null;
+      const piId = paymentIntentIdFromSession(stripeSession);
+      if (orderId && piId) {
+        const existing = await db.order.findUnique({
+          where: { id: orderId },
+          select: { stripePaymentId: true },
+        });
+        if (existing && !existing.stripePaymentId) {
+          await db.order.update({
+            where: { id: orderId },
+            data: {
+              stripePaymentId: piId,
+              stripeSessionId: stripeSession.id,
+            },
+          });
+        }
+      }
     } catch (err) {
       console.error("Could not retrieve Stripe session:", err);
     }
@@ -146,12 +155,12 @@ export default async function OrderConfirmedPage({ searchParams }: Props) {
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Deposit paid today</span>
                     <span className="font-semibold" style={{ color: "var(--wp-sage)" }}>
-                      {fmt(order.depositCents)}
+                      {formatCents(order.depositCents)}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Balance due upon design approval</span>
-                    <span className="font-medium">{fmt(order.balanceCents)}</span>
+                    <span className="font-medium">{formatCents(order.balanceCents)}</span>
                   </div>
                 </div>
 

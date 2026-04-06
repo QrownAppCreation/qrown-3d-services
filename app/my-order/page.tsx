@@ -6,16 +6,11 @@ import { db } from "@/lib/db";
 import { OrderStatus } from "@prisma/client";
 import RequestTrackingLink from "./RequestTrackingLink";
 import CancelOrderButton from "./CancelOrderButton";
+import { formatCents } from "@/lib/order-pricing";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function fmt(cents: number) {
-  return new Intl.NumberFormat("en-AU", {
-    style:    "currency",
-    currency: "AUD",
-    minimumFractionDigits: 0,
-  }).format(cents / 100);
-}
+const fmt = formatCents;
 
 // Maps a status to which numbered step (1-6) is currently active
 const STATUS_STEP: Record<OrderStatus, number> = {
