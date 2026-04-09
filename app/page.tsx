@@ -76,13 +76,13 @@ export default function HomePage() {
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
-              <a href="#gallery">
+              <Link href="/gallery">
                 <Button variant="outline" size="lg"
                   className="text-base px-8 bg-white/80 border-white/60 hover:bg-white"
                   style={{ color: "var(--wp-charcoal)" }}>
                   See examples
                 </Button>
-              </a>
+              </Link>
             </div>
           </div>
         </div>
