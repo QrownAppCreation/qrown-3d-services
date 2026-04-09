@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { checkoutSessionPaymentIntentId, getStripe } from "@/lib/stripe";
 import { db } from "@/lib/db";
 import { sendOrderConfirmationEmail, sendOperatorNotification } from "@/lib/email";
+import { formatUsdCents } from "@/lib/format-currency";
 import Stripe from "stripe";
 
 export async function POST(req: NextRequest) {
@@ -115,7 +116,7 @@ export async function POST(req: NextRequest) {
       });
 
       await sendOperatorNotification(
-        `New paid order from ${order.couple.name} (${order.couple.email}) — deposit $${(order.depositCents / 100).toFixed(2)}`,
+        `New paid order from ${order.couple.name} (${order.couple.email}) — deposit ${formatUsdCents(order.depositCents)}`,
         orderId
       );
 

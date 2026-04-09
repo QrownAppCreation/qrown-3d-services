@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { refundDepositViaStripe } from "@/lib/order-cancellation";
 import { sendCancellationEmail } from "@/lib/email";
+import { formatUsdCents } from "@/lib/format-currency";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -127,7 +128,7 @@ export async function POST(req: NextRequest, { params }: Props) {
       policyNote,
       message:
         actualRefundCents > 0
-          ? `Your order was cancelled. A refund of $${(actualRefundCents / 100).toFixed(2)} will appear in 3–5 business days.`
+          ? `Your order was cancelled. A refund of ${formatUsdCents(actualRefundCents)} will appear in 3–5 business days.`
           : "Your order was cancelled.",
     });
   } catch (err) {

@@ -127,6 +127,8 @@ model Order {
   refundAmountCents   Int?
   /// "customer" | "operator"
   cancelledBy         String?
+  /// Operator-uploaded cleaned STL public URL (denormalized; also on Design.stlUrl).
+  cleanedStlUrl       String?
 
   couple              Couple      @relation(fields: [coupleId], references: [id])
   designs             Design[]

@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { refundDepositViaStripe } from "@/lib/order-cancellation";
 import { sendCancellationEmail } from "@/lib/email";
+import { formatUsdCents } from "@/lib/format-currency";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -139,7 +140,7 @@ export async function POST(req: NextRequest, { params }: Props) {
       refundAmountCents: actualRefundCents,
       message:
         actualRefundCents > 0
-          ? `Order cancelled. Refund of $${(actualRefundCents / 100).toFixed(2)} issued.`
+          ? `Order cancelled. Refund of ${formatUsdCents(actualRefundCents)} issued.`
           : "Order cancelled. No refund was issued.",
     });
   } catch (err) {

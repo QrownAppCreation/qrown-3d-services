@@ -37,8 +37,15 @@ export async function POST(
       return NextResponse.json({ error: "Design not found" }, { status: 404 });
     }
 
+    if (design.orderId !== orderId) {
+      return NextResponse.json(
+        { error: "Design does not belong to this order." },
+        { status: 400 }
+      );
+    }
+
     // ── Upload to Supabase Storage ──────────────────────────────────────────
-    // Path format: {orderId}/{filename}  (as specified)
+    // Bucket "stl-files", path: {orderId}/{filename}
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
     const storagePath = `${orderId}/${safeName}`;
     const mime = file.type || "model/stl";
@@ -52,15 +59,21 @@ export async function POST(
 
     console.log(`[stl/upload] Success: ${stlUrl}`);
 
-    // ── Persist URL to the Design record ──────────────────────────────────
-    await db.design.update({
-      where: { id: designId },
-      data: {
-        stlUrl,
-        cleanedMeshUrl: stlUrl,
-        status: "REVIEW",
-      },
-    });
+    // ── Persist URL on Design + Order (operator download / tracking) ───────
+    await db.$transaction([
+      db.design.update({
+        where: { id: designId },
+        data: {
+          stlUrl,
+          cleanedMeshUrl: stlUrl,
+          status:         "REVIEW",
+        },
+      }),
+      db.order.update({
+        where: { id: orderId },
+        data:  { cleanedStlUrl: stlUrl },
+      }),
+    ]);
 
     return NextResponse.json({
       success:    true,

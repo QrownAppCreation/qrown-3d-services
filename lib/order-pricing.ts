@@ -3,6 +3,11 @@
  * Used by the order wizard (via order-store) and /api/orders/create.
  */
 
+import { formatUsdCents } from "./format-currency";
+
+/** USD formatting — always 2 decimal places (e.g. $59.50). */
+export const formatCents = formatUsdCents;
+
 export type StyleTier =
   | "FUN"
   | "ELEGANT"
@@ -144,14 +149,4 @@ export function calculateTotal(draft: OrderDraft): {
   const balance       = total - deposit;
 
   return { subtotal, rushSurcharge, total, deposit, balance };
-}
-
-/** USD formatting — always 2 decimal places (e.g. $59.50). */
-export function formatCents(cents: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(cents / 100);
 }

@@ -1,4 +1,5 @@
 import Stripe from "stripe";
+import { formatUsdCents } from "./format-currency";
 
 let _stripe: Stripe | null = null;
 
@@ -22,12 +23,7 @@ export const stripe = new Proxy({} as Stripe, {
 });
 
 export function formatCurrency(cents: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(cents / 100);
+  return formatUsdCents(cents);
 }
 
 /** Normalize Checkout Session → PaymentIntent id (string or expanded object). */

@@ -309,6 +309,7 @@ export default async function OperatorOrderDetailPage({ params }: Props) {
               coupleEmail:      order.couple.email,
               coupleName:       order.couple.name,
               paymentIntentId:  order.paymentIntentId ?? null,
+              cleanedStlUrl:    order.cleanedStlUrl ?? null,
               designs:          order.designs,
             }}
           />

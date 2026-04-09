@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { sendOrderCompleteEmail, sendOperatorNotification } from "@/lib/email";
+import { formatUsdCents } from "@/lib/format-currency";
 
 interface Context {
   params: Promise<{ id: string }>;
@@ -27,7 +28,7 @@ export async function POST(_req: NextRequest, { params }: Context) {
       await sendOrderCompleteEmail({
         email:      order.couple.email,
         coupleName: order.couple.name,
-        balanceDue: `$${(order.balanceCents / 100).toFixed(0)}`,
+        balanceDue: formatUsdCents(order.balanceCents),
       });
 
       await sendOperatorNotification(

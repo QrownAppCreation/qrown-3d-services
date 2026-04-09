@@ -13,14 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
-
-function fmtUsd(cents: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-  }).format(cents / 100);
-}
+import { formatCents } from "@/lib/order-pricing";
 
 type RefundMode = "full" | "percent" | "flat" | "none";
 
@@ -128,7 +121,7 @@ export default function OperatorCancelDialog({
           <div className="rounded-lg border border-border bg-muted/30 px-4 py-3 text-sm">
             <span className="text-muted-foreground">Deposit paid: </span>
             <span className="font-semibold" style={{ color: "var(--wp-charcoal)" }}>
-              {fmtUsd(depositCents)}
+              {formatCents(depositCents)}
             </span>
             {!paymentIntentId && (
               <p className="text-amber-700 text-xs mt-2">

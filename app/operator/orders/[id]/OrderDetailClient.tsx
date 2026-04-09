@@ -35,6 +35,8 @@ interface Props {
     coupleEmail: string;
     coupleName: string;
     paymentIntentId: string | null;
+    /** Denormalized URL from last operator STL upload (also on each Design). */
+    cleanedStlUrl: string | null;
     designs: Design[];
   };
 }
@@ -53,6 +55,7 @@ const DESIGN_STATUS_COLORS: Record<string, string> = {
 export default function OrderDetailClient({ order }: Props) {
   const router = useRouter();
   const [designs, setDesigns] = useState(order.designs);
+  const [orderStlUrl, setOrderStlUrl] = useState(order.cleanedStlUrl);
   const [orderStatus, setOrderStatus] = useState(order.status);
   const [uploadingDesignId, setUploadingDesignId] = useState<string | null>(null);
   const [sendingApprovalId, setSendingApprovalId] = useState<string | null>(null);
@@ -80,26 +83,37 @@ export default function OrderDetailClient({ order }: Props) {
       formData.append("orderId", order.id);
 
       const res = await fetch(`/api/designs/${designId}/stl`, {
-        method: "POST",
-        body: formData,
+        method:      "POST",
+        body:        formData,
+        credentials: "include",
       });
 
-      if (!res.ok) throw new Error("Upload failed");
-      const data = await res.json();
+      const data = (await res.json()) as {
+        stlUrl?: string;
+        fileName?: string;
+        uploadedAt?: string;
+        error?: string;
+        detail?: string;
+      };
+      if (!res.ok) {
+        throw new Error(data.error ?? data.detail ?? "Upload failed");
+      }
 
       setDesigns((prev) =>
         prev.map((d) =>
-          d.id === designId ? { ...d, stlUrl: data.stlUrl, status: "REVIEW" } : d
+          d.id === designId ? { ...d, stlUrl: data.stlUrl ?? null, status: "REVIEW" } : d
         )
       );
+      if (data.stlUrl) setOrderStlUrl(data.stlUrl);
       setStlMeta((prev) => ({
         ...prev,
         [designId]: { fileName: data.fileName ?? file.name, uploadedAt: data.uploadedAt ?? new Date().toISOString() },
       }));
 
-      toast.success("STL uploaded! Status updated to REVIEW.");
-    } catch {
-      toast.error("Upload failed. Please try again.");
+      toast.success("STL uploaded to Supabase (stl-files). Status updated to REVIEW.");
+      router.refresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed. Please try again.");
     } finally {
       setUploadingDesignId(null);
     }
@@ -272,6 +286,33 @@ export default function OrderDetailClient({ order }: Props) {
           router.refresh();
         }}
       />
+
+      {(orderStlUrl || designs.some((d) => d.stlUrl)) && (
+        <div
+          className="rounded-xl border border-border px-4 py-3 flex flex-wrap items-center justify-between gap-3"
+          style={{ background: "var(--wp-sage-light)" }}
+        >
+          <div>
+            <p className="text-sm font-semibold" style={{ color: "var(--wp-charcoal)" }}>
+              Cleaned STL (Supabase · stl-files)
+            </p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Stored at <code className="text-[11px]">{order.id}/…</code>
+            </p>
+          </div>
+          <a
+            href={orderStlUrl || designs.find((d) => d.stlUrl)?.stlUrl || "#"}
+            target="_blank"
+            rel="noopener noreferrer"
+            download
+          >
+            <Button variant="outline" size="sm" className="gap-1.5 bg-white">
+              <ExternalLink className="h-3.5 w-3.5" />
+              Download STL
+            </Button>
+          </a>
+        </div>
+      )}
 
       {designs.map((design) => {
         const photoUrls = design.photoUrls as Record<string, string> | null;
