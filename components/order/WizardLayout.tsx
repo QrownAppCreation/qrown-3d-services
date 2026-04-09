@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { Heart, Check } from "lucide-react";
+import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Logo } from "@/components/Logo";
 
 const STEPS = [
   { number: 1, label: "Style",    href: "/order/step1-style"    },
@@ -22,10 +23,7 @@ export default function WizardLayout({ currentStep, children }: WizardLayoutProp
       {/* Header */}
       <header className="border-b border-border bg-white sticky top-0 z-40">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <Heart className="h-5 w-5" style={{ color: "var(--wp-cta)", fill: "var(--wp-cta)" }} />
-            <span className="font-bold text-lg" style={{ color: "var(--wp-charcoal)" }}>WedPrint</span>
-          </Link>
+          <Logo width={160} href="/" />
           <span className="text-sm text-muted-foreground">
             Step {currentStep} of {STEPS.length}
           </span>

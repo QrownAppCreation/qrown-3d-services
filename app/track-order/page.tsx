@@ -1,5 +1,6 @@
 import Link from "next/link";
 import RequestTrackingLink from "@/app/my-order/RequestTrackingLink";
+import { Logo } from "@/components/Logo";
 
 export const metadata = { title: "Track your order — WedPrint" };
 
@@ -9,10 +10,7 @@ export default function TrackOrderPage() {
       {/* Nav */}
       <nav className="border-b border-border bg-white/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="font-bold text-lg tracking-tight"
-                style={{ color: "var(--wp-charcoal)" }}>
-            WedPrint
-          </Link>
+          <Logo width={180} href="/" />
           <Link href="/order/step1-style">
             <button className="btn-cta border-0 px-4 py-2 rounded-lg text-sm font-semibold text-white">
               Start an order

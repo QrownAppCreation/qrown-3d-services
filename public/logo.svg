@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120">
+  <!-- WedPrint Primary Horizontal Logo -->
+
+  <!-- Icon group -->
+  <g transform="translate(70, 60)">
+    <!-- Outer rings -->
+    <circle cx="-20" cy="0" r="38" fill="none" stroke="#C9A84C" stroke-width="2.2"/>
+    <circle cx="20" cy="0" r="38" fill="none" stroke="#C9A84C" stroke-width="2.2"/>
+    <!-- Inner rings subtle -->
+    <circle cx="-20" cy="0" r="30" fill="none" stroke="#C9A84C" stroke-width="0.5" opacity="0.3"/>
+    <circle cx="20" cy="0" r="30" fill="none" stroke="#C9A84C" stroke-width="0.5" opacity="0.3"/>
+
+    <!-- Left flower -->
+    <g transform="translate(-20,-38)">
+      <ellipse cx="0" cy="-5" rx="5" ry="7.5" fill="#F5F0E8" stroke="#C9A84C" stroke-width="0.7"/>
+      <ellipse cx="0" cy="5" rx="5" ry="7.5" fill="#F5F0E8" stroke="#C9A84C" stroke-width="0.7"/>
+      <ellipse cx="-5" cy="0" rx="7.5" ry="5" fill="#F5F0E8" stroke="#C9A84C" stroke-width="0.7"/>
+      <ellipse cx="5" cy="0" rx="7.5" ry="5" fill="#F5F0E8" stroke="#C9A84C" stroke-width="0.7"/>
+      <circle cx="0" cy="0" r="5" fill="#C9A84C"/>
+    </g>
+
+    <!-- Right flower -->
+    <g transform="translate(20,-38)">
+      <ellipse cx="0" cy="-5" rx="5" ry="7.5" fill="#F5F0E8" stroke="#C9A84C" stroke-width="0.7"/>
+      <ellipse cx="0" cy="5" rx="5" ry="7.5" fill="#F5F0E8" stroke="#C9A84C" stroke-width="0.7"/>
+      <ellipse cx="-5" cy="0" rx="7.5" ry="5" fill="#F5F0E8" stroke="#C9A84C" stroke-width="0.7"/>
+      <ellipse cx="5" cy="0" rx="7.5" ry="5" fill="#F5F0E8" stroke="#C9A84C" stroke-width="0.7"/>
+      <circle cx="0" cy="0" r="5" fill="#C9A84C"/>
+    </g>
+
+    <!-- Leaves left -->
+    <ellipse cx="-52" cy="-24" rx="9" ry="4" fill="#7A9A7A" transform="rotate(-35 -52 -24)" opacity="0.9"/>
+    <ellipse cx="-54" cy="10" rx="9" ry="4" fill="#7A9A7A" transform="rotate(30 -54 10)" opacity="0.9"/>
+
+    <!-- Leaves right -->
+    <ellipse cx="52" cy="-24" rx="9" ry="4" fill="#7A9A7A" transform="rotate(35 52 -24)" opacity="0.9"/>
+    <ellipse cx="54" cy="10" rx="9" ry="4" fill="#7A9A7A" transform="rotate(-30 54 10)" opacity="0.9"/>
+
+    <!-- Diamond center -->
+    <polygon points="0,-15 11,0 0,15 -11,0" fill="#F5F0E8" opacity="0.95"/>
+    <polygon points="0,-15 11,0 0,15 -11,0" fill="none" stroke="#C9A84C" stroke-width="1.5"/>
+    <polygon points="0,-8 6,0 0,8 -6,0" fill="#C9A84C" opacity="0.35"/>
+    <line x1="0" y1="-15" x2="0" y2="15" stroke="#C9A84C" stroke-width="0.5" opacity="0.4"/>
+    <line x1="-11" y1="0" x2="11" y2="0" stroke="#C9A84C" stroke-width="0.5" opacity="0.4"/>
+  </g>
+
+  <!-- Divider -->
+  <line x1="138" y1="18" x2="138" y2="102" stroke="#C9A84C" stroke-width="0.5" opacity="0.4"/>
+
+  <!-- Wordmark -->
+  <text x="268" y="52" font-family="Georgia, serif" font-size="32" font-weight="400" fill="#3D4A3A" text-anchor="middle" letter-spacing="4">WedPrint</text>
+  <line x1="148" y1="64" x2="388" y2="64" stroke="#C9A84C" stroke-width="0.5"/>
+  <text x="268" y="80" font-family="Georgia, serif" font-size="9" fill="#C9A84C" text-anchor="middle" letter-spacing="4">HANDCRAFTED 3D KEEPSAKES</text>
+  <text x="268" y="98" font-family="Georgia, serif" font-size="9" fill="#7A9A7A" text-anchor="middle" letter-spacing="2">Miami, Florida</text>
+</svg>

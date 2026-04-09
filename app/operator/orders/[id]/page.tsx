@@ -8,7 +8,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Heart, Zap, Layers } from "lucide-react";
+import { ArrowLeft, Zap, Layers } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 const COLOR_TIER_BADGE: Record<string, string> = {
   CLASSIC:   "bg-gray-100 text-gray-700 border border-gray-200",
@@ -84,10 +85,7 @@ export default async function OperatorOrderDetailPage({ params }: Props) {
       {/* Sidebar */}
       <div className="fixed left-0 top-0 bottom-0 w-56 flex flex-col text-white" style={{ backgroundColor: "var(--wp-charcoal)" }}>
         <div className="p-5 border-b border-white/10">
-          <div className="flex items-center gap-2">
-            <Heart className="h-5 w-5 fill-current" />
-            <span className="font-bold text-lg">WedPrint</span>
-          </div>
+          <Logo width={168} variant="onDark" href="/" />
           <p className="text-white/50 text-xs mt-1">Operator Dashboard</p>
         </div>
         <nav className="flex-1 p-3">

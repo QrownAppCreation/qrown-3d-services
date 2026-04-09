@@ -2,43 +2,15 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Heart, Star, Sparkles, Clock, Shield, ArrowRight, Ruler } from "lucide-react";
+import { Navbar } from "@/components/Navbar";
+import { Logo } from "@/components/Logo";
+import { Star, Sparkles, Clock, Shield, ArrowRight, Ruler } from "lucide-react";
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
 
-      {/* ── Nav ───────────────────────────────────────────────────── */}
-      <nav className="border-b border-border bg-background/90 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Heart className="h-5 w-5" style={{ color: "var(--wp-cta)", fill: "var(--wp-cta)" }} />
-            <span className="font-bold text-xl tracking-tight" style={{ color: "var(--wp-charcoal)" }}>WedPrint</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/gallery">
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-                Gallery
-              </Button>
-            </Link>
-            <Link href="/pricing">
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-                Pricing
-              </Button>
-            </Link>
-            <Link href="/track-order">
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-                Track my order
-              </Button>
-            </Link>
-            <Link href="/order/step1-style">
-              <Button size="sm" className="btn-cta border-0 hover:opacity-90">
-                Start your order
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* ── Hero ──────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden">
@@ -242,10 +214,7 @@ export default function HomePage() {
 
             {/* Brand */}
             <div className="sm:col-span-2 md:col-span-1 space-y-4">
-              <div className="flex items-center gap-2 text-white">
-                <Heart className="h-5 w-5 fill-current" style={{ color: "var(--wp-cta)" }} />
-                <span className="font-bold text-xl tracking-tight">WedPrint</span>
-              </div>
+              <Logo width={176} variant="onDark" />
               <p className="text-white/50 text-sm leading-relaxed">
                 Custom 3D printed wedding keepsakes, handcrafted from your photos.
                 Serving the Miami area.

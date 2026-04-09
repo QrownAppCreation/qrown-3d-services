@@ -5,7 +5,8 @@ import { db } from "@/lib/db";
 import { formatCents } from "@/lib/order-pricing";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Heart, Mail, Package, Calendar } from "lucide-react";
+import { CheckCircle2, Mail, Package, Calendar, Heart } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 interface Props {
   searchParams: Promise<{ session_id?: string }>;
@@ -72,9 +73,8 @@ export default async function OrderConfirmedPage({ searchParams }: Props) {
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: "var(--wp-ivory)" }}>
 
       {/* Simple nav strip */}
-      <nav className="border-b border-border bg-white/80 px-6 py-4 flex items-center gap-2">
-        <Heart className="h-4 w-4 fill-[var(--wp-cta)]" style={{ color: "var(--wp-cta)" }} />
-        <span className="font-bold">WedPrint</span>
+      <nav className="border-b border-border bg-white/80 px-6 py-4 flex items-center">
+        <Logo width={160} href="/" />
       </nav>
 
       <main className="flex-1 flex items-center justify-center px-4 py-16">

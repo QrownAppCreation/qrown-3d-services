@@ -7,6 +7,7 @@ import { OrderStatus } from "@prisma/client";
 import RequestTrackingLink from "./RequestTrackingLink";
 import CancelOrderButton from "./CancelOrderButton";
 import { formatCents } from "@/lib/order-pricing";
+import { Logo } from "@/components/Logo";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -126,9 +127,7 @@ export default async function MyOrderPage({ searchParams }: Props) {
       {/* Nav */}
       <nav className="border-b border-border bg-white/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="font-bold text-lg tracking-tight" style={{ color: "var(--wp-charcoal)" }}>
-            WedPrint
-          </Link>
+          <Logo width={180} href="/" />
           <span className="text-sm text-gray-500">
             Hi, <strong style={{ color: "var(--wp-charcoal)" }}>{couple.name}</strong>!
           </span>

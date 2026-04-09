@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Heart, ArrowRight, Sparkles, Layers } from "lucide-react";
+import { ArrowRight, Sparkles, Layers, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/Logo";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -188,12 +189,7 @@ export default function GalleryPage() {
       <nav className="border-b sticky top-0 z-50 bg-background/90 backdrop-blur-sm"
            style={{ borderColor: "var(--wp-border)" }}>
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <Heart className="h-5 w-5" style={{ color: "var(--wp-cta)", fill: "var(--wp-cta)" }} />
-            <span className="font-bold text-xl tracking-tight" style={{ color: "var(--wp-charcoal)" }}>
-              WedPrint
-            </span>
-          </Link>
+          <Logo width={200} href="/" />
           <div className="flex items-center gap-3">
             <Link href="/gallery">
               <Button variant="ghost" size="sm" style={{ color: "var(--wp-sage)", fontWeight: 600 }}>
@@ -387,10 +383,9 @@ export default function GalleryPage() {
       {/* ── Footer ────────────────────────────────────────────────────────── */}
       <footer className="py-10 px-4 border-t" style={{ borderColor: "var(--wp-border)", backgroundColor: "var(--wp-secondary-bg)" }}>
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <Heart className="h-4 w-4" style={{ color: "var(--wp-cta)", fill: "var(--wp-cta)" }} />
-            <span className="font-semibold" style={{ color: "var(--wp-charcoal)" }}>WedPrint</span>
-            <span className="text-sm" style={{ color: "var(--wp-muted)" }}>· Handcrafted 3D Keepsakes</span>
+          <div className="flex flex-wrap items-center gap-3">
+            <Logo width={160} />
+            <span className="text-sm" style={{ color: "var(--wp-muted)" }}>Handcrafted 3D keepsakes</span>
           </div>
           <div className="flex items-center gap-6 text-sm" style={{ color: "var(--wp-muted)" }}>
             <Link href="/"       className="hover:text-foreground transition-colors">Home</Link>

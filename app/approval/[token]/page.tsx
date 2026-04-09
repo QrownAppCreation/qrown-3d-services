@@ -3,8 +3,7 @@ export const dynamic = "force-dynamic";
 import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import ApprovalClient from "./ApprovalClient";
-import { Heart } from "lucide-react";
-import Link from "next/link";
+import { Logo } from "@/components/Logo";
 
 interface Props {
   params: Promise<{ token: string }>;
@@ -27,10 +26,7 @@ export default async function ApprovalPage({ params }: Props) {
       <div className="min-h-screen wedding-gradient flex items-center justify-center p-4">
         <div className="max-w-md w-full text-center space-y-4">
           <div className="flex justify-center">
-            <Link href="/" className="flex items-center gap-2">
-              <Heart className="h-6 w-6 text-wedprint-rose fill-wedprint-rose" />
-              <span className="font-bold text-2xl">WedPrint</span>
-            </Link>
+            <Logo width={200} href="/" />
           </div>
           <h1 className="text-2xl font-bold">Link not found</h1>
           <p className="text-muted-foreground">
@@ -51,10 +47,7 @@ export default async function ApprovalPage({ params }: Props) {
       <div className="min-h-screen wedding-gradient flex items-center justify-center p-4">
         <div className="max-w-md w-full text-center space-y-4">
           <div className="flex justify-center">
-            <Link href="/" className="flex items-center gap-2">
-              <Heart className="h-6 w-6 text-wedprint-rose fill-wedprint-rose" />
-              <span className="font-bold text-2xl">WedPrint</span>
-            </Link>
+            <Logo width={200} href="/" />
           </div>
           <h1 className="text-2xl font-bold">Link expired</h1>
           <p className="text-muted-foreground">
@@ -77,10 +70,7 @@ export default async function ApprovalPage({ params }: Props) {
       <div className="min-h-screen wedding-gradient flex items-center justify-center p-4">
         <div className="max-w-md w-full text-center space-y-4">
           <div className="flex justify-center">
-            <Link href="/" className="flex items-center gap-2">
-              <Heart className="h-6 w-6 text-wedprint-rose fill-wedprint-rose" />
-              <span className="font-bold text-2xl">WedPrint</span>
-            </Link>
+            <Logo width={200} href="/" />
           </div>
           <div className="text-5xl">🎉</div>
           <h1 className="text-2xl font-bold">Already approved!</h1>

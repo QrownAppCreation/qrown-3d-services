@@ -4,7 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Heart, CheckCircle2, RotateCcw, ChevronDown } from "lucide-react";
+import { CheckCircle2, RotateCcw, ChevronDown } from "lucide-react";
+import { Logo } from "@/components/Logo";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -77,10 +78,9 @@ export default function ApprovalClient({ design, couple }: Props) {
     return (
       <div className="min-h-screen wedding-gradient flex items-center justify-center p-4">
         <div className="max-w-md w-full text-center space-y-5">
-          <Link href="/" className="flex items-center gap-2 justify-center">
-            <Heart className="h-6 w-6 text-wedprint-rose fill-wedprint-rose" />
-            <span className="font-bold text-2xl">WedPrint</span>
-          </Link>
+          <div className="flex justify-center">
+            <Logo width={200} href="/" />
+          </div>
           <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto">
             <CheckCircle2 className="h-10 w-10 text-green-600" />
           </div>
@@ -98,10 +98,9 @@ export default function ApprovalClient({ design, couple }: Props) {
     return (
       <div className="min-h-screen wedding-gradient flex items-center justify-center p-4">
         <div className="max-w-md w-full text-center space-y-5">
-          <Link href="/" className="flex items-center gap-2 justify-center">
-            <Heart className="h-6 w-6 text-wedprint-rose fill-wedprint-rose" />
-            <span className="font-bold text-2xl">WedPrint</span>
-          </Link>
+          <div className="flex justify-center">
+            <Logo width={200} href="/" />
+          </div>
           <div className="text-5xl">📝</div>
           <h1 className="text-2xl font-bold">Got it!</h1>
           <p className="text-muted-foreground">
@@ -120,10 +119,7 @@ export default function ApprovalClient({ design, couple }: Props) {
       {/* Header */}
       <header className="border-b border-border bg-white sticky top-0 z-40">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <Heart className="h-5 w-5 text-wedprint-rose fill-wedprint-rose" />
-            <span className="font-bold text-lg">WedPrint</span>
-          </Link>
+          <Logo width={160} href="/" />
           <span className="text-sm text-muted-foreground">
             Design approval
             {design.revisionRound > 1 && ` — Revision ${design.revisionRound}`}

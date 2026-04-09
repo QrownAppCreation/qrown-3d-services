@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Heart, Mail, ArrowLeft, CheckCircle } from "lucide-react";
+import { Mail, ArrowLeft, CheckCircle } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 const SUPPORT_EMAIL = "support@wedprint3d.com";
 
@@ -43,10 +44,7 @@ export default function ContactPage() {
       <nav className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50"
            style={{ borderColor: "var(--wp-border)" }}>
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <Heart className="h-5 w-5" style={{ color: "var(--wp-cta)", fill: "var(--wp-cta)" }} />
-            <span className="font-bold text-lg" style={{ color: "var(--wp-charcoal)" }}>WedPrint</span>
-          </Link>
+          <Logo width={180} href="/" />
           <Link href="/" className="flex items-center gap-1.5 text-sm hover:underline"
                 style={{ color: "var(--wp-sage)" }}>
             <ArrowLeft className="h-4 w-4" />

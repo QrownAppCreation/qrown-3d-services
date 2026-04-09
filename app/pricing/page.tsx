@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { Heart, ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 import { formatCents } from "@/lib/order-pricing";
+import { Logo } from "@/components/Logo";
 
 export const metadata = { title: "Pricing — WedPrint" };
 
@@ -123,10 +124,7 @@ export default function PricingPage() {
       <nav className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50"
            style={{ borderColor: "var(--wp-border)" }}>
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <Heart className="h-5 w-5" style={{ color: "var(--wp-cta)", fill: "var(--wp-cta)" }} />
-            <span className="font-bold text-lg" style={{ color: "var(--wp-charcoal)" }}>WedPrint</span>
-          </Link>
+          <Logo width={180} href="/" />
           <Link href="/order/step1-style">
             <button className="btn-cta border-0 text-white text-sm font-semibold px-5 py-2 rounded-xl flex items-center gap-2">
               Start your order

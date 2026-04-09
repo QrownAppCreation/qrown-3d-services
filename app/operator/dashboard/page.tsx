@@ -6,7 +6,6 @@ import { db } from "@/lib/db";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
-  Heart,
   Package,
   DollarSign,
   CheckCircle2,
@@ -17,6 +16,7 @@ import {
 } from "lucide-react";
 import { signOut } from "@/lib/auth";
 import { formatCents } from "@/lib/order-pricing";
+import { Logo } from "@/components/Logo";
 
 // ── Color tier helpers ────────────────────────────────────────────────────────
 
@@ -237,10 +237,7 @@ export default async function OperatorDashboardPage() {
       <div className="fixed left-0 top-0 bottom-0 w-56 flex flex-col"
            style={{ backgroundColor: "var(--wp-charcoal)" }}>
         <div className="p-5 border-b border-white/10">
-          <div className="flex items-center gap-2 text-white">
-            <Heart className="h-5 w-5 fill-current" />
-            <span className="font-bold text-lg">WedPrint</span>
-          </div>
+          <Logo width={168} variant="onDark" href="/" />
           <p className="text-white/50 text-xs mt-1">Operator Dashboard</p>
         </div>
 

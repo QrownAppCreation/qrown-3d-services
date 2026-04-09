@@ -13,8 +13,9 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Heart, Lock } from "lucide-react";
+import { Lock } from "lucide-react";
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 import { toast } from "sonner";
 
 export default function OperatorLoginPage() {
@@ -50,9 +51,8 @@ export default function OperatorLoginPage() {
     <div className="min-h-screen bg-primary flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <Heart className="h-6 w-6 fill-current" style={{ color: "var(--wp-gold)" }} />
-            <span className="font-bold text-2xl text-white">WedPrint</span>
+          <Link href="/" className="inline-flex mb-6 justify-center">
+            <Logo width={220} variant="onDark" />
           </Link>
           <div className="flex items-center justify-center gap-2 text-white/60 text-sm">
             <Lock className="h-3 w-3" />

@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Heart, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 import { toast } from "sonner";
 
 export default function LoginPage() {
@@ -43,10 +44,9 @@ export default function LoginPage() {
     <div className="min-h-screen wedding-gradient flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <Heart className="h-6 w-6 text-wedprint-rose fill-wedprint-rose" />
-            <span className="font-bold text-2xl">WedPrint</span>
-          </Link>
+          <div className="mb-6 flex justify-center">
+            <Logo width={200} href="/" />
+          </div>
         </div>
 
         <Card className="shadow-lg border-0">
