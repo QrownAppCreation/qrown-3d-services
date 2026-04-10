@@ -3,51 +3,69 @@ import { createClient } from "@supabase/supabase-js";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 60;
-
-// Increase body size limit to 50MB for STL files
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: "50mb",
-    },
-  },
-};
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+// Step 1: Get a signed upload URL
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const fileName = searchParams.get("fileName");
+
+    if (!fileName) {
+      return NextResponse.json({ error: "fileName required" }, { status: 400 });
+    }
+
+    const path = `${params.id}/${Date.now()}-${fileName}`;
+
+    const { data, error } = await supabase.storage
+      .from("stl-files")
+      .createSignedUploadUrl(path);
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ signedUrl: data.signedUrl, path });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
+
+// Step 2: Save the path to design + order after direct upload
 export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const formData = await req.formData();
-    const file = formData.get("file") as File;
+    const { path, orderId } = await req.json();
 
-    if (!file) {
-      return NextResponse.json({ error: "No file provided" }, { status: 400 });
+    if (!path) {
+      return NextResponse.json({ error: "path required" }, { status: 400 });
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    const fileName = `${params.id}/${Date.now()}-${file.name}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from("stl-files")
-      .upload(fileName, buffer, {
-        contentType: "model/stl",
-        upsert: true,
-      });
-
-    if (uploadError) {
-      return NextResponse.json({ error: uploadError.message }, { status: 500 });
-    }
-
-    // Store the storage path (bucket is private)
-    await prisma.order.update({
+    // Update the design's stlUrl
+    await prisma.design.update({
       where: { id: params.id },
-      data: { stlFileUrl: fileName },
+      data: { stlUrl: path, status: "REVIEW" },
     });
+
+    // Also update the order's stlFileUrl if orderId provided
+    if (orderId) {
+      await prisma.order.update({
+        where: { id: orderId },
+        data: { stlFileUrl: path },
+      });
+    }
+
+    return NextResponse.json({ success: true, path });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
