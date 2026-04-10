@@ -71,7 +71,7 @@ export async function POST(
       }),
       db.order.update({
         where: { id: orderId },
-        data:  { cleanedStlUrl: stlUrl },
+        data:  { stlFileUrl: stlUrl },
       }),
     ]);
 

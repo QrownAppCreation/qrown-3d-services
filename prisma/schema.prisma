@@ -127,8 +127,8 @@ model Order {
   refundAmountCents   Int?
   /// "customer" | "operator"
   cancelledBy         String?
-  /// Operator-uploaded cleaned STL public URL (denormalized; also on Design.stlUrl).
-  cleanedStlUrl       String?
+  /// Operator-uploaded cleaned STL public URL (Supabase stl-files; denormalized with Design.stlUrl).
+  stlFileUrl          String? @map("cleanedStlUrl")
 
   couple              Couple      @relation(fields: [coupleId], references: [id])
   designs             Design[]

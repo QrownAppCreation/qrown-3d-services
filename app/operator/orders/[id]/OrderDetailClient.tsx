@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Upload, Send, ExternalLink, Check, CheckCircle2, CreditCard, Link2, XCircle } from "lucide-react";
+import { Upload, Send, ExternalLink, Check, CheckCircle2, CreditCard, Link2, XCircle, Download } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import OperatorCancelDialog from "./OperatorCancelDialog";
@@ -35,10 +35,21 @@ interface Props {
     coupleEmail: string;
     coupleName: string;
     paymentIntentId: string | null;
-    /** Denormalized URL from last operator STL upload (also on each Design). */
-    cleanedStlUrl: string | null;
+    /** Public URL of operator-uploaded STL in Supabase (stl-files bucket). */
+    stlFileUrl: string | null;
     designs: Design[];
   };
+}
+
+/** Last path segment of a Supabase public object URL (filename). */
+function fileNameFromPublicUrl(url: string): string {
+  try {
+    const path = new URL(url).pathname;
+    const seg = path.split("/").filter(Boolean).pop();
+    return seg ? decodeURIComponent(seg) : "file.stl";
+  } catch {
+    return "file.stl";
+  }
 }
 
 const DESIGN_STATUS_COLORS: Record<string, string> = {
@@ -55,7 +66,7 @@ const DESIGN_STATUS_COLORS: Record<string, string> = {
 export default function OrderDetailClient({ order }: Props) {
   const router = useRouter();
   const [designs, setDesigns] = useState(order.designs);
-  const [orderStlUrl, setOrderStlUrl] = useState(order.cleanedStlUrl);
+  const [orderStlUrl, setOrderStlUrl] = useState(order.stlFileUrl);
   const [orderStatus, setOrderStatus] = useState(order.status);
   const [uploadingDesignId, setUploadingDesignId] = useState<string | null>(null);
   const [sendingApprovalId, setSendingApprovalId] = useState<string | null>(null);
@@ -68,6 +79,10 @@ export default function OrderDetailClient({ order }: Props) {
   const [balancePaymentUrl, setBalancePaymentUrl] = useState<string | null>(null);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const fileInputRefs = useRef<Record<string, HTMLInputElement>>({});
+
+  /** Prefer order.stlFileUrl; fall back to any design STL (legacy rows). */
+  const orderLevelStlDownloadUrl =
+    orderStlUrl || designs.find((d) => d.stlUrl)?.stlUrl || null;
 
   async function handleSTLUpload(designId: string, file: File) {
     if (!file.name.endsWith(".stl") && !file.name.endsWith(".obj")) {
@@ -287,28 +302,35 @@ export default function OrderDetailClient({ order }: Props) {
         }}
       />
 
-      {(orderStlUrl || designs.some((d) => d.stlUrl)) && (
+      {orderLevelStlDownloadUrl && (
         <div
           className="rounded-xl border border-border px-4 py-3 flex flex-wrap items-center justify-between gap-3"
           style={{ background: "var(--wp-sage-light)" }}
         >
-          <div>
+          <div className="min-w-0">
             <p className="text-sm font-semibold" style={{ color: "var(--wp-charcoal)" }}>
-              Cleaned STL (Supabase · stl-files)
+              Cleaned STL on file
             </p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Stored at <code className="text-[11px]">{order.id}/…</code>
+            <p
+              className="text-xs text-muted-foreground mt-0.5 truncate"
+              title={fileNameFromPublicUrl(orderLevelStlDownloadUrl)}
+            >
+              <span className="font-medium text-foreground/80">
+                {fileNameFromPublicUrl(orderLevelStlDownloadUrl)}
+              </span>
+              <span className="mx-1.5">·</span>
+              <code className="text-[11px]">{order.id}/</code>
             </p>
           </div>
           <a
-            href={orderStlUrl || designs.find((d) => d.stlUrl)?.stlUrl || "#"}
+            href={orderLevelStlDownloadUrl}
             target="_blank"
             rel="noopener noreferrer"
-            download
+            download={fileNameFromPublicUrl(orderLevelStlDownloadUrl)}
           >
-            <Button variant="outline" size="sm" className="gap-1.5 bg-white">
-              <ExternalLink className="h-3.5 w-3.5" />
-              Download STL
+            <Button variant="outline" size="sm" className="gap-1.5 bg-white shrink-0">
+              <Download className="h-3.5 w-3.5" />
+              Download
             </Button>
           </a>
         </div>
@@ -427,34 +449,38 @@ export default function OrderDetailClient({ order }: Props) {
 
             {/* Actions */}
             <div className="flex flex-wrap gap-3 pt-4 border-t border-border">
-              {/* Upload STL */}
-              <div>
-                <input
-                  ref={(el) => {
-                    if (el) fileInputRefs.current[design.id] = el;
-                  }}
-                  type="file"
-                  accept=".stl,.obj"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) handleSTLUpload(design.id, file);
-                    e.target.value = "";
-                  }}
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
-                  disabled={uploadingDesignId === design.id}
-                  onClick={() => fileInputRefs.current[design.id]?.click()}
-                >
-                  <Upload className="h-3.5 w-3.5" />
-                  {uploadingDesignId === design.id
-                    ? "Uploading..."
-                    : "Upload cleaned STL"}
-                </Button>
-              </div>
+              {/* Upload STL when this design has no file (API also sets order.stlFileUrl) */}
+              {!design.stlUrl && (
+                <div>
+                  <input
+                    ref={(el) => {
+                      if (el) fileInputRefs.current[design.id] = el;
+                    }}
+                    type="file"
+                    accept=".stl,.obj"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleSTLUpload(design.id, file);
+                      e.target.value = "";
+                    }}
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2"
+                    disabled={uploadingDesignId === design.id}
+                    onClick={() => fileInputRefs.current[design.id]?.click()}
+                  >
+                    <Upload className="h-3.5 w-3.5" />
+                    {uploadingDesignId === design.id
+                      ? "Uploading..."
+                      : orderStlUrl
+                        ? "Replace cleaned STL"
+                        : "Upload cleaned STL"}
+                  </Button>
+                </div>
+              )}
 
               {/* Send for approval */}
               {design.stlUrl &&
