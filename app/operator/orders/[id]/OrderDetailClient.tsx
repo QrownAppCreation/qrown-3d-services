@@ -103,23 +103,36 @@ export default function OrderDetailClient({ order }: Props) {
         credentials: "include",
       });
 
-      const data = (await res.json()) as {
+      const rawText = await res.text();
+      let data: {
+        url?: string;
         stlUrl?: string;
+        stlFileUrl?: string;
         fileName?: string;
         uploadedAt?: string;
         error?: string;
         detail?: string;
       };
+      try {
+        data = JSON.parse(rawText) as typeof data;
+      } catch {
+        throw new Error(
+          `Server returned non-JSON (${res.status}): ${rawText.slice(0, 160)}`
+        );
+      }
       if (!res.ok) {
         throw new Error(data.error ?? data.detail ?? "Upload failed");
       }
 
+      const uploadedUrl = data.url ?? data.stlFileUrl ?? data.stlUrl ?? null;
       setDesigns((prev) =>
         prev.map((d) =>
-          d.id === designId ? { ...d, stlUrl: data.stlUrl ?? null, status: "REVIEW" } : d
+          d.id === designId
+            ? { ...d, stlUrl: uploadedUrl, status: "REVIEW" }
+            : d
         )
       );
-      if (data.stlUrl) setOrderStlUrl(data.stlUrl);
+      if (uploadedUrl) setOrderStlUrl(uploadedUrl);
       setStlMeta((prev) => ({
         ...prev,
         [designId]: { fileName: data.fileName ?? file.name, uploadedAt: data.uploadedAt ?? new Date().toISOString() },

@@ -20,11 +20,13 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.supabase.co" },
     ],
   },
-  // Allow large file uploads for STL files and high-res photos
+  // Allow large file uploads for STL files, photos, and App Router POST bodies
   experimental: {
     serverActions: {
       bodySizeLimit: "50mb",
     },
+    /** Helps avoid plain-text proxy errors when multipart uploads exceed the default ~10MB. */
+    proxyClientMaxBodySize: "100mb",
   },
 };
 

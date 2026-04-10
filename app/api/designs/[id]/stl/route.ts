@@ -3,90 +3,119 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { uploadStlToStorage } from "@/lib/supabase-storage";
 
+export const runtime = "nodejs";
+export const maxDuration = 120;
+
+function jsonError(message: string, status: number) {
+  console.error(`[stl/upload] responding ${status}: ${message}`);
+  return NextResponse.json({ error: message }, { status });
+}
+
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  // ── Operator-only ─────────────────────────────────────────────────────────
-  const session = await auth();
-  if (!session || session.user.role !== "operator") {
-    return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
-  }
+  console.log("[stl/upload] POST received", { url: req.url });
 
   try {
-    const { id: designId } = await params;
-    const formData = await req.formData();
-    const file    = formData.get("file")    as File   | null;
-    const orderId = formData.get("orderId") as string | null;
-
-    if (!file || !orderId) {
-      return NextResponse.json({ error: "Missing file or orderId" }, { status: 400 });
+    const session = await auth();
+    console.log("[stl/upload] auth ok:", !!session, "role:", session?.user?.role);
+    if (!session || session.user.role !== "operator") {
+      return jsonError("Unauthorised", 401);
     }
 
-    // Validate file type
+    const { id: designId } = await params;
+    console.log("[stl/upload] designId:", designId);
+
+    let formData: FormData;
+    try {
+      formData = await req.formData();
+    } catch (parseErr) {
+      console.error("[stl/upload] formData() failed:", parseErr);
+      return jsonError(
+        "Could not read the uploaded file. It may be too large for the server limit — try a smaller STL or ask your host to raise the body size limit.",
+        413
+      );
+    }
+
+    const file = formData.get("file") as File | null;
+    const orderId = formData.get("orderId") as string | null;
+
+    console.log("[stl/upload] fields:", {
+      hasFile: !!file,
+      fileName: file?.name,
+      fileSize: file?.size,
+      orderId: orderId ?? "(missing)",
+    });
+
+    if (!file || !orderId) {
+      return jsonError("Missing file or orderId", 400);
+    }
+
+    if (file.size === 0) {
+      return jsonError("Uploaded file is empty", 400);
+    }
+
     const lowerName = file.name.toLowerCase();
     if (!lowerName.endsWith(".stl") && !lowerName.endsWith(".obj")) {
-      return NextResponse.json(
-        { error: "Only .stl and .obj files are accepted." },
-        { status: 400 }
-      );
+      return jsonError("Only .stl and .obj files are accepted.", 400);
     }
 
     const design = await db.design.findUnique({ where: { id: designId } });
     if (!design) {
-      return NextResponse.json({ error: "Design not found" }, { status: 404 });
+      return jsonError("Design not found", 404);
     }
 
     if (design.orderId !== orderId) {
-      return NextResponse.json(
-        { error: "Design does not belong to this order." },
-        { status: 400 }
-      );
+      return jsonError("Design does not belong to this order.", 400);
     }
 
-    // ── Upload to Supabase Storage ──────────────────────────────────────────
-    // Bucket "stl-files", path: {orderId}/{filename}
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
     const storagePath = `${orderId}/${safeName}`;
-    const mime = file.type || "model/stl";
+    const mime = file.type || (lowerName.endsWith(".obj") ? "model/obj" : "model/stl");
 
-    console.log(`[stl/upload] Uploading "${file.name}" (${(file.size / 1024).toFixed(0)} KB) → stl-files/${storagePath}`);
+    console.log(
+      `[stl/upload] uploading to stl-files/${storagePath} (${(file.size / 1024).toFixed(0)} KB, ${mime})`
+    );
 
-    const bytes  = await file.arrayBuffer();
+    const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const stlUrl = await uploadStlToStorage(storagePath, buffer, mime);
+    const stlFileUrl = await uploadStlToStorage(storagePath, buffer, mime);
 
-    console.log(`[stl/upload] Success: ${stlUrl}`);
+    console.log("[stl/upload] Supabase public URL:", stlFileUrl);
 
-    // ── Persist URL on Design + Order (operator download / tracking) ───────
     await db.$transaction([
       db.design.update({
         where: { id: designId },
         data: {
-          stlUrl,
-          cleanedMeshUrl: stlUrl,
-          status:         "REVIEW",
+          stlUrl: stlFileUrl,
+          cleanedMeshUrl: stlFileUrl,
+          status: "REVIEW",
         },
       }),
       db.order.update({
         where: { id: orderId },
-        data:  { stlFileUrl: stlUrl },
+        data: { stlFileUrl },
       }),
     ]);
 
-    return NextResponse.json({
-      success:    true,
-      stlUrl,
-      fileName:   file.name,
+    console.log("[stl/upload] database updated for design", designId, "order", orderId);
+
+    const payload = {
+      success: true,
+      url: stlFileUrl,
+      stlFileUrl,
+      stlUrl: stlFileUrl,
+      fileName: file.name,
       uploadedAt: new Date().toISOString(),
-      storedIn:   "supabase",
-    });
+      storedIn: "supabase",
+    };
+    return NextResponse.json(payload);
   } catch (err) {
-    console.error("[stl/upload] Error:", err);
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Upload failed" },
-      { status: 500 }
-    );
+    console.error("[stl/upload] error:", err);
+    const message =
+      err instanceof Error ? err.message : "Upload failed";
+    return jsonError(message, 500);
   }
 }
