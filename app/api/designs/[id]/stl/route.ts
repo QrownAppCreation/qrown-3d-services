@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -50,13 +50,13 @@ export async function POST(
       return NextResponse.json({ error: "path required" }, { status: 400 });
     }
 
-    await prisma.design.update({
+    await db.design.update({
       where: { id: params.id },
       data: { stlUrl: path, status: "REVIEW" },
     });
 
     if (orderId) {
-      await prisma.order.update({
+      await db.order.update({
         where: { id: orderId },
         data: { stlFileUrl: path },
       });
