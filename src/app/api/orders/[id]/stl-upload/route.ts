@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -9,12 +9,12 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// Step 1: Get a signed upload URL
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const { searchParams } = new URL(req.url);
     const fileName = searchParams.get("fileName");
 
@@ -22,8 +22,7 @@ export async function GET(
       return NextResponse.json({ error: "fileName required" }, { status: 400 });
     }
 
-    const path = `${params.id}/${Date.now()}-${fileName}`;
-
+    const path = `${id}/${Date.now()}-${fileName}`;
     const { data, error } = await supabase.storage
       .from("stl-files")
       .createSignedUploadUrl(path);
@@ -38,31 +37,22 @@ export async function GET(
   }
 }
 
-// Step 2: Save the path to design + order after direct upload
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { path, orderId } = await req.json();
+    const { id } = await params;
+    const { path } = await req.json();
 
     if (!path) {
       return NextResponse.json({ error: "path required" }, { status: 400 });
     }
 
-    // Update the design's stlUrl
-    await prisma.design.update({
-      where: { id: params.id },
-      data: { stlUrl: path, status: "REVIEW" },
+    await db.order.update({
+      where: { id },
+      data: { stlFileUrl: path },
     });
-
-    // Also update the order's stlFileUrl if orderId provided
-    if (orderId) {
-      await prisma.order.update({
-        where: { id: orderId },
-        data: { stlFileUrl: path },
-      });
-    }
 
     return NextResponse.json({ success: true, path });
   } catch (err: any) {
