@@ -12,9 +12,10 @@ const supabase = createClient(
 // Step 1: Return a signed upload URL (browser uploads directly to Supabase)
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id: designId } = await params;
     const { searchParams } = new URL(req.url);
     const fileName = searchParams.get("fileName");
 
@@ -22,7 +23,7 @@ export async function GET(
       return NextResponse.json({ error: "fileName required" }, { status: 400 });
     }
 
-    const path = `${params.id}/${Date.now()}-${fileName}`;
+    const path = `${designId}/${Date.now()}-${fileName}`;
 
     const { data, error } = await supabase.storage
       .from("stl-files")
@@ -41,9 +42,10 @@ export async function GET(
 // Step 2: Save the path to design + order after direct upload
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id: designId } = await params;
     const { path, orderId } = await req.json();
 
     if (!path) {
@@ -51,7 +53,7 @@ export async function POST(
     }
 
     await db.design.update({
-      where: { id: params.id },
+      where: { id: designId },
       data: { stlUrl: path, status: "REVIEW" },
     });
 

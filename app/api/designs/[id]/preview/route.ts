@@ -11,9 +11,10 @@ const supabase = createClient(
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id: designId } = await params;
     const formData = await req.formData();
     const file = formData.get("file") as File;
     const orderId = formData.get("orderId") as string;
@@ -23,7 +24,7 @@ export async function POST(
     }
 
     const ext = file.name.split(".").pop() ?? "jpg";
-    const fileName = `${orderId}/${params.id}-preview-${Date.now()}.${ext}`;
+    const fileName = `${orderId}/${designId}-preview-${Date.now()}.${ext}`;
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
@@ -43,7 +44,7 @@ export async function POST(
       .getPublicUrl(fileName);
 
     await db.design.update({
-      where: { id: params.id },
+      where: { id: designId },
       data: {
         previewImageUrl: urlData.publicUrl,
         status: "REVIEW",
