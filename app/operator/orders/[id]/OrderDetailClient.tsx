@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Upload, Send, ExternalLink, Check, CheckCircle2, CreditCard, Link2, XCircle, Download } from "lucide-react";
+import { Upload, Send, Check, CheckCircle2, CreditCard, Link2, XCircle, Download, Image, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import OperatorCancelDialog from "./OperatorCancelDialog";
@@ -23,7 +23,6 @@ interface Design {
   photoUrls: unknown;
 }
 
-interface UploadMeta { fileName: string; uploadedAt: string; }
 interface ApprovalMeta { sentAt: string; }
 
 interface Props {
@@ -35,21 +34,9 @@ interface Props {
     coupleEmail: string;
     coupleName: string;
     paymentIntentId: string | null;
-    /** Public URL of operator-uploaded STL in Supabase (stl-files bucket). */
     stlFileUrl: string | null;
     designs: Design[];
   };
-}
-
-/** Last path segment of a Supabase public object URL (filename). */
-function fileNameFromPublicUrl(url: string): string {
-  try {
-    const path = new URL(url).pathname;
-    const seg = path.split("/").filter(Boolean).pop();
-    return seg ? decodeURIComponent(seg) : "file.stl";
-  } catch {
-    return "file.stl";
-  }
 }
 
 const DESIGN_STATUS_COLORS: Record<string, string> = {
@@ -66,81 +53,54 @@ const DESIGN_STATUS_COLORS: Record<string, string> = {
 export default function OrderDetailClient({ order }: Props) {
   const router = useRouter();
   const [designs, setDesigns] = useState(order.designs);
-  const [orderStlUrl, setOrderStlUrl] = useState(order.stlFileUrl);
   const [orderStatus, setOrderStatus] = useState(order.status);
-  const [uploadingDesignId, setUploadingDesignId] = useState<string | null>(null);
   const [sendingApprovalId, setSendingApprovalId] = useState<string | null>(null);
+  const [uploadingPreviewId, setUploadingPreviewId] = useState<string | null>(null);
   const [markingComplete, setMarkingComplete] = useState(false);
-  const [stlMeta,    setStlMeta]    = useState<Record<string, UploadMeta>>({});
   const [approvalMeta, setApprovalMeta] = useState<Record<string, ApprovalMeta>>({});
   const [completedAt, setCompletedAt] = useState<string | null>(null);
   const [collectingBalance, setCollectingBalance] = useState(false);
   const [balanceLinkSent, setBalanceLinkSent] = useState(false);
   const [balancePaymentUrl, setBalancePaymentUrl] = useState<string | null>(null);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
-  const fileInputRefs = useRef<Record<string, HTMLInputElement>>({});
+  const previewInputRefs = useRef<Record<string, HTMLInputElement>>({});
 
-  /** Prefer order.stlFileUrl; fall back to any design STL (legacy rows). */
-  const orderLevelStlDownloadUrl =
-    orderStlUrl || designs.find((d) => d.stlUrl)?.stlUrl || null;
-
-  async function handleSTLUpload(designId: string, file: File) {
-    if (!file.name.endsWith(".stl") && !file.name.endsWith(".obj")) {
-      toast.error("Please upload an STL or OBJ file.");
+  async function handlePreviewUpload(designId: string, file: File) {
+    const allowed = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowed.includes(file.type)) {
+      toast.error("Please upload a JPG, PNG, or WebP image.");
       return;
     }
 
-    setUploadingDesignId(designId);
+    setUploadingPreviewId(designId);
     try {
-      // Step 1: Get signed upload URL from our API
-      const sigRes = await fetch(
-        `/api/designs/${designId}/stl?fileName=${encodeURIComponent(file.name)}`,
-        { method: "GET", credentials: "include" }
-      );
-      const sigData = await sigRes.json();
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("orderId", order.id);
 
-      // DEBUG: log signed URL response
-      console.log("Signed URL response:", sigData);
-
-      if (!sigRes.ok) throw new Error(sigData.error ?? "Could not get upload URL");
-
-      // Step 2: Upload directly to Supabase (bypasses Vercel size limit)
-      const uploadRes = await fetch(sigData.signedUrl, {
-        method: "PUT",
-        body: file,
-        headers: { "Content-Type": "model/stl" },
-      });
-      if (!uploadRes.ok) throw new Error("Direct upload to Supabase failed");
-
-      // Step 3: Save the path to our database
-      const saveRes = await fetch(`/api/designs/${designId}/stl`, {
+      const res = await fetch(`/api/designs/${designId}/preview`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        body: formData,
         credentials: "include",
-        body: JSON.stringify({ path: sigData.path, orderId: order.id }),
       });
-      const saveData = await saveRes.json();
-      if (!saveRes.ok) throw new Error(saveData.error ?? "Failed to save file path");
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Upload failed");
 
       setDesigns((prev) =>
         prev.map((d) =>
           d.id === designId
-            ? { ...d, stlUrl: sigData.path, status: "REVIEW" }
+            ? { ...d, previewImageUrl: data.url, status: "REVIEW" }
             : d
         )
       );
-      setOrderStlUrl(sigData.path);
-      setStlMeta((prev) => ({
-        ...prev,
-        [designId]: { fileName: file.name, uploadedAt: new Date().toISOString() },
-      }));
 
-      toast.success("STL uploaded successfully. Status updated to REVIEW.");
+      toast.success("Preview image uploaded. Ready to send for approval.");
       router.refresh();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Upload failed. Please try again.");
     } finally {
-      setUploadingDesignId(null);
+      setUploadingPreviewId(null);
     }
   }
 
@@ -216,7 +176,7 @@ export default function OrderDetailClient({ order }: Props) {
         <h2 className="font-semibold text-lg">Designs</h2>
 
         <div className="flex flex-wrap gap-2">
-          {/* Collect balance — shown when design is approved and balance not yet paid */}
+          {/* Collect balance */}
           {orderStatus === "APPROVED" && order.balanceCents > 0 && (
             balanceLinkSent ? (
               <div className="flex flex-col gap-1">
@@ -277,7 +237,7 @@ export default function OrderDetailClient({ order }: Props) {
             </div>
           )}
 
-          {/* Cancel order — opens refund modal */}
+          {/* Cancel order */}
           {orderStatus !== "COMPLETE" && orderStatus !== "CANCELLED" && (
             <Button
               size="sm"
@@ -312,42 +272,9 @@ export default function OrderDetailClient({ order }: Props) {
         }}
       />
 
-      {orderLevelStlDownloadUrl && (
-        <div
-          className="rounded-xl border border-border px-4 py-3 flex flex-wrap items-center justify-between gap-3"
-          style={{ background: "var(--wp-sage-light)" }}
-        >
-          <div className="min-w-0">
-            <p className="text-sm font-semibold" style={{ color: "var(--wp-charcoal)" }}>
-              Cleaned STL on file
-            </p>
-            <p
-              className="text-xs text-muted-foreground mt-0.5 truncate"
-              title={fileNameFromPublicUrl(orderLevelStlDownloadUrl)}
-            >
-              <span className="font-medium text-foreground/80">
-                {fileNameFromPublicUrl(orderLevelStlDownloadUrl)}
-              </span>
-              <span className="mx-1.5">·</span>
-              <code className="text-[11px]">{order.id}/</code>
-            </p>
-          </div>
-          <a
-            href={orderLevelStlDownloadUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            download={fileNameFromPublicUrl(orderLevelStlDownloadUrl)}
-          >
-            <Button variant="outline" size="sm" className="gap-1.5 bg-white shrink-0">
-              <Download className="h-3.5 w-3.5" />
-              Download
-            </Button>
-          </a>
-        </div>
-      )}
-
       {designs.map((design) => {
         const photoUrls = design.photoUrls as Record<string, string> | null;
+        const hasPhotos = photoUrls && Object.keys(photoUrls).length > 0;
 
         return (
           <div
@@ -382,56 +309,57 @@ export default function OrderDetailClient({ order }: Props) {
                   </p>
                 )}
               </div>
-
-              {design.stlUrl && (
-                <div className="flex flex-col items-end gap-0.5">
-                  <a href={design.stlUrl} target="_blank" rel="noopener noreferrer" download>
-                    <Button variant="outline" size="sm" className="gap-1.5">
-                      <ExternalLink className="h-3.5 w-3.5" />
-                      Download STL
-                    </Button>
-                  </a>
-                  {stlMeta[design.id] && (
-                    <span className="text-[11px] text-muted-foreground text-right">
-                      {stlMeta[design.id].fileName} · uploaded {new Date(stlMeta[design.id].uploadedAt).toLocaleString()}
-                    </span>
-                  )}
-                </div>
-              )}
             </div>
 
-            {/* Photos uploaded by couple */}
-            {photoUrls && Object.keys(photoUrls).length > 0 && (
+            {/* Reference photos from couple */}
+            {hasPhotos && (
               <div className="mb-5">
-                <p className="text-sm font-medium mb-2">
-                  Reference photos from couple
-                </p>
-                <div className="flex flex-wrap gap-3">
-                  {Object.entries(photoUrls).map(([type, url]) => (
-                    <a
-                      key={type}
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group"
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-medium">Reference photos from couple</p>
+                  {/* Open Meshy — operator only, never shown to customer */}
+                  <a
+                    href="https://www.meshy.ai"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-2 border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300"
                     >
-                      <div className="w-20 h-20 rounded-xl overflow-hidden border border-border bg-muted flex items-center justify-center text-xs text-muted-foreground hover:border-primary transition-colors">
-                        <img
-                          src={url}
-                          alt={type}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display =
-                              "none";
-                          }}
-                        />
-                      </div>
-                      <p className="text-xs text-center text-muted-foreground mt-1 capitalize">
-                        {type}
-                      </p>
-                    </a>
+                      <Wand2 className="h-3.5 w-3.5" />
+                      Open Meshy AI
+                    </Button>
+                  </a>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  {Object.entries(photoUrls!).map(([type, url]) => (
+                    <div key={type} className="flex flex-col items-center gap-1">
+                      <a href={url} target="_blank" rel="noopener noreferrer">
+                        <div className="w-20 h-20 rounded-xl overflow-hidden border border-border bg-muted hover:border-primary transition-colors">
+                          <img
+                            src={url}
+                            alt={type}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = "none";
+                            }}
+                          />
+                        </div>
+                      </a>
+                      <p className="text-xs text-center text-muted-foreground capitalize">{type}</p>
+                      <a href={url} download target="_blank" rel="noopener noreferrer">
+                        <Button variant="ghost" size="sm" className="h-6 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground">
+                          <Download className="h-3 w-3" />
+                          Save
+                        </Button>
+                      </a>
+                    </div>
                   ))}
                 </div>
+                <p className="text-xs text-muted-foreground mt-2 italic">
+                  💡 Save photos → upload to Meshy AI → screenshot the result → upload as preview image below
+                </p>
               </div>
             )}
 
@@ -459,41 +387,40 @@ export default function OrderDetailClient({ order }: Props) {
 
             {/* Actions */}
             <div className="flex flex-wrap gap-3 pt-4 border-t border-border">
-              {/* Upload STL when this design has no file (API also sets order.stlFileUrl) */}
-              {!design.stlUrl && (
-                <div>
-                  <input
-                    ref={(el) => {
-                      if (el) fileInputRefs.current[design.id] = el;
-                    }}
-                    type="file"
-                    accept=".stl,.obj"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) handleSTLUpload(design.id, file);
-                      e.target.value = "";
-                    }}
-                  />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-2"
-                    disabled={uploadingDesignId === design.id}
-                    onClick={() => fileInputRefs.current[design.id]?.click()}
-                  >
-                    <Upload className="h-3.5 w-3.5" />
-                    {uploadingDesignId === design.id
-                      ? "Uploading..."
-                      : orderStlUrl
-                        ? "Replace cleaned STL"
-                        : "Upload cleaned STL"}
-                  </Button>
-                </div>
-              )}
 
-              {/* Send for approval */}
-              {design.stlUrl &&
+              {/* Upload preview image */}
+              <div>
+                <input
+                  ref={(el) => {
+                    if (el) previewInputRefs.current[design.id] = el;
+                  }}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handlePreviewUpload(design.id, file);
+                    e.target.value = "";
+                  }}
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  disabled={uploadingPreviewId === design.id}
+                  onClick={() => previewInputRefs.current[design.id]?.click()}
+                >
+                  <Image className="h-3.5 w-3.5" />
+                  {uploadingPreviewId === design.id
+                    ? "Uploading..."
+                    : design.previewImageUrl
+                      ? "Replace preview image"
+                      : "Upload preview image"}
+                </Button>
+              </div>
+
+              {/* Send for approval — requires preview image */}
+              {design.previewImageUrl &&
                 design.status !== "CLIENT_SENT" &&
                 design.status !== "APPROVED" && (
                   <Button
@@ -503,11 +430,15 @@ export default function OrderDetailClient({ order }: Props) {
                     onClick={() => handleSendApproval(design.id)}
                   >
                     <Send className="h-3.5 w-3.5" />
-                    {sendingApprovalId === design.id
-                      ? "Sending..."
-                      : "Send for approval"}
+                    {sendingApprovalId === design.id ? "Sending..." : "Send for approval"}
                   </Button>
                 )}
+
+              {!design.previewImageUrl && (
+                <p className="text-xs text-muted-foreground self-center">
+                  Upload a preview image to send for approval
+                </p>
+              )}
 
               {design.status === "CLIENT_SENT" && (
                 <div className="flex flex-col gap-0.5">
