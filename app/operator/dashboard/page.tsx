@@ -13,10 +13,13 @@ import {
   LogOut,
   Zap,
   ArrowUpDown,
+  MessageSquare,
+  Star,
 } from "lucide-react";
 import { signOut } from "@/lib/auth";
 import { formatCents } from "@/lib/order-pricing";
 import { Logo } from "@/components/Logo";
+import { ReviewModerationButtons } from "@/components/operator/ReviewModerationButtons";
 
 // ── Color tier helpers ────────────────────────────────────────────────────────
 
@@ -100,6 +103,11 @@ export default async function OperatorDashboardPage() {
 
   const rushOrders     = orders.filter((o) => o.addOns.some((x) => x.type === "RUSH_ORDER"));
   const standardOrders = orders.filter((o) => !o.addOns.some((x) => x.type === "RUSH_ORDER"));
+
+  const pendingReviews = await db.review.findMany({
+    where: { approved: false },
+    orderBy: { createdAt: "desc" },
+  });
 
   // ── Metrics ───────────────────────────────────────────────────────────────
   const totalOrders  = orders.length;
@@ -362,6 +370,72 @@ export default async function OperatorDashboardPage() {
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* ── Pending customer reviews (Share your moment) ── */}
+          <div className="bg-white rounded-2xl border border-border overflow-hidden">
+            <div className="px-6 py-4 border-b border-border flex items-center gap-2">
+              <MessageSquare className="h-5 w-5 text-amber-600" />
+              <h2 className="font-semibold">Reviews pending approval</h2>
+              <span className="text-sm text-muted-foreground">({pendingReviews.length})</span>
+            </div>
+            {pendingReviews.length === 0 ? (
+              <p className="px-6 py-10 text-center text-muted-foreground text-sm">
+                No submissions waiting. Approved reviews appear on the homepage and{" "}
+                <Link href="/reviews" className="underline text-foreground">
+                  /reviews
+                </Link>
+                .
+              </p>
+            ) : (
+              <ul className="divide-y divide-border">
+                {pendingReviews.map((r) => (
+                  <li key={r.id} className="px-6 py-4 flex flex-col lg:flex-row lg:items-start gap-4">
+                    <div className="flex-1 min-w-0 space-y-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-semibold">{r.coupleName}</span>
+                        <span className="inline-flex items-center gap-0.5 text-amber-600 text-sm">
+                          <Star className="h-3.5 w-3.5 fill-current" />
+                          {r.rating}/5
+                        </span>
+                        {r.weddingDate && (
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(r.weddingDate).toLocaleDateString()}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground whitespace-pre-wrap">{r.comment}</p>
+                      <div className="flex flex-wrap gap-2 text-xs">
+                        {r.photoUrl && (
+                          <a
+                            href={r.photoUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline"
+                          >
+                            Wedding photo
+                          </a>
+                        )}
+                        {r.cakePhotoUrl && (
+                          <a
+                            href={r.cakePhotoUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline"
+                          >
+                            Cake photo
+                          </a>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">
+                        Submitted {new Date(r.createdAt).toLocaleString()} · id {r.id.slice(0, 8)}…
+                      </p>
+                    </div>
+                    <ReviewModerationButtons reviewId={r.id} />
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           {/* ── Orders table ── */}

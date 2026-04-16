@@ -4,9 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Navbar } from "@/components/Navbar";
 import { Logo } from "@/components/Logo";
+import { TestimonialsSection } from "@/components/TestimonialsSection";
+import { db } from "@/lib/db";
 import { Star, Sparkles, Clock, Shield, ArrowRight, Ruler } from "lucide-react";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const testimonialReviews = await db.review.findMany({
+    where: { approved: true },
+    orderBy: { createdAt: "desc" },
+    take: 6,
+  });
+
   return (
     <div className="min-h-screen bg-background">
 
@@ -166,6 +174,8 @@ export default function HomePage() {
         </div>
       </section>
 
+      <TestimonialsSection reviews={testimonialReviews} />
+
       {/* ── How it works ──────────────────────────────────────────── */}
       <section className="py-20 px-4 bg-white">
         <div className="max-w-4xl mx-auto">
@@ -240,12 +250,14 @@ export default function HomePage() {
               <h4 className="text-white font-semibold text-sm mb-4 uppercase tracking-wider">Quick links</h4>
               <ul className="space-y-2.5">
                 {[
-                  { label: "Home",             href: "/" },
-                  { label: "Gallery",          href: "/gallery" },
-                  { label: "Pricing",          href: "/pricing" },
-                  { label: "Start your order", href: "/order/step1-style" },
-                  { label: "Track my order",   href: "/track-order" },
-                  { label: "Contact us",       href: "/contact" },
+                  { label: "Home",              href: "/" },
+                  { label: "Gallery",           href: "/gallery" },
+                  { label: "Pricing",           href: "/pricing" },
+                  { label: "Reviews",           href: "/reviews" },
+                  { label: "Share your moment", href: "/share-your-moment" },
+                  { label: "Start your order",  href: "/order/step1-style" },
+                  { label: "Track my order",    href: "/track-order" },
+                  { label: "Contact us",        href: "/contact" },
                 ].map((l) => (
                   <li key={l.label}>
                     <Link href={l.href} className="text-white/50 text-sm hover:text-white/90 transition-colors">

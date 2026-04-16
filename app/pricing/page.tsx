@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
 import { formatCents } from "@/lib/order-pricing";
 import { Logo } from "@/components/Logo";
+import { NotEdibleDisclaimer } from "@/components/NotEdibleDisclaimer";
 
 export const metadata = { title: "Pricing — WedPrint" };
 
@@ -189,6 +190,8 @@ export default function PricingPage() {
                   </div>
                 ))}
               </div>
+
+              <NotEdibleDisclaimer compact className="mb-4" />
 
               <Link href="/order/step1-style">
                 <button

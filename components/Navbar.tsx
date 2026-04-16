@@ -19,6 +19,16 @@ export function Navbar() {
               Pricing
             </Button>
           </Link>
+          <Link href="/share-your-moment">
+            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+              Share your moment
+            </Button>
+          </Link>
+          <Link href="/reviews">
+            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+              Reviews
+            </Button>
+          </Link>
           <Link href="/track-order">
             <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
               Track my order

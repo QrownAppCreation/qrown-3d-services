@@ -211,6 +211,23 @@ model AddOn {
   order       Order     @relation(fields: [orderId], references: [id])
 }
 
+/// Customer-submitted testimonials (Share your moment). Shown publicly only when approved.
+model Review {
+  id           String    @id @default(cuid())
+  coupleName   String
+  rating       Int
+  comment      String
+  /// Photo: wedding / couple with cake topper
+  photoUrl     String?
+  /// Photo: cake with topper on display
+  cakePhotoUrl String?
+  weddingDate  DateTime?
+  approved     Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+
+  @@map("reviews")
+}
+
 // NextAuth required tables
 model Account {
   id                String  @id @default(cuid())

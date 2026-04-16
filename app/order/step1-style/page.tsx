@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { saveOrderDraft, getOrderDraft, type StyleTier } from "@/lib/order-store";
 import { ArrowRight } from "lucide-react";
+import { NotEdibleDisclaimer } from "@/components/NotEdibleDisclaimer";
 
 const STYLE_TIERS: {
   id: StyleTier;
@@ -81,6 +82,9 @@ export default function Step1StylePage() {
             Choose the aesthetic that feels most like you two. This guides how
             we design your piece.
           </p>
+          <div className="mt-4 max-w-xl">
+            <NotEdibleDisclaimer />
+          </div>
         </div>
 
         <div className="grid gap-4">

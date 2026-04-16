@@ -12,6 +12,7 @@ import {
 import { AddOnType, StyleTier } from "@prisma/client";
 import type Stripe from "stripe";
 import { Resend } from "resend";
+import { notEdibleDisclaimerEmailHtml } from "@/lib/disclaimer";
 
 const OPERATOR_EMAIL = process.env.OPERATOR_EMAIL ?? "hello@wedprint3d.com";
 const APP_URL        = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
@@ -243,6 +244,8 @@ export async function POST(req: NextRequest) {
                 Your 50% deposit has been received. The remaining balance of <strong>${fmt(balanceCents)}</strong>
                 will be collected once you approve your design preview. We will send your design preview within 48 hours.
               </div>
+
+              ${notEdibleDisclaimerEmailHtml()}
 
               <div style="text-align:center;margin:32px 0;">
                 <a href="${magicLinkUrl}" style="

@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { formatCents } from "@/lib/order-pricing";
+import { notEdibleDisclaimerEmailHtml } from "@/lib/disclaimer";
 
 let _resend: Resend | null = null;
 
@@ -141,6 +142,8 @@ export async function sendOrderConfirmationEmail(params: {
           <p style="color: #8FAF8F; font-weight: bold; font-size: 15px;">
             ⏱ Estimated turnaround: 7–10 business days
           </p>
+
+          ${notEdibleDisclaimerEmailHtml()}
 
           <!-- CTA -->
           ${magicLinkUrl ? `
