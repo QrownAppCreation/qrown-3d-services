@@ -1,12 +1,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Navbar } from "@/components/Navbar";
 import { Logo } from "@/components/Logo";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
 import { db } from "@/lib/db";
-import { Star, Sparkles, Clock, Shield, ArrowRight, Ruler } from "lucide-react";
+import { Star, Clock, Shield, ArrowRight, Ruler } from "lucide-react";
 
 export default async function HomePage() {
   const testimonialReviews = await db.review.findMany({
@@ -21,49 +20,36 @@ export default async function HomePage() {
       <Navbar />
 
       {/* ── Hero ──────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden">
-        <div className="relative h-[620px] md:h-[700px] w-full">
+      {/* Full-width process banner: photos → 3D render → final print */}
+      <section className="relative overflow-hidden bg-white">
+        <div className="relative w-full max-w-6xl mx-auto">
           <Image
-            src="https://images.unsplash.com/photo-1519741497674-611481863552?w=1600&q=85&fit=crop&crop=center"
-            alt="Happy wedding couple"
-            fill
+            src="/images/hero-banner.png"
+            alt="Your photos become a custom 3D printed wedding cake topper — Step 1: share photos, Step 2: 3D render, Step 3: final print"
+            width={2109}
+            height={1574}
             priority
-            className="object-cover object-center"
+            className="w-full h-auto"
             sizes="100vw"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/10 to-background/95" />
         </div>
 
-        <div className="absolute inset-0 flex items-end justify-center pb-16 px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <Badge className="mb-5 bg-white/85 border-0 shadow-sm" style={{ color: "var(--wp-charcoal)" }}>
-              <Sparkles className="h-3 w-3 mr-1" style={{ color: "var(--wp-gold)" }} />
-              Handcrafted 3D Printed Keepsakes
-            </Badge>
-            <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-balance mb-5 text-white drop-shadow-md">
-              Your love story,
-              <br />
-              <span style={{ color: "var(--wp-gold)" }}>perfectly printed.</span>
-            </h1>
-            <p className="text-lg text-white/85 mb-8 text-balance max-w-xl mx-auto drop-shadow">
-              Upload your photos. Choose your style. We&apos;ll hand-craft a
-              custom 3D printed cake topper or keepsake that captures you perfectly.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/order/step1-style">
-                <Button size="lg" className="btn-cta gap-2 text-base px-8 border-0 hover:opacity-90 shadow-lg">
-                  Start your order
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-              <Link href="/gallery">
-                <Button variant="outline" size="lg"
-                  className="text-base px-8 bg-white/80 border-white/60 hover:bg-white"
-                  style={{ color: "var(--wp-charcoal)" }}>
-                  See examples
-                </Button>
-              </Link>
-            </div>
+        {/* CTA buttons below the hero image */}
+        <div className="py-8 px-4 text-center bg-white">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/order/step1-style">
+              <Button size="lg" className="btn-cta gap-2 text-base px-8 border-0 hover:opacity-90 shadow-lg">
+                Start your order
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+            <Link href="/gallery">
+              <Button variant="outline" size="lg"
+                className="text-base px-8 bg-white border hover:bg-gray-50"
+                style={{ color: "var(--wp-charcoal)", borderColor: "var(--wp-border)" }}>
+                See examples
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
