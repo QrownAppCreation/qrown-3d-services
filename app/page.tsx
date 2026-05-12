@@ -19,23 +19,140 @@ export default async function HomePage() {
 
       <Navbar />
 
-      {/* ── Hero ──────────────────────────────────────────────────── */}
-      {/* Full-width process banner: photos → 3D render → final print */}
-      <section className="relative overflow-hidden bg-white">
-        <div className="relative w-full max-w-6xl mx-auto">
-          <Image
-            src="/images/hero-banner.png"
-            alt="Your photos become a custom 3D printed wedding cake topper — Step 1: share photos, Step 2: 3D render, Step 3: final print"
-            width={2109}
-            height={1574}
-            priority
-            className="w-full h-auto"
-            sizes="100vw"
-          />
+      {/* ── Hero — "Your Photos. Your Topper." process banner ──── */}
+      <section className="overflow-hidden" style={{ background: "#FAFAF8" }}>
+        <div className="max-w-[940px] mx-auto shadow-2xl" style={{ background: "#FAFAF8" }}>
+
+          {/* Coral accent band */}
+          <div className="h-[5px]" style={{ background: "linear-gradient(90deg,#E85D40 0%,#F2956A 40%,#E85D40 70%,#C04020 100%)" }} />
+
+          {/* Header — headline left, topper image right */}
+          <div className="grid grid-cols-[1fr_auto] items-end gap-5 px-8 sm:px-14 pt-10 pb-8 border-b" style={{ borderColor: "#E8E0D8" }}>
+            <div>
+              <p className="text-[9px] font-semibold uppercase tracking-[0.5em] mb-3" style={{ color: "#E85D40", fontFamily: "var(--font-syne), sans-serif" }}>
+                Custom Wedding Cake Toppers
+              </p>
+              <h1 className="text-4xl sm:text-[52px] font-extrabold leading-[0.95] tracking-tight" style={{ fontFamily: "var(--font-syne), sans-serif", color: "#111" }}>
+                YOUR<br />PHOTOS.<br />
+                <span style={{ color: "#E85D40" }}>YOUR</span><br />TOPPER.
+              </h1>
+              <p className="text-sm italic mt-3.5 leading-relaxed" style={{ fontFamily: "var(--font-newsreader), serif", color: "#777" }}>
+                Three simple steps to a one-of-a-kind wedding keepsake,<br className="hidden sm:block" /> sculpted from your portraits.
+              </p>
+            </div>
+            <div className="w-40 sm:w-60 flex-shrink-0 flex items-end justify-end">
+              <Image
+                src="/images/hero-topper-header.png"
+                alt="Finished 3D printed cake topper"
+                width={480}
+                height={480}
+                priority
+                className="w-full h-auto max-h-[300px] object-contain object-bottom"
+              />
+            </div>
+          </div>
+
+          {/* Steps — 3 columns */}
+          <div className="flex flex-col sm:flex-row gap-[2px]" style={{ background: "#E8E0D8" }}>
+
+            {/* Step 1 — Send Portraits */}
+            <div className="flex-1 flex flex-col p-6 sm:p-7" style={{ background: "#FAFAF8" }}>
+              <div className="mb-4">
+                <span className="text-[11px] tracking-[0.15em] block mb-1.5" style={{ fontFamily: "monospace", color: "#E85D40" }}>STEP_01</span>
+                <div className="text-lg font-bold leading-tight" style={{ fontFamily: "var(--font-syne), sans-serif", color: "#111" }}>
+                  Send Your<br />Portraits
+                </div>
+              </div>
+              <div className="relative flex-1 min-h-[200px] flex gap-[2px] overflow-hidden" style={{ background: "#E8E4E0" }}>
+                <div className="flex-1 overflow-hidden">
+                  <Image src="/images/hero-groom-photo.jpg" alt="Groom reference photo" fill className="object-cover object-[center_15%]" sizes="15vw" />
+                </div>
+                <div className="flex-1 overflow-hidden relative">
+                  <Image src="/images/hero-bride-photo.jpg" alt="Bride reference photo" fill className="object-cover object-[center_20%]" sizes="15vw" />
+                </div>
+                <span className="absolute bottom-2 left-2 z-10 text-[7px] font-mono uppercase tracking-[0.2em] px-2 py-0.5 text-white" style={{ background: "#E85D40" }}>
+                  Bride + Groom
+                </span>
+              </div>
+              <p className="text-xs italic mt-3 leading-relaxed" style={{ fontFamily: "var(--font-newsreader), serif", color: "#888" }}>
+                Share any clear photo of each person — we handle the rest.
+              </p>
+            </div>
+
+            {/* Step 2 — 3D Model */}
+            <div className="flex-1 flex flex-col p-6 sm:p-7" style={{ background: "#FAFAF8" }}>
+              <div className="mb-4">
+                <span className="text-[11px] tracking-[0.15em] block mb-1.5" style={{ fontFamily: "monospace", color: "#E85D40" }}>STEP_02</span>
+                <div className="text-lg font-bold leading-tight" style={{ fontFamily: "var(--font-syne), sans-serif", color: "#111" }}>
+                  We Craft<br />Your Model
+                </div>
+              </div>
+              <div className="relative flex-1 min-h-[200px] overflow-hidden" style={{ background: "#F5F0EC" }}>
+                <Image src="/images/hero-3d-render.png" alt="Custom 3D figurine render" fill className="object-contain object-center" sizes="30vw" />
+                <span className="absolute bottom-2 left-2 z-10 text-[7px] font-mono uppercase tracking-[0.2em] px-2 py-0.5 text-white" style={{ background: "#E85D40" }}>
+                  3D Render
+                </span>
+              </div>
+              <p className="text-xs italic mt-3 leading-relaxed" style={{ fontFamily: "var(--font-newsreader), serif", color: "#888" }}>
+                Your likeness sculpted into a custom digital figurine for approval.
+              </p>
+            </div>
+
+            {/* Step 3 — Final Print */}
+            <div className="flex-1 flex flex-col p-6 sm:p-7" style={{ background: "#FAFAF8" }}>
+              <div className="mb-4">
+                <span className="text-[11px] tracking-[0.15em] block mb-1.5" style={{ fontFamily: "monospace", color: "#E85D40" }}>STEP_03</span>
+                <div className="text-lg font-bold leading-tight" style={{ fontFamily: "var(--font-syne), sans-serif", color: "#111" }}>
+                  Receive Your<br />Topper
+                </div>
+              </div>
+              <div className="relative flex-1 min-h-[200px] overflow-hidden" style={{ background: "#F5F0EC" }}>
+                <Image src="/images/hero-final-print.jpg" alt="Final 3D printed cake topper in hand" fill className="object-contain object-center" sizes="30vw" />
+                <span className="absolute bottom-2 left-2 z-10 text-[7px] font-mono uppercase tracking-[0.2em] px-2 py-0.5 text-white" style={{ background: "#E85D40" }}>
+                  Final Print
+                </span>
+              </div>
+              <p className="text-xs italic mt-3 leading-relaxed" style={{ fontFamily: "var(--font-newsreader), serif", color: "#888" }}>
+                Precision-printed, hand-finished and shipped to your door.
+              </p>
+            </div>
+
+          </div>
+
+          {/* Info bar */}
+          <div className="flex flex-wrap" style={{ background: "#111" }}>
+            {[
+              { icon: "✦", val: "100% Custom", label: "Every topper unique" },
+              { icon: "◎", val: "Quick", label: "Turnaround" },
+              { icon: "◈", val: "Any Pose", label: "You choose the style" },
+              { icon: "⬡", val: "Ships Nationwide", label: "Handcrafted with love" },
+            ].map((item) => (
+              <div key={item.val} className="flex-1 min-w-[140px] flex items-center gap-3 px-5 py-4 border-r border-white/[0.06] last:border-r-0">
+                <div className="w-[30px] h-[30px] rounded-full flex items-center justify-center text-sm flex-shrink-0" style={{ background: "rgba(232,93,64,0.15)" }}>
+                  {item.icon}
+                </div>
+                <div>
+                  <div className="text-sm font-bold" style={{ fontFamily: "var(--font-syne), sans-serif", color: "#FAFAF8" }}>{item.val}</div>
+                  <div className="text-[9px] uppercase tracking-[0.2em] mt-0.5" style={{ color: "rgba(250,250,248,0.35)" }}>{item.label}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Footer */}
+          <div className="flex items-center justify-between px-8 sm:px-14 py-4 border-t" style={{ background: "#FAFAF8", borderColor: "#E8E0D8" }}>
+            <div className="text-xl font-extrabold tracking-tight" style={{ fontFamily: "var(--font-syne), sans-serif", color: "#111" }}>
+              WED<span style={{ color: "#E85D40" }}>PRINT</span>3D
+            </div>
+            <div className="text-[11px] font-mono tracking-wider" style={{ color: "#E85D40" }}>
+              wedprint3d.com
+            </div>
+          </div>
+
         </div>
 
-        {/* CTA buttons below the hero image */}
-        <div className="py-8 px-4 text-center bg-white">
+        {/* CTA buttons below hero */}
+        <div className="py-8 px-4 text-center" style={{ background: "#FAFAF8" }}>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/order/step1-style">
               <Button size="lg" className="btn-cta gap-2 text-base px-8 border-0 hover:opacity-90 shadow-lg">
