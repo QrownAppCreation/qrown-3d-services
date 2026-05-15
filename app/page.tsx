@@ -5,7 +5,18 @@ import { Navbar } from "@/components/Navbar";
 import { Logo } from "@/components/Logo";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
 import { db } from "@/lib/db";
-import { Star, Clock, Shield, ArrowRight, Ruler } from "lucide-react";
+import {
+  Star,
+  Clock,
+  Shield,
+  ArrowRight,
+  Camera,
+  Palette,
+  Ruler,
+  CreditCard,
+  Heart,
+  CheckCircle2,
+} from "lucide-react";
 
 export default async function HomePage() {
   const testimonialReviews = await db.review.findMany({
@@ -16,208 +27,305 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-background">
-
       <Navbar />
 
-      {/* ── Hero — "Your Photos. Your Topper." process banner ──── */}
-      <section className="overflow-hidden" style={{ background: "#FAFAF8" }}>
-        <div className="max-w-[940px] mx-auto shadow-2xl" style={{ background: "#FAFAF8" }}>
+      {/* ══════════════════════════════════════════════════════════════
+          HERO — Mobile-first, bold headline with product image
+          ══════════════════════════════════════════════════════════════ */}
+      <section className="relative overflow-hidden" style={{ background: "var(--wp-ivory)" }}>
+        {/* Subtle sage gradient background */}
+        <div className="absolute inset-0 wedding-gradient opacity-60" />
 
-          {/* Coral accent band */}
-          <div className="h-[5px]" style={{ background: "linear-gradient(90deg,#E85D40 0%,#F2956A 40%,#E85D40 70%,#C04020 100%)" }} />
+        <div className="relative max-w-6xl mx-auto px-5 sm:px-8 pt-12 sm:pt-20 pb-10 sm:pb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
 
-          {/* Header — headline left, topper image right */}
-          <div className="grid grid-cols-[1fr_auto] items-end gap-5 px-8 sm:px-14 pt-10 pb-8 border-b" style={{ borderColor: "#E8E0D8" }}>
-            <div>
-              <p className="text-[9px] font-semibold uppercase tracking-[0.5em] mb-3" style={{ color: "#E85D40", fontFamily: "var(--font-syne), sans-serif" }}>
-                Custom Wedding Cake Toppers
+            {/* Left — Copy + CTA */}
+            <div className="text-center md:text-left order-2 md:order-1">
+              <p
+                className="text-xs sm:text-sm font-semibold uppercase tracking-[0.25em] mb-3 sm:mb-4"
+                style={{ color: "var(--wp-sage)", fontFamily: "var(--font-syne), sans-serif" }}
+              >
+                Custom 3D Printed Cake Toppers
               </p>
-              <h1 className="text-4xl sm:text-[52px] font-extrabold leading-[0.95] tracking-tight" style={{ fontFamily: "var(--font-syne), sans-serif", color: "#111" }}>
-                YOUR<br />PHOTOS.<br />
-                <span style={{ color: "#E85D40" }}>YOUR</span><br />TOPPER.
+              <h1
+                className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.05] tracking-tight mb-4 sm:mb-6"
+                style={{ fontFamily: "var(--font-syne), sans-serif", color: "var(--wp-charcoal)" }}
+              >
+                Your love story,{" "}
+                <span style={{ color: "var(--wp-cta)" }}>perfectly printed.</span>
               </h1>
-              <p className="text-sm italic mt-3.5 leading-relaxed" style={{ fontFamily: "var(--font-newsreader), serif", color: "#777" }}>
-                Three simple steps to a one-of-a-kind wedding keepsake,<br className="hidden sm:block" /> sculpted from your portraits.
+              <p
+                className="text-base sm:text-lg leading-relaxed mb-8 max-w-lg mx-auto md:mx-0"
+                style={{ color: "var(--wp-muted)", fontFamily: "var(--font-newsreader), serif" }}
+              >
+                Send us your photos, pick your colors and size — we sculpt a
+                one-of-a-kind miniature of you two, 3D printed and delivered to your door.
               </p>
+
+              {/* Primary CTA — large, thumb-friendly */}
+              <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
+                <Link href="#quick-order">
+                  <Button
+                    size="lg"
+                    className="btn-cta gap-2 text-base sm:text-lg px-10 py-6 border-0 hover:opacity-90 shadow-lg w-full sm:w-auto"
+                  >
+                    Start Your Order
+                    <ArrowRight className="h-5 w-5" />
+                  </Button>
+                </Link>
+                <Link href="/gallery">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="text-base px-8 py-6 bg-white/80 border hover:bg-white w-full sm:w-auto"
+                    style={{ color: "var(--wp-charcoal)", borderColor: "var(--wp-border)" }}
+                  >
+                    See examples
+                  </Button>
+                </Link>
+              </div>
+
+              {/* Quick trust badges inline */}
+              <div className="flex flex-wrap gap-x-5 gap-y-2 mt-6 justify-center md:justify-start">
+                {[
+                  { icon: <Clock className="h-3.5 w-3.5" />, text: "5–7 day turnaround" },
+                  { icon: <Star className="h-3.5 w-3.5" />, text: "You approve first" },
+                  { icon: <Shield className="h-3.5 w-3.5" />, text: "Satisfaction guaranteed" },
+                ].map((b) => (
+                  <span key={b.text} className="flex items-center gap-1.5 text-xs" style={{ color: "var(--wp-muted)" }}>
+                    <span style={{ color: "var(--wp-sage)" }}>{b.icon}</span>
+                    {b.text}
+                  </span>
+                ))}
+              </div>
             </div>
-            <div className="w-40 sm:w-60 flex-shrink-0 flex items-end justify-end">
-              <Image
-                src="/images/hero-topper-header.png"
-                alt="Finished 3D printed cake topper"
-                width={480}
-                height={480}
-                priority
-                className="w-full h-auto max-h-[300px] object-contain object-bottom"
-              />
+
+            {/* Right — Hero product image */}
+            <div className="order-1 md:order-2 flex justify-center">
+              <div className="relative w-64 sm:w-80 md:w-full max-w-[420px]">
+                <Image
+                  src="/images/hero-topper-header.png"
+                  alt="Custom 3D printed wedding cake topper"
+                  width={480}
+                  height={480}
+                  priority
+                  className="w-full h-auto drop-shadow-2xl"
+                />
+              </div>
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* Steps — 3 columns */}
-          <div className="flex flex-col sm:flex-row gap-[2px]" style={{ background: "#E8E0D8" }}>
+      {/* ══════════════════════════════════════════════════════════════
+          HOW IT WORKS — 3-step process with real product photos
+          ══════════════════════════════════════════════════════════════ */}
+      <section className="py-16 sm:py-20 px-5 sm:px-8 bg-white">
+        <div className="max-w-5xl mx-auto">
+          <h2
+            className="text-2xl sm:text-3xl font-bold text-center mb-3"
+            style={{ color: "var(--wp-charcoal)" }}
+          >
+            Three simple steps
+          </h2>
+          <p className="text-center mb-10 sm:mb-14 text-sm sm:text-base" style={{ color: "var(--wp-muted)" }}>
+            From your favourite photo to a keepsake that lasts forever
+          </p>
 
-            {/* Step 1 — Send Portraits */}
-            <div className="flex-1 flex flex-col p-6 sm:p-7" style={{ background: "#FAFAF8" }}>
-              <div className="mb-4">
-                <span className="text-[11px] tracking-[0.15em] block mb-1.5" style={{ fontFamily: "monospace", color: "#E85D40" }}>STEP_01</span>
-                <div className="text-lg font-bold leading-tight" style={{ fontFamily: "var(--font-syne), sans-serif", color: "#111" }}>
-                  Send Your<br />Portraits
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6">
+            {PROCESS_STEPS.map((step, i) => (
+              <div key={step.label} className="text-center">
+                {/* Step image */}
+                <div className="relative mx-auto w-full max-w-[280px] aspect-square rounded-2xl overflow-hidden mb-5 shadow-md">
+                  <Image
+                    src={step.image}
+                    alt={step.alt}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 80vw, 28vw"
+                  />
+                  {/* Step number badge */}
+                  <div
+                    className="absolute top-3 left-3 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white shadow-md"
+                    style={{ backgroundColor: "var(--wp-sage)" }}
+                  >
+                    {i + 1}
+                  </div>
                 </div>
+                <h3
+                  className="font-semibold text-lg mb-1.5"
+                  style={{ color: "var(--wp-charcoal)", fontFamily: "var(--font-syne), sans-serif" }}
+                >
+                  {step.label}
+                </h3>
+                <p className="text-sm leading-relaxed max-w-[260px] mx-auto" style={{ color: "var(--wp-muted)" }}>
+                  {step.description}
+                </p>
               </div>
-              <div className="relative flex-1 min-h-[200px] flex gap-[2px] overflow-hidden" style={{ background: "#E8E4E0" }}>
-                <div className="flex-1 overflow-hidden">
-                  <Image src="/images/hero-groom-photo.jpg" alt="Groom reference photo" fill className="object-cover object-[center_15%]" sizes="15vw" />
-                </div>
-                <div className="flex-1 overflow-hidden relative">
-                  <Image src="/images/hero-bride-photo.jpg" alt="Bride reference photo" fill className="object-cover object-[center_20%]" sizes="15vw" />
-                </div>
-                <span className="absolute bottom-2 left-2 z-10 text-[7px] font-mono uppercase tracking-[0.2em] px-2 py-0.5 text-white" style={{ background: "#E85D40" }}>
-                  Bride + Groom
-                </span>
-              </div>
-              <p className="text-xs italic mt-3 leading-relaxed" style={{ fontFamily: "var(--font-newsreader), serif", color: "#888" }}>
-                Share any clear photo of each person — we handle the rest.
-              </p>
-            </div>
-
-            {/* Step 2 — 3D Model */}
-            <div className="flex-1 flex flex-col p-6 sm:p-7" style={{ background: "#FAFAF8" }}>
-              <div className="mb-4">
-                <span className="text-[11px] tracking-[0.15em] block mb-1.5" style={{ fontFamily: "monospace", color: "#E85D40" }}>STEP_02</span>
-                <div className="text-lg font-bold leading-tight" style={{ fontFamily: "var(--font-syne), sans-serif", color: "#111" }}>
-                  We Craft<br />Your Model
-                </div>
-              </div>
-              <div className="relative flex-1 min-h-[200px] overflow-hidden" style={{ background: "#F5F0EC" }}>
-                <Image src="/images/hero-3d-render.png" alt="Custom 3D figurine render" fill className="object-contain object-center" sizes="30vw" />
-                <span className="absolute bottom-2 left-2 z-10 text-[7px] font-mono uppercase tracking-[0.2em] px-2 py-0.5 text-white" style={{ background: "#E85D40" }}>
-                  3D Render
-                </span>
-              </div>
-              <p className="text-xs italic mt-3 leading-relaxed" style={{ fontFamily: "var(--font-newsreader), serif", color: "#888" }}>
-                Your likeness sculpted into a custom digital figurine for approval.
-              </p>
-            </div>
-
-            {/* Step 3 — Final Print */}
-            <div className="flex-1 flex flex-col p-6 sm:p-7" style={{ background: "#FAFAF8" }}>
-              <div className="mb-4">
-                <span className="text-[11px] tracking-[0.15em] block mb-1.5" style={{ fontFamily: "monospace", color: "#E85D40" }}>STEP_03</span>
-                <div className="text-lg font-bold leading-tight" style={{ fontFamily: "var(--font-syne), sans-serif", color: "#111" }}>
-                  Receive Your<br />Topper
-                </div>
-              </div>
-              <div className="relative flex-1 min-h-[200px] overflow-hidden" style={{ background: "#F5F0EC" }}>
-                <Image src="/images/hero-final-print.jpg" alt="Final 3D printed cake topper in hand" fill className="object-contain object-center" sizes="30vw" />
-                <span className="absolute bottom-2 left-2 z-10 text-[7px] font-mono uppercase tracking-[0.2em] px-2 py-0.5 text-white" style={{ background: "#E85D40" }}>
-                  Final Print
-                </span>
-              </div>
-              <p className="text-xs italic mt-3 leading-relaxed" style={{ fontFamily: "var(--font-newsreader), serif", color: "#888" }}>
-                Precision-printed, hand-finished and shipped to your door.
-              </p>
-            </div>
-
+            ))}
           </div>
+        </div>
+      </section>
 
-          {/* Info bar */}
-          <div className="flex flex-wrap" style={{ background: "#111" }}>
-            {[
-              { icon: "✦", val: "100% Custom", label: "Every topper unique" },
-              { icon: "◎", val: "Quick", label: "Turnaround" },
-              { icon: "◈", val: "Any Pose", label: "You choose the style" },
-              { icon: "⬡", val: "Ships Nationwide", label: "Handcrafted with love" },
-            ].map((item) => (
-              <div key={item.val} className="flex-1 min-w-[140px] flex items-center gap-3 px-5 py-4 border-r border-white/[0.06] last:border-r-0">
-                <div className="w-[30px] h-[30px] rounded-full flex items-center justify-center text-sm flex-shrink-0" style={{ background: "rgba(232,93,64,0.15)" }}>
-                  {item.icon}
+      {/* ══════════════════════════════════════════════════════════════
+          QUICK ORDER — Simplified path (upload → colors → size → pay)
+          ══════════════════════════════════════════════════════════════ */}
+      <section
+        id="quick-order"
+        className="py-16 sm:py-20 px-5 sm:px-8 scroll-mt-20"
+        style={{ background: "var(--wp-secondary-bg)" }}
+      >
+        <div className="max-w-3xl mx-auto">
+          <h2
+            className="text-2xl sm:text-3xl font-bold text-center mb-3"
+            style={{ color: "var(--wp-charcoal)" }}
+          >
+            Ready? It only takes a few minutes.
+          </h2>
+          <p className="text-center mb-10 text-sm sm:text-base" style={{ color: "var(--wp-muted)" }}>
+            Upload your photos, make a few choices, and we take it from there.
+          </p>
+
+          {/* Simplified steps as cards */}
+          <div className="space-y-4">
+            {QUICK_STEPS.map((step, i) => (
+              <div
+                key={step.title}
+                className="flex items-start gap-4 sm:gap-5 bg-white rounded-xl p-5 sm:p-6 border shadow-sm"
+                style={{ borderColor: "var(--wp-border)" }}
+              >
+                <div
+                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{ backgroundColor: "var(--wp-sage-light)", color: "var(--wp-sage)" }}
+                >
+                  {step.icon}
                 </div>
-                <div>
-                  <div className="text-sm font-bold" style={{ fontFamily: "var(--font-syne), sans-serif", color: "#FAFAF8" }}>{item.val}</div>
-                  <div className="text-[9px] uppercase tracking-[0.2em] mt-0.5" style={{ color: "rgba(250,250,248,0.35)" }}>{item.label}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline gap-2 mb-1">
+                    <span className="text-xs font-mono uppercase tracking-wider" style={{ color: "var(--wp-sage)" }}>
+                      Step {i + 1}
+                    </span>
+                  </div>
+                  <h3 className="font-semibold text-base sm:text-lg" style={{ color: "var(--wp-charcoal)" }}>
+                    {step.title}
+                  </h3>
+                  <p className="text-sm mt-1" style={{ color: "var(--wp-muted)" }}>
+                    {step.description}
+                  </p>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Footer */}
-          <div className="flex items-center justify-between px-8 sm:px-14 py-4 border-t" style={{ background: "#FAFAF8", borderColor: "#E8E0D8" }}>
-            <div className="text-xl font-extrabold tracking-tight" style={{ fontFamily: "var(--font-syne), sans-serif", color: "#111" }}>
-              WED<span style={{ color: "#E85D40" }}>PRINT</span>3D
-            </div>
-            <div className="text-[11px] font-mono tracking-wider" style={{ color: "#E85D40" }}>
-              wedprint3d.com
-            </div>
-          </div>
-
-        </div>
-
-        {/* CTA buttons below hero */}
-        <div className="py-8 px-4 text-center" style={{ background: "#FAFAF8" }}>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          {/* CTA + escape hatch */}
+          <div className="mt-8 text-center">
             <Link href="/order/step1-style">
-              <Button size="lg" className="btn-cta gap-2 text-base px-8 border-0 hover:opacity-90 shadow-lg">
-                Start your order
-                <ArrowRight className="h-4 w-4" />
+              <Button
+                size="lg"
+                className="btn-cta gap-2 text-base sm:text-lg px-10 py-6 border-0 hover:opacity-90 shadow-lg w-full sm:w-auto"
+              >
+                Start Your Order
+                <ArrowRight className="h-5 w-5" />
               </Button>
             </Link>
-            <Link href="/gallery">
-              <Button variant="outline" size="lg"
-                className="text-base px-8 bg-white border hover:bg-gray-50"
-                style={{ color: "var(--wp-charcoal)", borderColor: "var(--wp-border)" }}>
-                See examples
-              </Button>
+            <p className="text-xs mt-4" style={{ color: "var(--wp-muted)" }}>
+              Starting at <strong style={{ color: "var(--wp-charcoal)" }}>$79</strong> · 50% deposit today, rest on approval
+            </p>
+            <Link
+              href="/order/step1-style"
+              className="inline-block text-xs mt-2 underline underline-offset-2 hover:opacity-80 transition-opacity"
+              style={{ color: "var(--wp-sage)" }}
+            >
+              Want more options? Try our full customiser →
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ── Trust bar ─────────────────────────────────────────────── */}
-      <section className="border-y py-5 px-4"
-               style={{ background: "var(--wp-sage-light)", borderColor: "var(--wp-border)" }}>
-        <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div className="flex flex-col items-center gap-1">
-              <Clock className="h-5 w-5" style={{ color: "var(--wp-sage)" }} />
-              <p className="font-semibold text-sm" style={{ color: "var(--wp-charcoal)" }}>5–7 day turnaround</p>
-              <p className="text-xs" style={{ color: "var(--wp-muted)" }}>Rush in 72 hrs</p>
-            </div>
-            <div className="flex flex-col items-center gap-1">
-              <Star className="h-5 w-5" style={{ color: "var(--wp-gold)" }} />
-              <p className="font-semibold text-sm" style={{ color: "var(--wp-charcoal)" }}>You approve first</p>
-              <p className="text-xs" style={{ color: "var(--wp-muted)" }}>3D preview before printing</p>
-            </div>
-            <div className="flex flex-col items-center gap-1">
-              <Shield className="h-5 w-5" style={{ color: "var(--wp-cta)" }} />
-              <p className="font-semibold text-sm" style={{ color: "var(--wp-charcoal)" }}>Satisfaction guaranteed</p>
-              <p className="text-xs" style={{ color: "var(--wp-muted)" }}>We revise until you love it</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Products ──────────────────────────────────────────────── */}
-      <section className="py-20 px-4 bg-white">
+      {/* ══════════════════════════════════════════════════════════════
+          GALLERY — Real product photos (3 couples)
+          ══════════════════════════════════════════════════════════════ */}
+      <section id="gallery" className="py-16 sm:py-20 px-5 sm:px-8 bg-white">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-3" style={{ color: "var(--wp-charcoal)" }}>What we create</h2>
-          <p className="text-center mb-12" style={{ color: "var(--wp-muted)" }}>
+          <div className="text-center mb-10 sm:mb-14">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3" style={{ color: "var(--wp-charcoal)" }}>
+              Crafted with love, printed with precision
+            </h2>
+            <p className="text-sm sm:text-base max-w-xl mx-auto" style={{ color: "var(--wp-muted)" }}>
+              Every piece is unique — designed from your photos, sculpted in 3D, printed to perfection
+            </p>
+          </div>
+
+          {/* Real product gallery using all 3 couples */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-5">
+            {GALLERY.map((item) => (
+              <div
+                key={item.id}
+                className="group relative rounded-xl sm:rounded-2xl overflow-hidden bg-muted shadow-sm"
+                style={{ aspectRatio: "1/1" }}
+              >
+                <Image
+                  src={item.src}
+                  alt={item.caption}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 33vw"
+                />
+                {/* Hover overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent
+                                opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-5
+                                translate-y-2 group-hover:translate-y-0
+                                opacity-0 group-hover:opacity-100 transition-all duration-300">
+                  <p className="text-white font-semibold text-xs sm:text-sm">{item.caption}</p>
+                  <p className="text-white/70 text-[10px] sm:text-xs mt-0.5">{item.sub}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mt-10">
+            <Link href="/gallery">
+              <Button variant="outline" size="lg" className="px-8">
+                View full gallery
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════════
+          PRODUCTS — What we create
+          ══════════════════════════════════════════════════════════════ */}
+      <section className="py-16 sm:py-20 px-5 sm:px-8" style={{ background: "var(--wp-secondary-bg)" }}>
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-3" style={{ color: "var(--wp-charcoal)" }}>
+            What we create
+          </h2>
+          <p className="text-center mb-10 sm:mb-12 text-sm sm:text-base" style={{ color: "var(--wp-muted)" }}>
             Every piece is custom-designed from your photos, then 3D printed to order.
           </p>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {PRODUCTS.map((product) => (
               <div
                 key={product.name}
-                className="rounded-2xl p-6 transition-all border border-[#E8E5DF] hover:border-[#8B9D77] hover:shadow-md"
+                className="rounded-xl sm:rounded-2xl p-4 sm:p-6 transition-all border bg-white hover:border-[var(--wp-sage)] hover:shadow-md"
+                style={{ borderColor: "var(--wp-border)" }}
               >
-                <div className="text-3xl mb-3">{product.icon}</div>
-                <h3 className="font-semibold text-lg mb-1" style={{ color: "var(--wp-charcoal)" }}>{product.name}</h3>
-                <p className="text-sm mb-3" style={{ color: "var(--wp-muted)" }}>{product.description}</p>
-                <p className="font-bold text-sm" style={{ color: "var(--wp-cta)" }}>{product.price}</p>
-                <div className="mt-2 flex items-center gap-1.5">
-                  <Ruler className="h-3 w-3" style={{ color: "var(--wp-sage)" }} />
-                  <p className="text-xs" style={{ color: "var(--wp-muted)" }}>{product.size}</p>
-                </div>
+                <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">{product.icon}</div>
+                <h3 className="font-semibold text-sm sm:text-lg mb-1" style={{ color: "var(--wp-charcoal)" }}>
+                  {product.name}
+                </h3>
+                <p className="text-xs sm:text-sm mb-2 sm:mb-3 leading-relaxed" style={{ color: "var(--wp-muted)" }}>
+                  {product.description}
+                </p>
+                <p className="font-bold text-xs sm:text-sm" style={{ color: "var(--wp-cta)" }}>
+                  {product.price}
+                </p>
                 {product.note && (
-                  <p className="text-xs mt-1 font-medium" style={{ color: "var(--wp-sage)" }}>{product.note}</p>
+                  <p className="text-[10px] sm:text-xs mt-1 font-medium" style={{ color: "var(--wp-sage)" }}>
+                    {product.note}
+                  </p>
                 )}
               </div>
             ))}
@@ -225,114 +333,77 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── Gallery (Our Work) ────────────────────────────────────── */}
-      {/* Replace these with real product photos once available */}
-      <section id="gallery" className="py-20 px-4" style={{ background: "var(--wp-secondary-bg)" }}>
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-3" style={{ color: "var(--wp-charcoal)" }}>
-              Crafted with love, printed with precision
-            </h2>
-            <p className="text-base max-w-xl mx-auto" style={{ color: "var(--wp-muted)" }}>
-              Every piece is unique — made from your photos
-            </p>
-          </div>
-
-          {/* 3-column responsive grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-            {GALLERY.map((item) => (
-              <div
-                key={item.id}
-                className="group relative rounded-2xl overflow-hidden bg-muted shadow-sm"
-                style={{ aspectRatio: item.tall ? "3/4" : "1/1" }}
-              >
-                <Image
-                  src={item.src}
-                  alt={item.caption}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                />
-                {/* Hover overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent
-                                opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="absolute bottom-0 left-0 right-0 p-5
-                                translate-y-3 group-hover:translate-y-0
-                                opacity-0 group-hover:opacity-100 transition-all duration-300">
-                  <p className="text-white font-semibold text-sm">{item.caption}</p>
-                  <p className="text-white/70 text-xs mt-0.5">{item.sub}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center mt-12">
-            <Link href="/order/step1-style">
-              <Button size="lg" className="btn-cta gap-2 text-base px-8 border-0 hover:opacity-90">
-                Create yours
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
+      {/* ── Testimonials ─────────────────────────────────────────── */}
       <TestimonialsSection reviews={testimonialReviews} />
 
-      {/* ── How it works ──────────────────────────────────────────── */}
-      <section className="py-20 px-4 bg-white">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12" style={{ color: "var(--wp-charcoal)" }}>
-            How it works
+      {/* ══════════════════════════════════════════════════════════════
+          SCROLL-PAST REMINDER — Warm, reassuring "Still thinking?"
+          ══════════════════════════════════════════════════════════════ */}
+      <section className="py-16 sm:py-24 px-5 sm:px-8" style={{ background: "var(--wp-ivory)" }}>
+        <div className="max-w-3xl mx-auto text-center">
+          {/* Warm headline */}
+          <Heart className="h-8 w-8 mx-auto mb-4" style={{ color: "var(--wp-cta)", opacity: 0.7 }} />
+          <h2
+            className="text-2xl sm:text-3xl font-bold mb-4"
+            style={{ color: "var(--wp-charcoal)" }}
+          >
+            Still thinking it over?
           </h2>
-          <div className="grid md:grid-cols-3 gap-10">
-            {STEPS.map((step, i) => (
-              <div key={i} className="text-center">
-                <div
-                  className="w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4 text-white shadow-md"
-                  style={{ backgroundColor: "var(--wp-sage)" }}
-                >
-                  {i + 1}
+          <p
+            className="text-base sm:text-lg leading-relaxed mb-10 max-w-xl mx-auto"
+            style={{ color: "var(--wp-muted)", fontFamily: "var(--font-newsreader), serif" }}
+          >
+            No rush at all. Here are a few things couples tell us made the
+            decision easy:
+          </p>
+
+          {/* Reassurance points */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10 text-left sm:text-center">
+            {REASSURANCE.map((item) => (
+              <div key={item.title} className="flex sm:flex-col items-start sm:items-center gap-3 sm:gap-2">
+                <CheckCircle2 className="h-5 w-5 flex-shrink-0 mt-0.5 sm:mt-0" style={{ color: "var(--wp-sage)" }} />
+                <div>
+                  <p className="font-semibold text-sm" style={{ color: "var(--wp-charcoal)" }}>
+                    {item.title}
+                  </p>
+                  <p className="text-xs mt-0.5 leading-relaxed" style={{ color: "var(--wp-muted)" }}>
+                    {item.description}
+                  </p>
                 </div>
-                <h3 className="font-semibold text-lg mb-2" style={{ color: "var(--wp-charcoal)" }}>{step.title}</h3>
-                <p className="text-sm" style={{ color: "var(--wp-muted)" }}>{step.description}</p>
               </div>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* ── CTA band ──────────────────────────────────────────────── */}
-      <section className="wedding-gradient py-24 px-4 text-center">
-        <div className="max-w-2xl mx-auto">
-          <h2 className="text-4xl font-bold mb-4" style={{ color: "var(--wp-charcoal)" }}>
-            Ready to create something beautiful?
-          </h2>
-          <p className="mb-8 text-lg" style={{ color: "var(--wp-muted)" }}>
-            It only takes 5 minutes to place your order.
-          </p>
+          {/* Gentle CTA */}
           <Link href="/order/step1-style">
-            <Button size="lg" className="btn-cta gap-2 text-base px-10 border-0 hover:opacity-90 shadow-lg">
-              Get started
-              <ArrowRight className="h-4 w-4" />
+            <Button
+              size="lg"
+              className="btn-cta gap-2 text-base px-10 py-6 border-0 hover:opacity-90 shadow-lg"
+            >
+              Start whenever you&apos;re ready
+              <ArrowRight className="h-5 w-5" />
             </Button>
           </Link>
+          <p className="text-xs mt-4" style={{ color: "var(--wp-muted)" }}>
+            Questions? <Link href="/contact" className="underline underline-offset-2 hover:opacity-80" style={{ color: "var(--wp-sage)" }}>Chat with us</Link> — we&apos;re happy to help.
+          </p>
         </div>
       </section>
 
-      {/* ── Footer ────────────────────────────────────────────────── */}
+      {/* ══════════════════════════════════════════════════════════════
+          FOOTER
+          ══════════════════════════════════════════════════════════════ */}
       <footer style={{ backgroundColor: "var(--wp-charcoal)" }}>
-        <div className="max-w-6xl mx-auto px-6 pt-14 pb-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 mb-12">
+        <div className="max-w-6xl mx-auto px-5 sm:px-6 pt-12 sm:pt-14 pb-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10 mb-10 sm:mb-12">
 
             {/* Brand */}
-            <div className="sm:col-span-2 md:col-span-1 space-y-4">
-              <Logo width={176} variant="onDark" />
-              <p className="text-white/50 text-sm leading-relaxed">
+            <div className="col-span-2 md:col-span-1 space-y-4">
+              <Logo width={160} variant="onDark" />
+              <p className="text-white/50 text-xs sm:text-sm leading-relaxed">
                 Custom 3D printed wedding keepsakes, handcrafted from your photos.
                 Serving the Miami area.
               </p>
-              {/* Social placeholders */}
               <div className="flex items-center gap-3">
                 {[
                   { label: "Instagram", href: "https://instagram.com/wedprint3d", icon: "📸" },
@@ -350,8 +421,8 @@ export default async function HomePage() {
 
             {/* Quick links */}
             <div>
-              <h4 className="text-white font-semibold text-sm mb-4 uppercase tracking-wider">Quick links</h4>
-              <ul className="space-y-2.5">
+              <h4 className="text-white font-semibold text-xs sm:text-sm mb-3 sm:mb-4 uppercase tracking-wider">Quick links</h4>
+              <ul className="space-y-2">
                 {[
                   { label: "Home",              href: "/" },
                   { label: "Gallery",           href: "/gallery" },
@@ -363,7 +434,7 @@ export default async function HomePage() {
                   { label: "Contact us",        href: "/contact" },
                 ].map((l) => (
                   <li key={l.label}>
-                    <Link href={l.href} className="text-white/50 text-sm hover:text-white/90 transition-colors">
+                    <Link href={l.href} className="text-white/50 text-xs sm:text-sm hover:text-white/90 transition-colors">
                       {l.label}
                     </Link>
                   </li>
@@ -373,8 +444,8 @@ export default async function HomePage() {
 
             {/* Products */}
             <div>
-              <h4 className="text-white font-semibold text-sm mb-4 uppercase tracking-wider">Products</h4>
-              <ul className="space-y-2.5">
+              <h4 className="text-white font-semibold text-xs sm:text-sm mb-3 sm:mb-4 uppercase tracking-wider">Products</h4>
+              <ul className="space-y-2">
                 {[
                   "Cake Toppers",
                   "Bridal Party Gifts",
@@ -382,7 +453,7 @@ export default async function HomePage() {
                   "Fridge Magnets",
                 ].map((p) => (
                   <li key={p}>
-                    <Link href="/order/step1-style" className="text-white/50 text-sm hover:text-white/90 transition-colors">
+                    <Link href="/order/step1-style" className="text-white/50 text-xs sm:text-sm hover:text-white/90 transition-colors">
                       {p}
                     </Link>
                   </li>
@@ -392,17 +463,17 @@ export default async function HomePage() {
 
             {/* Support */}
             <div>
-              <h4 className="text-white font-semibold text-sm mb-4 uppercase tracking-wider">Support</h4>
-              <ul className="space-y-2.5">
+              <h4 className="text-white font-semibold text-xs sm:text-sm mb-3 sm:mb-4 uppercase tracking-wider">Support</h4>
+              <ul className="space-y-2">
                 <li>
                   <a href="mailto:support@wedprint3d.com"
-                     className="text-white/50 text-sm hover:text-white/90 transition-colors">
+                     className="text-white/50 text-xs sm:text-sm hover:text-white/90 transition-colors">
                     support@wedprint3d.com
                   </a>
                 </li>
-                <li><Link href="/contact"  className="text-white/50 text-sm hover:text-white/90 transition-colors">Contact form</Link></li>
-                <li><Link href="/privacy"  className="text-white/50 text-sm hover:text-white/90 transition-colors">Privacy Policy</Link></li>
-                <li><Link href="/terms"    className="text-white/50 text-sm hover:text-white/90 transition-colors">Terms of Service</Link></li>
+                <li><Link href="/contact"  className="text-white/50 text-xs sm:text-sm hover:text-white/90 transition-colors">Contact form</Link></li>
+                <li><Link href="/privacy"  className="text-white/50 text-xs sm:text-sm hover:text-white/90 transition-colors">Privacy Policy</Link></li>
+                <li><Link href="/terms"    className="text-white/50 text-xs sm:text-sm hover:text-white/90 transition-colors">Terms of Service</Link></li>
               </ul>
             </div>
           </div>
@@ -427,98 +498,135 @@ export default async function HomePage() {
 
 // ── Data ─────────────────────────────────────────────────────────────────────
 
+/** 3-step process showcase — using one image from each couple for diversity */
+const PROCESS_STEPS = [
+  {
+    label: "Send your photos",
+    description: "Share a clear photo of each of you — any pose, any outfit. We handle the rest.",
+    image: "/images/couple2-bride-groom-alt.jpeg",
+    alt: "Couple reference photos — bride and groom portraits",
+  },
+  {
+    label: "We sculpt your model",
+    description: "Our artists create a custom 3D model of you two. You approve before we print.",
+    image: "/images/couple3-render.png",
+    alt: "Custom 3D render of a wedding couple figurine",
+  },
+  {
+    label: "Receive your topper",
+    description: "Precision-printed, hand-finished, and shipped to your door in 5–7 days.",
+    image: "/images/couple2-final-print.png",
+    alt: "Finished 3D printed cake topper",
+  },
+];
+
+/** Simplified order funnel steps */
+const QUICK_STEPS = [
+  {
+    icon: <Camera className="h-5 w-5" />,
+    title: "Upload your photos",
+    description: "One clear photo of each of you — face visible, any angle. That's all we need to get started.",
+  },
+  {
+    icon: <Palette className="h-5 w-5" />,
+    title: "Pick your colors",
+    description: "Choose 1-color (clean and classic) or 2-color (skin tones + outfit). Want full detail? We have more options.",
+  },
+  {
+    icon: <Ruler className="h-5 w-5" />,
+    title: "Choose your size",
+    description: "Small (~4\"), Standard (~5.5\"), or Large (~7\"). Think coffee mug, soda can, or wine bottle — that's the height range.",
+  },
+  {
+    icon: <CreditCard className="h-5 w-5" />,
+    title: "Pay 50% deposit",
+    description: "Just half upfront. You'll see a 3D preview before we print — pay the rest only when you're happy.",
+  },
+];
+
+/** Gallery — real product images from all 3 couples */
+const GALLERY = [
+  {
+    id: 1,
+    src: "/images/hero-topper-header.png",
+    caption: "Classic Couple",
+    sub: "Standard size · 2-color finish",
+  },
+  {
+    id: 2,
+    src: "/images/hero-3d-render.png",
+    caption: "3D Preview",
+    sub: "You approve before we print",
+  },
+  {
+    id: 3,
+    src: "/images/couple2-final-print.png",
+    caption: "Duo Finish",
+    sub: "2-color · skin tones + attire",
+  },
+  {
+    id: 4,
+    src: "/images/couple3-render.png",
+    caption: "Proposal Pose",
+    sub: "Custom kneeling pose render",
+  },
+  {
+    id: 5,
+    src: "/images/hero-final-print.jpg",
+    caption: "Hand-finished Detail",
+    sub: "Precision printed · PLA matte",
+  },
+  {
+    id: 6,
+    src: "/images/couple3-final-print.png",
+    caption: "Final Print",
+    sub: "Ready for the big day",
+  },
+];
+
+/** Scroll-past reassurance points */
+const REASSURANCE = [
+  {
+    title: "You approve everything first",
+    description: "We send you a 3D preview before printing. Not happy? We revise until you love it — at no extra cost.",
+  },
+  {
+    title: "It's more affordable than you think",
+    description: "Starting at $79 with a 50% deposit. The rest isn't due until you've approved your preview.",
+  },
+  {
+    title: "Most couples wish they'd ordered sooner",
+    description: "Our toppers make the cake table the highlight of the reception. And the photos? Priceless.",
+  },
+];
+
 const PRODUCTS = [
   {
     icon: "🎂",
     name: "Cake Toppers",
-    description: "Custom miniature figures of you and your partner, crafted from your photos.",
-    price: "From $79 to $154",
-    size: "100–180mm tall",
+    description: "Custom miniatures of you and your partner, crafted from your photos.",
+    price: "From $79",
     note: "1 to 4+ colors",
   },
   {
     icon: "💝",
     name: "Bridal Party Gifts",
-    description: "Personalised keepsakes for your bridesmaids, groomsmen, and flower girls.",
-    price: "From $49 to $95",
-    size: "80–150mm tall",
-    note: "per piece · 1 to 4+ colors",
+    description: "Personalised keepsakes for your bridesmaids and groomsmen.",
+    price: "From $49",
+    note: "Coming soon",
   },
   {
     icon: "🎁",
     name: "Guest Favours",
-    description: "Miniature custom prints your guests will treasure long after the big day.",
-    price: "From $85 to $165",
-    size: "40–80mm tall",
-    note: "per 10 pieces · min 10",
+    description: "Miniature prints your guests will treasure long after the big day.",
+    price: "From $85/10pc",
+    note: "Coming soon",
   },
   {
     icon: "🧲",
     name: "Fridge Magnets",
-    description: "Beautiful relief portraits of you two — a daily reminder of your special day.",
-    price: "From $18 to $38",
-    size: "40–70mm wide · flat relief",
-    note: "1 to 4+ colors",
-  },
-];
-
-// Replace these with real product photos once available
-const GALLERY = [
-  {
-    id: 1,
-    src: "https://images.unsplash.com/photo-1606800052052-a08af7148866?w=600&q=80&fit=crop",
-    caption: "Elegant Cake Topper",
-    sub: "Romantic tier · PLA matte white",
-    tall: false,
-  },
-  {
-    id: 2,
-    src: "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&q=80&fit=crop&crop=faces",
-    caption: "Classic Couple",
-    sub: "Elegant tier · hand-painted finish",
-    tall: false,
-  },
-  {
-    id: 3,
-    src: "https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=600&q=80&fit=crop",
-    caption: "Fun & Playful",
-    sub: "Fun tier · bright painted details",
-    tall: false,
-  },
-  {
-    id: 4,
-    src: "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=600&q=80&fit=crop",
-    caption: "Bridal Party Set",
-    sub: "6-piece bridesmaid gift set",
-    tall: false,
-  },
-  {
-    id: 5,
-    src: "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=600&q=80&fit=crop",
-    caption: "Adventurous Theme",
-    sub: "Hiking pose · custom props",
-    tall: false,
-  },
-  {
-    id: 6,
-    src: "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=600&q=80&fit=crop",
-    caption: "Guest Favours",
-    sub: "Set of 20 · 50mm relief portraits",
-    tall: false,
-  },
-];
-
-const STEPS = [
-  {
-    title: "Choose your style",
-    description: "Pick an aesthetic — fun and playful, elegant and formal, romantic, or adventurous.",
-  },
-  {
-    title: "Upload your photos",
-    description: "Share clear photos of yourselves plus any outfit or inspiration references.",
-  },
-  {
-    title: "Approve and print",
-    description: "We design your piece, you approve the 3D preview, then we print and deliver.",
+    description: "Relief portraits of you two — a daily reminder of your day.",
+    price: "From $18",
+    note: "Coming soon",
   },
 ];

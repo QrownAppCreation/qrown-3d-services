@@ -14,9 +14,27 @@ import {
 import { ArrowLeft, ArrowRight, Minus, Plus } from "lucide-react";
 
 const SIZES = [
-  { value: "small",    label: "Small",    mm: "100mm", priceMod: 0    },
-  { value: "standard", label: "Standard", mm: "140mm", priceMod: 1000 },
-  { value: "large",    label: "Large",    mm: "180mm", priceMod: 2000 },
+  {
+    value: "small",
+    label: "Small",
+    inches: '~4"',
+    reference: "About the height of a coffee mug",
+    priceMod: 0,
+  },
+  {
+    value: "standard",
+    label: "Standard",
+    inches: '~5.5"',
+    reference: "About the height of a soda can",
+    priceMod: 1000,
+  },
+  {
+    value: "large",
+    label: "Large",
+    inches: '~7"',
+    reference: "About the height of a wine bottle base",
+    priceMod: 2000,
+  },
 ];
 
 export default function Step2ProductsPage() {
@@ -60,7 +78,7 @@ export default function Step2ProductsPage() {
                 <h3 className="font-semibold text-xl">Custom Cake Topper</h3>
                 <span className="text-xs font-medium px-2 py-0.5 rounded-full border"
                       style={{ borderColor: "var(--wp-sage)", color: "var(--wp-sage)", background: "var(--wp-sage-light)" }}>
-                  100–180mm tall
+                  4″–7″ tall
                 </span>
               </div>
               <p className="text-muted-foreground text-sm mb-4">
@@ -78,16 +96,24 @@ export default function Step2ProductsPage() {
                       key={size.value}
                       onClick={() => setSizeCm(size.value)}
                       className={cn(
-                        "rounded-xl border-2 py-2.5 px-3 text-sm font-medium transition-all",
+                        "rounded-xl border-2 py-3 px-3 text-sm font-medium transition-all text-left",
                         sizeCm === size.value
                           ? "border-primary bg-primary text-primary-foreground"
                           : "border-border bg-white hover:border-primary/50"
                       )}
                     >
-                      <div>{size.label}</div>
-                      <div className="text-xs opacity-75 font-normal mt-0.5">{size.mm} tall</div>
+                      <div className="flex items-baseline gap-1.5">
+                        <span>{size.label}</span>
+                        <span className="text-xs opacity-75 font-normal">{size.inches}</span>
+                      </div>
+                      <div className={cn(
+                        "text-[11px] mt-1 font-normal leading-snug",
+                        sizeCm === size.value ? "opacity-80" : "text-muted-foreground"
+                      )}>
+                        {size.reference}
+                      </div>
                       {size.priceMod > 0 && (
-                        <div className="text-xs mt-0.5 font-normal">
+                        <div className="text-xs mt-1.5 font-normal opacity-75">
                           +{formatCents(size.priceMod)}
                         </div>
                       )}

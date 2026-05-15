@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import ChatWidget from "@/components/ChatWidget";
+import { StickyMobileCTA } from "@/components/StickyMobileCTA";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -52,6 +53,7 @@ export default function RootLayout({
         <Analytics />
         <SpeedInsights />
         <ChatWidget />
+        <StickyMobileCTA />
       </body>
     </html>
   );
