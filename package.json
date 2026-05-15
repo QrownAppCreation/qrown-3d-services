@@ -26,6 +26,8 @@
     "@prisma/client": "^7.5.0",
     "@stripe/stripe-js": "^8.11.0",
     "@supabase/supabase-js": "^2.101.1",
+    "@vercel/analytics": "^1.5.0",
+    "@vercel/speed-insights": "^1.2.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/nodemailer": "^7.0.11",
     "@types/pg": "^8.20.0",
