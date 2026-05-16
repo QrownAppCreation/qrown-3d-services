@@ -498,25 +498,25 @@ export default async function HomePage() {
 
 // ── Data ─────────────────────────────────────────────────────────────────────
 
-/** 3-step process showcase — using one image from each couple for diversity */
+/** 3-step process showcase — couple 2's full journey for consistency */
 const PROCESS_STEPS = [
   {
     label: "Send your photos",
     description: "Share a clear photo of each of you — any pose, any outfit. We handle the rest.",
-    image: "/images/couple2-bride-groom-alt.jpeg",
-    alt: "Couple reference photos — bride and groom portraits",
+    image: "/images/couple2-Bride.jpeg",
+    alt: "Couple 2 bride reference photo used to create a custom cake topper",
   },
   {
     label: "We sculpt your model",
     description: "Our artists create a custom 3D model of you two. You approve before we print.",
-    image: "/images/couple3-render.png",
-    alt: "Custom 3D render of a wedding couple figurine",
+    image: "/images/couple2-render.JPG",
+    alt: "Custom 3D render of couple 2 as a wedding cake topper figurine",
   },
   {
     label: "Receive your topper",
     description: "Precision-printed, hand-finished, and shipped to your door in 5–7 days.",
     image: "/images/couple2-final-print.png",
-    alt: "Finished 3D printed cake topper",
+    alt: "Finished 3D printed cake topper of couple 2 held in hand",
   },
 ];
 
@@ -550,37 +550,37 @@ const GALLERY = [
     id: 1,
     src: "/images/hero-topper-header.png",
     caption: "Classic Couple",
-    sub: "Standard size · 2-color finish",
+    sub: "Couple 1 · standard size · product shot",
   },
   {
     id: 2,
-    src: "/images/hero-3d-render.png",
-    caption: "3D Preview",
-    sub: "You approve before we print",
+    src: "/images/couple2-render.JPG",
+    caption: "Walking Together",
+    sub: "Couple 2 · 3D render · walking pose",
   },
   {
     id: 3,
-    src: "/images/couple2-final-print.png",
-    caption: "Duo Finish",
-    sub: "2-color · skin tones + attire",
+    src: "/images/couple3-final-print.png",
+    caption: "The Proposal",
+    sub: "Couple 3 · final print · kneeling pose",
   },
   {
     id: 4,
-    src: "/images/couple3-render.png",
-    caption: "Proposal Pose",
-    sub: "Custom kneeling pose render",
+    src: "/images/couple2-final-print.png",
+    caption: "Hand-finished Detail",
+    sub: "Couple 2 · final print · hand-held",
   },
   {
     id: 5,
-    src: "/images/hero-final-print.jpg",
-    caption: "Hand-finished Detail",
-    sub: "Precision printed · PLA matte",
+    src: "/images/couple3-render.png",
+    caption: "Kneeling Render",
+    sub: "Couple 3 · 3D preview before printing",
   },
   {
     id: 6,
-    src: "/images/couple3-final-print.png",
-    caption: "Final Print",
-    sub: "Ready for the big day",
+    src: "/images/hero-final-print.jpg",
+    caption: "Ready for the Big Day",
+    sub: "Couple 1 · final print · precision detail",
   },
 ];
 

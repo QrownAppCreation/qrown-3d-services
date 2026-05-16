@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { saveOrderDraft, getOrderDraft, type StyleTier } from "@/lib/order-store";
 import { ArrowRight } from "lucide-react";
 import { NotEdibleDisclaimer } from "@/components/NotEdibleDisclaimer";
+import Image from "next/image";
 
 const STYLE_TIERS: {
   id: StyleTier;
@@ -15,6 +16,8 @@ const STYLE_TIERS: {
   description: string;
   emoji: string;
   examples: string;
+  /** Optional product image to show alongside the style */
+  image?: string;
 }[] = [
   {
     id: "FUN",
@@ -23,6 +26,7 @@ const STYLE_TIERS: {
       "Bright, cartoon-like figures with exaggerated expressions and big smiles.",
     emoji: "🎉",
     examples: "Caricature-style, animated, expressive",
+    image: "/images/couple2-render.JPG",
   },
   {
     id: "ELEGANT",
@@ -31,6 +35,7 @@ const STYLE_TIERS: {
       "Refined, realistic proportions. Clean lines, formal attire, timeless look.",
     emoji: "✨",
     examples: "Realistic proportions, formal dress, classic pose",
+    image: "/images/hero-topper-header.png",
   },
   {
     id: "ROMANTIC",
@@ -39,6 +44,7 @@ const STYLE_TIERS: {
       "Soft, flowing aesthetic. Gentle poses, romantic details, heirloom feel.",
     emoji: "🌹",
     examples: "Flowing gown, embracing pose, delicate features",
+    image: "/images/couple3-render.png",
   },
   {
     id: "ADVENTUROUS",
@@ -100,7 +106,20 @@ export default function Step1StylePage() {
               )}
             >
               <div className="flex items-start gap-4">
-                <span className="text-3xl mt-0.5">{tier.emoji}</span>
+                {/* Show product image if available, otherwise emoji */}
+                {tier.image ? (
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-muted flex-shrink-0">
+                    <Image
+                      src={tier.image}
+                      alt={`${tier.name} style example`}
+                      width={80}
+                      height={80}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ) : (
+                  <span className="text-3xl mt-0.5">{tier.emoji}</span>
+                )}
                 <div className="flex-1">
                   <div className="flex items-center justify-between gap-2 mb-1">
                     <h3 className="font-semibold text-lg">{tier.name}</h3>

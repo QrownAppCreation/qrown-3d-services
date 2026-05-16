@@ -12,6 +12,7 @@ import {
   BASE_PRICES,
 } from "@/lib/order-store";
 import { ArrowLeft, ArrowRight, Minus, Plus } from "lucide-react";
+import Image from "next/image";
 
 const SIZES = [
   {
@@ -72,7 +73,15 @@ export default function Step2ProductsPage() {
         {/* Product card */}
         <div className="border-2 border-primary rounded-2xl p-6 bg-primary/5">
           <div className="flex items-start gap-4">
-            <span className="text-4xl">🎂</span>
+            <div className="w-16 h-16 rounded-xl overflow-hidden bg-muted flex-shrink-0">
+              <Image
+                src="/images/couple2-final-print.png"
+                alt="Custom cake topper example"
+                width={64}
+                height={64}
+                className="w-full h-full object-cover"
+              />
+            </div>
             <div className="flex-1">
               <div className="flex items-start justify-between flex-wrap gap-2 mb-1">
                 <h3 className="font-semibold text-xl">Custom Cake Topper</h3>

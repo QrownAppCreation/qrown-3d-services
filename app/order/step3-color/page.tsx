@@ -13,6 +13,7 @@ import {
   type ColorTier,
 } from "@/lib/order-store";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import Image from "next/image";
 
 const TIER_ORDER: ColorTier[] = ["CLASSIC", "DUO", "SIGNATURE", "HEIRLOOM"];
 
@@ -41,13 +42,26 @@ export default function Step3ColorPage() {
     <WizardLayout currentStep={3}>
       <div className="space-y-8">
         <div>
-          <h1 className="text-3xl font-bold mb-2" style={{ color: "var(--wp-charcoal)" }}>
-            Choose your color tier
-          </h1>
-          <p className="text-muted-foreground">
-            More colors means more detail. Each tier is a different price.
-            You can always start simple and upgrade later.
-          </p>
+          <div className="flex items-start gap-4">
+            <div className="hidden sm:block w-24 h-24 rounded-xl overflow-hidden bg-muted flex-shrink-0">
+              <Image
+                src="/images/couple3-final-print.png"
+                alt="Example of a multi-color cake topper"
+                width={96}
+                height={96}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold mb-2" style={{ color: "var(--wp-charcoal)" }}>
+                Choose your color tier
+              </h1>
+              <p className="text-muted-foreground">
+                More colors means more detail. Each tier is a different price.
+                You can always start simple and upgrade later.
+              </p>
+            </div>
+          </div>
         </div>
 
         <div className="grid gap-4">
