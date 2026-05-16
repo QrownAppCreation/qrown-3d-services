@@ -544,7 +544,7 @@ const QUICK_STEPS = [
   },
 ];
 
-/** Gallery — real product images from all 3 couples */
+/** Gallery — real product images from all 5 couples */
 const GALLERY = [
   {
     id: 1,
@@ -582,6 +582,20 @@ const GALLERY = [
     caption: "Ready for the Big Day",
     sub: "Couple 1 · final print · precision detail",
   },
+  // START CHANGE — Couple 4 & 5 added (Session 3, May 16 2026)
+  {
+    id: 7,
+    src: "/images/Couple4/couple4-product-shot.png",
+    caption: "Bold & Confident",
+    sub: "Couple 4 · product shot · arms crossed pose",
+  },
+  {
+    id: 8,
+    src: "/images/Couple5/couple5-product-shot-2.png",
+    caption: "Walking into Forever",
+    sub: "Couple 5 · final print · hand-held",
+  },
+  // END CHANGE
 ];
 
 /** Scroll-past reassurance points */

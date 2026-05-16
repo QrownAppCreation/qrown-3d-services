@@ -26,7 +26,7 @@ const STYLE_TIERS: {
       "Bright, cartoon-like figures with exaggerated expressions and big smiles.",
     emoji: "🎉",
     examples: "Caricature-style, animated, expressive",
-    image: "/images/couple2-render.JPG",
+    image: "/images/Couple4/couple4-render.png", // START CHANGE — Couple 4 arms-crossed render fits Fun & Playful better (Session 3, May 16 2026)
   },
   {
     id: "ELEGANT",
@@ -47,12 +47,14 @@ const STYLE_TIERS: {
     image: "/images/couple3-render.png",
   },
   {
+  {
     id: "ADVENTUROUS",
     name: "Adventurous & Themed",
     description:
       "Tell your story! Hiking gear, surfboards, nerdy references — your world, your way.",
     emoji: "🏔️",
     examples: "Hiking, beach, gaming, sports, fandom themes",
+    image: "/images/Couple5/couple5-render-v2.png", // START CHANGE — Couple 5 walking render fills the emoji placeholder (Session 3, May 16 2026)
   },
   {
     id: "CUSTOM",

@@ -115,6 +115,35 @@ const ITEMS: GalleryItem[] = [
     src: "https://ojlvahybqjaaxivaysuc.supabase.co/storage/v1/object/public/Gallery/Couple%201%20before%20the%20other%20%2C%20gold%20heart.PNG",
     description: "3 colors · Full detail",
   },
+  // START CHANGE — Couple 4 & 5 local assets added (Session 3, May 16 2026)
+  {
+    id: 11,
+    tier: "CLASSIC",
+    productType: "Cake Topper",
+    filterType: "CAKE_TOPPER",
+    alt: "Classic 1-color white 3D printed wedding cake topper on heart base",
+    src: "/images/Couple4/couple4-3dmodel-1color.png",
+    description: "1 color · Raw monochrome print on heart base",
+  },
+  {
+    id: 12,
+    tier: "HEIRLOOM",
+    productType: "Figurine",
+    filterType: "FIGURINE",
+    alt: "Heirloom full-color 3D printed wedding figurine — bold arms-crossed pose",
+    src: "/images/Couple4/couple4-product-shot.png",
+    description: "4+ colors · Bold pose · maximum detail",
+  },
+  {
+    id: 13,
+    tier: "HEIRLOOM",
+    productType: "Figurine",
+    filterType: "FIGURINE",
+    alt: "Heirloom full-color 3D printed wedding figurine held in hand — diverse couple walking pose",
+    src: "/images/Couple5/couple5-product-shot-2.png",
+    description: "4+ colors · Walking pose · hand-held",
+  },
+  // END CHANGE
 ];
 
 // ── Videos ────────────────────────────────────────────────────────────────────
