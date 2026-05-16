@@ -135,18 +135,44 @@ export default async function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6">
             {PROCESS_STEPS.map((step, i) => (
               <div key={step.label} className="text-center">
-                {/* Step image */}
+                {/* Step image — split bride+groom view for step 1, single image for steps 2 & 3 */}
                 <div className="relative mx-auto w-full max-w-[280px] aspect-square rounded-2xl overflow-hidden mb-5 shadow-md">
-                  <Image
-                    src={step.image}
-                    alt={step.alt}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 80vw, 28vw"
-                  />
+                  {step.groomImage ? (
+                    /* Split view: bride left, groom right — shows both photos are needed */
+                    <div className="flex h-full w-full">
+                      <div className="relative w-1/2 h-full">
+                        <Image
+                          src={step.image}
+                          alt={step.alt}
+                          fill
+                          className="object-cover object-center"
+                          sizes="14vw"
+                        />
+                      </div>
+                      {/* Divider */}
+                      <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-0.5 bg-white/70 z-10" />
+                      <div className="relative w-1/2 h-full">
+                        <Image
+                          src={step.groomImage}
+                          alt={step.groomAlt ?? "Groom reference photo"}
+                          fill
+                          className="object-cover object-center"
+                          sizes="14vw"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <Image
+                      src={step.image}
+                      alt={step.alt}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 80vw, 28vw"
+                    />
+                  )}
                   {/* Step number badge */}
                   <div
-                    className="absolute top-3 left-3 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white shadow-md"
+                    className="absolute top-3 left-3 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white shadow-md z-20"
                     style={{ backgroundColor: "var(--wp-sage)" }}
                   >
                     {i + 1}
@@ -502,9 +528,12 @@ export default async function HomePage() {
 const PROCESS_STEPS = [
   {
     label: "Send your photos",
-    description: "Share a clear photo of each of you — any pose, any outfit. We handle the rest.",
+    description: "One clear photo of each of you — any pose, any outfit. We handle the rest.",
     image: "/images/couple2-Bride.jpeg",
     alt: "Couple 2 bride reference photo used to create a custom cake topper",
+    // groomImage shows a split bride/groom view to communicate that BOTH photos are needed
+    groomImage: "/images/couple2-bride-groom.jpeg",
+    groomAlt: "Couple 2 groom reference photo used to create a custom cake topper",
   },
   {
     label: "We sculpt your model",
@@ -544,7 +573,7 @@ const QUICK_STEPS = [
   },
 ];
 
-/** Gallery — real product images from all 5 couples */
+/** Gallery — one unique shot per couple; Couple 5 shown in both poses (seated + walking) */
 const GALLERY = [
   {
     id: 1,
@@ -566,36 +595,22 @@ const GALLERY = [
   },
   {
     id: 4,
-    src: "/images/couple2-final-print.png",
-    caption: "Hand-finished Detail",
-    sub: "Couple 2 · final print · hand-held",
-  },
-  {
-    id: 5,
-    src: "/images/couple3-render.png",
-    caption: "Kneeling Render",
-    sub: "Couple 3 · 3D preview before printing",
-  },
-  {
-    id: 6,
-    src: "/images/hero-final-print.jpg",
-    caption: "Ready for the Big Day",
-    sub: "Couple 1 · final print · precision detail",
-  },
-  // START CHANGE — Couple 4 & 5 added (Session 3, May 16 2026)
-  {
-    id: 7,
     src: "/images/Couple4/couple4-product-shot.png",
     caption: "Bold & Confident",
     sub: "Couple 4 · product shot · arms crossed pose",
   },
   {
-    id: 8,
+    id: 5,
+    src: "/images/Couple5/couple5-product-shot1.png",
+    caption: "Casually in Love",
+    sub: "Couple 5 · seated pose · product shot",
+  },
+  {
+    id: 6,
     src: "/images/Couple5/couple5-product-shot-2.png",
     caption: "Walking into Forever",
-    sub: "Couple 5 · final print · hand-held",
+    sub: "Couple 5 · walking pose · hand-held",
   },
-  // END CHANGE
 ];
 
 /** Scroll-past reassurance points */

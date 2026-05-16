@@ -18,10 +18,10 @@ const ONE_COLOR_ITEMS = [
   },
   {
     id: 2,
-    alt: "Classic 1-color 3D printed wedding cake topper",
-    src: "https://ojlvahybqjaaxivaysuc.supabase.co/storage/v1/object/public/Gallery/Mini-Me-Cake-Topper-1.png",
-    isLocal: false,
-    label: "Round base",
+    alt: "Classic 1-color 3D printed wedding cake topper — proposal pose, kneeling groom",
+    src: "/images/Couple3-Classic1color-render.png",
+    isLocal: true,
+    label: "Proposal pose",
   },
   {
     id: 3,
