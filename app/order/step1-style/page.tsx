@@ -47,7 +47,6 @@ const STYLE_TIERS: {
     image: "/images/couple3-render.png",
   },
   {
-  {
     id: "ADVENTUROUS",
     name: "Adventurous & Themed",
     description:
