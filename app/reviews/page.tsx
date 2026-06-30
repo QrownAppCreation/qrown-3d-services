@@ -1,3 +1,6 @@
+// Force dynamic rendering — page fetches from DB which is only available at request time, not build time (June 30 2026)
+export const dynamic = "force-dynamic";
+
 import Image from "next/image";
 import Link from "next/link";
 import { db } from "@/lib/db";
