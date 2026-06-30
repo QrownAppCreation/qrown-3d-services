@@ -412,15 +412,10 @@ export default function StartPage() {
               <p className="text-sm leading-relaxed mb-4 italic" style={{ color: "var(--wp-charcoal)", fontFamily: "var(--font-newsreader), serif" }}>
                 &ldquo;{t.quote}&rdquo;
               </p>
-              {/* Reviewer */}
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full overflow-hidden bg-muted flex-shrink-0">
-                  <Image src={t.image} alt={t.name} width={40} height={40} className="w-full h-full object-cover" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold" style={{ color: "var(--wp-charcoal)" }}>{t.name}</p>
-                  <p className="text-xs" style={{ color: "var(--wp-muted)" }}>{t.location}</p>
-                </div>
+              {/* Reviewer — name and location only, no avatar image */}
+              <div>
+                <p className="text-xs font-bold" style={{ color: "var(--wp-charcoal)" }}>{t.name}</p>
+                <p className="text-xs" style={{ color: "var(--wp-muted)" }}>{t.location}</p>
               </div>
             </div>
           ))}

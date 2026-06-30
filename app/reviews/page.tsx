@@ -211,22 +211,12 @@ export default async function ReviewsPage() {
                   >
                     &ldquo;{r.quote}&rdquo;
                   </p>
-                  <div className="flex items-center gap-3 mt-4">
-                    <div className="w-10 h-10 rounded-full overflow-hidden bg-muted flex-shrink-0">
-                      <Image
-                        src={r.image}
-                        alt={r.name}
-                        width={40}
-                        height={40}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold" style={{ color: "var(--wp-charcoal)" }}>
-                        {r.name}
-                      </p>
-                      <p className="text-xs text-muted-foreground">{r.location}</p>
-                    </div>
+                  {/* No avatar image — name and location only */}
+                  <div className="mt-4">
+                    <p className="text-xs font-bold" style={{ color: "var(--wp-charcoal)" }}>
+                      {r.name}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{r.location}</p>
                   </div>
                 </div>
               ))}

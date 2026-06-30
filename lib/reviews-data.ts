@@ -27,7 +27,7 @@ export const STATIC_REVIEWS: StaticReview[] = [
     quote:
       "This cake topper is awesome! They really captured our personality and it looks so elegant. Our wedding is in September and we can't wait to show it off to everyone.",
     rating: 5,
-    image: "/images/Couple5/couple5-product-shot-2.png",
+    image: "/images/Couple6/couple6-jonathan-shantay.png",
     featured: true,
   },
   {
