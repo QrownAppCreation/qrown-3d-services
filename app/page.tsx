@@ -1,3 +1,9 @@
+// START CHANGE — force dynamic rendering so Next.js never prerenders this page
+// at build time. The homepage fetches from Supabase via PrismaPg which is only
+// available at request time, not during Vercel's build step. (June 30 2026)
+export const dynamic = "force-dynamic";
+// END CHANGE
+
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
