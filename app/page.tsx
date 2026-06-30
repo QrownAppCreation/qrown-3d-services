@@ -19,11 +19,19 @@ import {
 } from "lucide-react";
 
 export default async function HomePage() {
-  const testimonialReviews = await db.review.findMany({
-    where: { approved: true },
-    orderBy: { createdAt: "desc" },
-    take: 6,
-  });
+  // START CHANGE — wrap DB call in try/catch so Vercel build doesn't fail
+  // if Supabase is unreachable during prerender (June 30 2026)
+  let testimonialReviews: Awaited<ReturnType<typeof db.review.findMany>> = [];
+  try {
+    testimonialReviews = await db.review.findMany({
+      where: { approved: true },
+      orderBy: { createdAt: "desc" },
+      take: 6,
+    });
+  } catch (err) {
+    console.warn("DB unavailable during build — testimonials will be empty:", err);
+  }
+  // END CHANGE
 
   return (
     <div className="min-h-screen bg-background">
