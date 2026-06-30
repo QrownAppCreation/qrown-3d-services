@@ -73,7 +73,7 @@ export const STATIC_REVIEWS: StaticReview[] = [
     quote:
       "We sent a casual beach photo and they turned it into the most beautiful keepsake. The process was so easy — upload, approve, receive. No stress at all.",
     rating: 5,
-    image: "/images/Couple4/couple4-product-shot-base.png",
+    image: "", // text-only card
   },
   {
     id: 7,
@@ -82,7 +82,7 @@ export const STATIC_REVIEWS: StaticReview[] = [
     quote:
       "I bought this as a surprise for my fiancé and he was completely speechless when he saw it. The likeness is incredible. Already planning to order a second one as a gift.",
     rating: 5,
-    image: "/images/hero-topper-header.png",
+    image: "", // text-only card
   },
   {
     id: 8,
@@ -91,7 +91,7 @@ export const STATIC_REVIEWS: StaticReview[] = [
     quote:
       "We chose the Heirloom finish and the quality blew us away. It sat on top of our three-tier cake and every single guest asked where we got it. Highly recommend.",
     rating: 5,
-    image: "/images/Couple4/couple4-final-print.png",
+    image: "", // text-only card
   },
   {
     id: 9,
@@ -100,7 +100,7 @@ export const STATIC_REVIEWS: StaticReview[] = [
     quote:
       "Fast, professional, and the result was beyond what we imagined. The shipping was quick and the packaging protected it perfectly. It arrived looking flawless.",
     rating: 5,
-    image: "/images/Couple5/couple5-product-shot-2.png",
+    image: "", // text-only card
   },
   {
     id: 10,
@@ -109,7 +109,7 @@ export const STATIC_REVIEWS: StaticReview[] = [
     quote:
       "We ordered the 1-Color Classic and it was stunning. Clean, elegant, timeless. It matched our minimalist wedding aesthetic perfectly. Couldn't be happier.",
     rating: 5,
-    image: "/images/couple2-final-print.png",
+    image: "", // text-only card
   },
   {
     id: 11,
@@ -118,6 +118,6 @@ export const STATIC_REVIEWS: StaticReview[] = [
     quote:
       "I was worried it wouldn't arrive in time but it showed up 5 days after I approved the render. The team was responsive and patient with our revision requests. 10 out of 10.",
     rating: 5,
-    image: "/images/Couple4/couple4-product-shot.png",
+    image: "", // text-only card
   },
 ];

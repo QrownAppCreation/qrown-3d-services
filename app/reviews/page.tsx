@@ -173,13 +173,14 @@ export default async function ReviewsPage() {
                 >
                   &ldquo;{r.quote}&rdquo;
                 </p>
-                <div className="flex items-center gap-3 mt-4">
-                  <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex-shrink-0">
+                <div className="flex items-center gap-4 mt-4">
+                  {/* Featured review topper image — larger rounded square */}
+                  <div className="w-20 h-20 rounded-2xl overflow-hidden bg-muted flex-shrink-0 shadow-md">
                     <Image
                       src={r.image}
-                      alt={r.name}
-                      width={48}
-                      height={48}
+                      alt={`${r.name} custom wedding cake topper`}
+                      width={80}
+                      height={80}
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -204,6 +205,18 @@ export default async function ReviewsPage() {
                   className="rounded-2xl border bg-white p-5"
                   style={{ borderColor: "var(--wp-border)" }}
                 >
+                  {/* Topper image — shown only for the 4 couples that have one */}
+                  {r.image && (
+                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-muted mb-3 shadow-sm">
+                      <Image
+                        src={r.image}
+                        alt={`${r.name} custom wedding cake topper`}
+                        width={64}
+                        height={64}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
                   <Stars rating={r.rating} />
                   <p
                     className="mt-3 text-sm leading-relaxed italic"
@@ -211,7 +224,7 @@ export default async function ReviewsPage() {
                   >
                     &ldquo;{r.quote}&rdquo;
                   </p>
-                  {/* No avatar image — name and location only */}
+                  {/* Name and location */}
                   <div className="mt-4">
                     <p className="text-xs font-bold" style={{ color: "var(--wp-charcoal)" }}>
                       {r.name}

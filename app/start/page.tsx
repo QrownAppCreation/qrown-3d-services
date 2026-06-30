@@ -383,9 +383,10 @@ export default function StartPage() {
           <p className="text-base leading-relaxed mb-4 italic" style={{ color: "var(--wp-charcoal)", fontFamily: "var(--font-newsreader), serif" }}>
             &ldquo;{TESTIMONIALS[0].quote}&rdquo;
           </p>
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex-shrink-0">
-              <Image src={TESTIMONIALS[0].image} alt={TESTIMONIALS[0].name} width={48} height={48} className="w-full h-full object-cover" />
+          <div className="flex items-center gap-4">
+            {/* Featured review topper image — larger rounded square */}
+            <div className="w-20 h-20 rounded-2xl overflow-hidden bg-muted flex-shrink-0 shadow-md">
+              <Image src={TESTIMONIALS[0].image} alt={`${TESTIMONIALS[0].name} custom wedding cake topper`} width={80} height={80} className="w-full h-full object-cover" />
             </div>
             <div>
               <p className="text-sm font-bold" style={{ color: "var(--wp-charcoal)" }}>{TESTIMONIALS[0].name}</p>
@@ -402,6 +403,18 @@ export default function StartPage() {
               className="rounded-2xl p-5 border"
               style={{ background: "white", borderColor: "var(--wp-border)" }}
             >
+              {/* Topper image — shown only for the 4 couples that have one */}
+              {t.image && (
+                <div className="w-16 h-16 rounded-xl overflow-hidden bg-muted mb-3 shadow-sm">
+                  <Image
+                    src={t.image}
+                    alt={`${t.name} custom wedding cake topper`}
+                    width={64}
+                    height={64}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
               {/* Stars */}
               <div className="flex gap-0.5 mb-3">
                 {[1, 2, 3, 4, 5].map((s) => (
@@ -412,7 +425,7 @@ export default function StartPage() {
               <p className="text-sm leading-relaxed mb-4 italic" style={{ color: "var(--wp-charcoal)", fontFamily: "var(--font-newsreader), serif" }}>
                 &ldquo;{t.quote}&rdquo;
               </p>
-              {/* Reviewer — name and location only, no avatar image */}
+              {/* Reviewer — name and location */}
               <div>
                 <p className="text-xs font-bold" style={{ color: "var(--wp-charcoal)" }}>{t.name}</p>
                 <p className="text-xs" style={{ color: "var(--wp-muted)" }}>{t.location}</p>
