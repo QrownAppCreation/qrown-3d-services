@@ -23,36 +23,11 @@ import {
   ChevronUp,
 } from "lucide-react";
 
-// ── TESTIMONIALS (replace with real reviews when available) ───────────────────
-const TESTIMONIALS = [
-  {
-    id: 1,
-    name: "Sarah & Marcus",
-    location: "Miami, FL",
-    quote:
-      "We were nervous sending in casual photos but the topper looked exactly like us. Our guests couldn't stop talking about it. Worth every penny.",
-    rating: 5,
-    image: "/images/hero-topper-header.png",
-  },
-  {
-    id: 2,
-    name: "Priya & James",
-    location: "New York, NY",
-    quote:
-      "The approval step made all the difference. We got to see our render and request one small tweak before it printed. Perfect result.",
-    rating: 5,
-    image: "/images/Couple4/couple4-product-shot.png",
-  },
-  {
-    id: 3,
-    name: "Leila & David",
-    location: "Atlanta, GA",
-    quote:
-      "Ordered 10 days before the wedding — arrived in 6 days with time to spare. Absolutely beautiful. Already have it displayed in our home.",
-    rating: 5,
-    image: "/images/Couple5/couple5-product-shot-2.png",
-  },
-];
+// ── TESTIMONIALS — imported from shared data file ─────────────────────────────
+// To add/edit reviews, update lib/reviews-data.ts — changes apply to both
+// this page and the /reviews page automatically.
+import { STATIC_REVIEWS } from "@/lib/reviews-data";
+const TESTIMONIALS = STATIC_REVIEWS;
 
 // ── FAQ DATA ──────────────────────────────────────────────────────────────────
 const FAQS = [
@@ -373,21 +348,55 @@ export default function StartPage() {
       </section>
 
       {/* ── TESTIMONIALS ─────────────────────────────────────────────────── */}
-      <section className="max-w-4xl mx-auto px-5 py-14">
+      <section className="max-w-5xl mx-auto px-5 py-14">
         <div className="text-center mb-10">
           <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: "var(--wp-sage)" }}>
             Happy couples
           </p>
           <h2
-            className="text-3xl sm:text-4xl font-bold"
+            className="text-3xl sm:text-4xl font-bold mb-2"
             style={{ fontFamily: "var(--font-syne), sans-serif", color: "var(--wp-charcoal)" }}
           >
             What people are saying
           </h2>
+          <p className="text-sm" style={{ color: "var(--wp-muted)" }}>
+            ⭐⭐⭐⭐⭐ &nbsp;5.0 · {TESTIMONIALS.length} happy couples and counting
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {TESTIMONIALS.map((t) => (
+        {/* Featured review — Jonathan & Shantay (real, pinned first) */}
+        <div
+          className="rounded-2xl p-6 border-2 mb-6 relative"
+          style={{ background: "var(--wp-ivory)", borderColor: "var(--wp-gold)" }}
+        >
+          <div
+            className="absolute -top-3 left-5 text-xs font-bold px-3 py-1 rounded-full text-white"
+            style={{ backgroundColor: "var(--wp-gold)" }}
+          >
+            ✨ Featured Review
+          </div>
+          <div className="flex gap-0.5 mb-3 mt-1">
+            {[1, 2, 3, 4, 5].map((s) => (
+              <Star key={s} className="h-4 w-4 fill-current" style={{ color: "var(--wp-gold)" }} />
+            ))}
+          </div>
+          <p className="text-base leading-relaxed mb-4 italic" style={{ color: "var(--wp-charcoal)", fontFamily: "var(--font-newsreader), serif" }}>
+            &ldquo;{TESTIMONIALS[0].quote}&rdquo;
+          </p>
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex-shrink-0">
+              <Image src={TESTIMONIALS[0].image} alt={TESTIMONIALS[0].name} width={48} height={48} className="w-full h-full object-cover" />
+            </div>
+            <div>
+              <p className="text-sm font-bold" style={{ color: "var(--wp-charcoal)" }}>{TESTIMONIALS[0].name}</p>
+              <p className="text-xs" style={{ color: "var(--wp-muted)" }}>{TESTIMONIALS[0].location} · Wedding September 2025</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Remaining reviews — 2-col on mobile, 3-col on desktop */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {TESTIMONIALS.slice(1).map((t) => (
             <div
               key={t.id}
               className="rounded-2xl p-5 border"
