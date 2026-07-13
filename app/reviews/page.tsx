@@ -242,7 +242,6 @@ export default async function ReviewsPage() {
               ))}
             </div>
           </div>
-        </div>
 
         {/* ── CTA SECTION ───────────────────────────────────────────────── */}
         <div
@@ -297,4 +296,14 @@ export default async function ReviewsPage() {
       <a
         href={WHATSAPP_URL}
         target="_blank"
-        rel="n
+        rel="noopener noreferrer"
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-full shadow-2xl text-white text-sm font-semibold transition-transform hover:scale-105"
+        style={{ backgroundColor: "#25D366" }}
+        aria-label="Chat on WhatsApp"
+      >
+        <MessageCircle className="h-5 w-5" />
+        <span className="hidden sm:inline">Chat with us</span>
+      </a>
+    </div>
+  );
+}
