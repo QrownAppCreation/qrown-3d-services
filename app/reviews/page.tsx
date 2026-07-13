@@ -50,11 +50,8 @@ const WHATSAPP_URL = `https://wa.me/19546628622?text=${encodeURIComponent(
 )}`;
 
 export default async function ReviewsPage() {
-  const dbReviews = await getReviews();
-
-  // Always show static reviews — DB reviews are shown first when available
-  const hasDbReviews = dbReviews.length > 0;
-  const totalCount = dbReviews.length + STATIC_REVIEWS.length;
+  // DB reviews fetched but not displayed — static reviews shown only
+  await getReviews();
 
   return (
     <div className="min-h-screen" style={{ background: "var(--wp-ivory)" }}>
@@ -90,75 +87,12 @@ export default async function ReviewsPage() {
             </div>
             <span className="font-bold text-lg" style={{ color: "var(--wp-charcoal)" }}>5.0</span>
             <span className="text-muted-foreground text-sm">
-              · {totalCount} reviews
+              · {STATIC_REVIEWS.length} reviews
             </span>
           </div>
         </div>
 
-        {/* ── DB REVIEWS (when available) ───────────────────────────────── */}
-        {hasDbReviews && (
-          <div className="space-y-8 mb-12">
-            {dbReviews.map((r) => (
-              <article
-                key={r.id}
-                className="rounded-2xl border bg-white p-6 md:p-8 flex flex-col md:flex-row gap-6"
-                style={{ borderColor: "var(--wp-border)" }}
-              >
-                <div className="flex gap-3 md:flex-col md:w-64 shrink-0">
-                  {r.photoUrl && (
-                    <div className="relative w-full md:w-64 aspect-square rounded-xl overflow-hidden bg-muted">
-                      <Image
-                        src={r.photoUrl}
-                        alt="Wedding with topper"
-                        fill
-                        className="object-cover"
-                        sizes="256px"
-                      />
-                    </div>
-                  )}
-                  {r.cakePhotoUrl && (
-                    <div className="relative w-full md:w-64 aspect-square rounded-xl overflow-hidden bg-muted">
-                      <Image
-                        src={r.cakePhotoUrl}
-                        alt="Cake with topper"
-                        fill
-                        className="object-cover"
-                        sizes="256px"
-                      />
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <Stars rating={r.rating} />
-                  <h2 className="text-xl font-semibold mt-3" style={{ color: "var(--wp-charcoal)" }}>
-                    {r.coupleName}
-                  </h2>
-                  {r.weddingDate && (
-                    <p className="text-sm text-muted-foreground">
-                      {new Date(r.weddingDate).toLocaleDateString("en-US", {
-                        month: "long",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
-                    </p>
-                  )}
-                  <p className="mt-4 text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                    {r.comment}
-                  </p>
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
-
-        {/* ── STATIC REVIEWS (always shown below DB reviews) ───────────── */}
-        {hasDbReviews && (
-          <div className="flex items-center gap-3 my-6">
-            <div className="flex-1 h-px" style={{ background: "var(--wp-border)" }} />
-            <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">More reviews</span>
-            <div className="flex-1 h-px" style={{ background: "var(--wp-border)" }} />
-          </div>
-        )}
+        {/* ── STATIC REVIEWS ───────────────────────────────────────────── */}
         <div className="space-y-6">
             {/* Featured review — Jonathan & Shantay */}
             {STATIC_REVIEWS.filter((r) => r.featured).map((r) => (
