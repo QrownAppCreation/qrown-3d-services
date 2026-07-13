@@ -52,8 +52,9 @@ const WHATSAPP_URL = `https://wa.me/19546628622?text=${encodeURIComponent(
 export default async function ReviewsPage() {
   const dbReviews = await getReviews();
 
-  // Show DB reviews if any exist — otherwise show static reviews
+  // Always show static reviews — DB reviews are shown first when available
   const hasDbReviews = dbReviews.length > 0;
+  const totalCount = dbReviews.length + STATIC_REVIEWS.length;
 
   return (
     <div className="min-h-screen" style={{ background: "var(--wp-ivory)" }}>
@@ -89,7 +90,7 @@ export default async function ReviewsPage() {
             </div>
             <span className="font-bold text-lg" style={{ color: "var(--wp-charcoal)" }}>5.0</span>
             <span className="text-muted-foreground text-sm">
-              · {hasDbReviews ? dbReviews.length : STATIC_REVIEWS.length} reviews
+              · {totalCount} reviews
             </span>
           </div>
         </div>
@@ -150,9 +151,15 @@ export default async function ReviewsPage() {
           </div>
         )}
 
-        {/* ── STATIC REVIEWS FALLBACK (always shown when no DB reviews) ─── */}
-        {!hasDbReviews && (
-          <div className="space-y-6">
+        {/* ── STATIC REVIEWS (always shown below DB reviews) ───────────── */}
+        {hasDbReviews && (
+          <div className="flex items-center gap-3 my-6">
+            <div className="flex-1 h-px" style={{ background: "var(--wp-border)" }} />
+            <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">More reviews</span>
+            <div className="flex-1 h-px" style={{ background: "var(--wp-border)" }} />
+          </div>
+        )}
+        <div className="space-y-6">
             {/* Featured review — Jonathan & Shantay */}
             {STATIC_REVIEWS.filter((r) => r.featured).map((r) => (
               <div
@@ -235,7 +242,7 @@ export default async function ReviewsPage() {
               ))}
             </div>
           </div>
-        )}
+        </div>
 
         {/* ── CTA SECTION ───────────────────────────────────────────────── */}
         <div
@@ -290,14 +297,4 @@ export default async function ReviewsPage() {
       <a
         href={WHATSAPP_URL}
         target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-full shadow-2xl text-white text-sm font-semibold transition-transform hover:scale-105"
-        style={{ backgroundColor: "#25D366" }}
-        aria-label="Chat on WhatsApp"
-      >
-        <MessageCircle className="h-5 w-5" />
-        <span className="hidden sm:inline">Chat with us</span>
-      </a>
-    </div>
-  );
-}
+        rel="n
