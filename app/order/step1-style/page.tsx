@@ -63,6 +63,15 @@ const STYLE_TIERS: {
     emoji: "🎨",
     examples: "Mixed styles, unique requests, special concepts",
   },
+  {
+    id: "PRESTIGE_SCAN",
+    name: "Prestige Scan",
+    description:
+      "We come to you for an in-person 3D scan — capturing your exact face shape, proportions, and pose. The most lifelike topper possible, printed in full photorealistic color.",
+    emoji: "👑",
+    examples: "In-person session · Full-color print · Any pose you choose · $499",
+    image: undefined,
+  },
 ];
 
 export default function Step1StylePage() {
@@ -76,6 +85,13 @@ export default function Step1StylePage() {
 
   function handleNext() {
     if (!selected) return;
+    if (selected === "PRESTIGE_SCAN") {
+      const msg = encodeURIComponent(
+        "Hi! I'm interested in the Prestige Scan experience for my wedding topper ($499). Can we schedule a session?"
+      );
+      window.open(`https://wa.me/19546628622?text=${msg}`, "_blank");
+      return;
+    }
     saveOrderDraft({ styleTier: selected });
     router.push("/order/step2-products");
   }
@@ -100,10 +116,14 @@ export default function Step1StylePage() {
               key={tier.id}
               onClick={() => setSelected(tier.id)}
               className={cn(
-                "w-full text-left rounded-2xl border-2 p-5 transition-all hover:border-primary/50 hover:shadow-sm",
-                selected === tier.id
-                  ? "border-primary bg-primary/5 shadow-sm"
-                  : "border-border bg-white"
+                "w-full text-left rounded-2xl border-2 p-5 transition-all hover:shadow-sm",
+                tier.id === "PRESTIGE_SCAN"
+                  ? selected === tier.id
+                    ? "border-amber-400 bg-amber-50 shadow-md"
+                    : "border-amber-300 bg-gradient-to-r from-amber-50 to-white hover:border-amber-400"
+                  : selected === tier.id
+                  ? "border-primary bg-primary/5 shadow-sm hover:border-primary/50"
+                  : "border-border bg-white hover:border-primary/50"
               )}
             >
               <div className="flex items-start gap-4">
@@ -149,7 +169,7 @@ export default function Step1StylePage() {
             disabled={!selected}
             className="gap-2 px-8"
           >
-            Next: Choose products
+            {selected === "PRESTIGE_SCAN" ? "Book via WhatsApp" : "Next: Choose products"}
             <ArrowRight className="h-4 w-4" />
           </Button>
         </div>

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Check, MessageCircle } from "lucide-react";
 import { formatCents } from "@/lib/order-pricing";
 import { Logo } from "@/components/Logo";
 import { NotEdibleDisclaimer } from "@/components/NotEdibleDisclaimer";
@@ -207,6 +207,71 @@ export default function PricingPage() {
               </Link>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* ── Prestige Scan — premium standalone tier ── */}
+      <section className="max-w-6xl mx-auto px-6 pb-8">
+        <div
+          className="rounded-2xl p-8 md:p-10 flex flex-col md:flex-row items-start md:items-center gap-8 relative overflow-hidden"
+          style={{ background: "var(--wp-charcoal)", border: "2px solid #C9A84C" }}
+        >
+          {/* Gold glow accent */}
+          <div className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10 pointer-events-none"
+               style={{ background: "#C9A84C", transform: "translate(30%, -30%)" }} />
+
+          <div className="flex-1 relative z-10">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="text-3xl">👑</span>
+              <span
+                className="text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full"
+                style={{ background: "#C9A84C22", color: "#C9A84C", border: "1px solid #C9A84C55" }}
+              >
+                White-Glove Experience
+              </span>
+            </div>
+            <h3 className="text-3xl font-bold text-white mb-2">Prestige Scan</h3>
+            <p className="text-white/60 text-sm mb-4 max-w-lg">
+              We come to you. An in-person 3D scanning session captures your exact face shape,
+              proportions, and any pose you choose — no photos needed. The scan is cleaned up,
+              rendered for your approval, and printed in full photorealistic color.
+            </p>
+            <ul className="space-y-2 text-sm text-white/80">
+              {[
+                "In-person 3D scan session (Miami area)",
+                "Any pose — standing, dancing, embracing",
+                "Photorealistic full-color print",
+                "Digital render approval before printing",
+                "Unlimited revision rounds",
+                "Gift-ready packaging included",
+              ].map((item) => (
+                <li key={item} className="flex items-center gap-2">
+                  <Check className="h-4 w-4 flex-shrink-0" style={{ color: "#C9A84C" }} />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="flex flex-col items-center md:items-end gap-4 relative z-10 shrink-0">
+            <div className="text-center md:text-right">
+              <p className="text-white/50 text-sm mb-1">Cake Topper</p>
+              <p className="text-5xl font-extrabold text-white">$499</p>
+              <p className="text-white/40 text-xs mt-1">50% deposit today</p>
+            </div>
+            <a
+              href={`https://wa.me/19546628622?text=${encodeURIComponent(
+                "Hi! I'm interested in the Prestige Scan experience for my wedding topper ($499). Can we schedule a session?"
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-8 py-3.5 rounded-xl text-sm font-bold transition-all hover:opacity-90 text-center whitespace-nowrap"
+              style={{ background: "#C9A84C", color: "var(--wp-charcoal)" }}
+            >
+              Book your scan session →
+            </a>
+            <p className="text-white/30 text-xs text-center">Available in Miami area · Contact for other locations</p>
+          </div>
         </div>
       </section>
 

@@ -13,7 +13,8 @@ export type StyleTier =
   | "ELEGANT"
   | "ROMANTIC"
   | "ADVENTUROUS"
-  | "CUSTOM";
+  | "CUSTOM"
+  | "PRESTIGE_SCAN";
 
 export type ColorTier = "CLASSIC" | "DUO" | "SIGNATURE" | "HEIRLOOM";
 
