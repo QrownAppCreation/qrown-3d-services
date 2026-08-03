@@ -7,6 +7,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import ChatWidget from "@/components/ChatWidget";
 import { StickyMobileCTA } from "@/components/StickyMobileCTA";
+import { TRPCProvider } from "@/components/providers/TRPCProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -48,12 +49,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${syne.variable} ${newsreader.variable} antialiased`}
       >
-        {children}
-        <Toaster position="top-right" richColors />
-        <Analytics />
-        <SpeedInsights />
-        <ChatWidget />
-        <StickyMobileCTA />
+        <TRPCProvider>
+          {children}
+          <Toaster position="top-right" richColors />
+          <Analytics />
+          <SpeedInsights />
+          <ChatWidget />
+          <StickyMobileCTA />
+        </TRPCProvider>
       </body>
     </html>
   );
