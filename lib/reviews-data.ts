@@ -23,7 +23,7 @@ export const STATIC_REVIEWS: StaticReview[] = [
     id: 1,
     name: "Jonathan & Shantay",
     location: "Miami, FL",
-    weddingDate: "September 2025",
+    weddingDate: "September 2026",
     quote:
       "This cake topper is awesome! They really captured our personality and it looks so elegant. Our wedding is in September and we can't wait to show it off to everyone.",
     rating: 5,
