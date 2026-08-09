@@ -13,6 +13,8 @@ import {
   publicProcedure,
   operatorProcedure,
 } from "@/server/trpc";
+// PHASE 2 — partner commission ledger.
+import { accrueCommissionForOrder } from "@/lib/partner";
 
 /** All valid order status values (mirrors Prisma enum). */
 const ORDER_STATUSES = [
@@ -149,7 +151,7 @@ export const ordersRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      return ctx.db.order.update({
+      const order = await ctx.db.order.update({
         where: { id: input.orderId },
         data: {
           status: input.status,
@@ -158,6 +160,15 @@ export const ordersRouter = createTRPCRouter({
             : {}),
         },
       });
+
+      // PHASE 2 — credit partner commission once the order is complete.
+      // accrueCommissionForOrder is idempotent, so flipping a status back and
+      // forth to COMPLETE can never double-credit.
+      if (input.status === "COMPLETE") {
+        await accrueCommissionForOrder(order.id);
+      }
+
+      return order;
     }),
 
   /**

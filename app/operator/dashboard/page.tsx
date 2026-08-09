@@ -15,11 +15,14 @@ import {
   ArrowUpDown,
   MessageSquare,
   Star,
+  Handshake,
 } from "lucide-react";
 import { signOut } from "@/lib/auth";
 import { formatCents } from "@/lib/order-pricing";
 import { Logo } from "@/components/Logo";
 import { ReviewModerationButtons } from "@/components/operator/ReviewModerationButtons";
+// PHASE 2 — partner application queue + roster.
+import { PartnerApprovalSection } from "@/components/operator/PartnerApprovalQueue";
 
 // ── Color tier helpers ────────────────────────────────────────────────────────
 
@@ -258,6 +261,13 @@ export default async function OperatorDashboardPage() {
             Orders
           </Link>
           <Link
+            href="/operator/partners"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/10 text-sm font-medium text-white/70 hover:text-white transition-colors"
+          >
+            <Handshake className="h-4 w-4" />
+            Partners
+          </Link>
+          <Link
             href="/launch-checklist"
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/10 text-sm font-medium text-white/70 hover:text-white transition-colors"
           >
@@ -438,8 +448,12 @@ export default async function OperatorDashboardPage() {
             )}
           </div>
 
+          {/* ── PHASE 2: Partner approval queue ── */}
+          {/* Client component — fetches via tRPC so approvals need no reload. */}
+          <PartnerApprovalSection />
+
           {/* ── Orders table ── */}
-          <div className="bg-white rounded-2xl border border-border overflow-hidden">
+          <div className="bg-white rounded-2xl border border-border overflow-hidden mt-12">
             {/* Table header */}
             <div className="px-6 py-4 border-b border-border flex items-center justify-between flex-wrap gap-3">
               <h2 className="font-semibold">All orders</h2>

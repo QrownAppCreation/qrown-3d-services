@@ -16,6 +16,8 @@ import {
   COLOR_TIER_PRICES,
   type AddOnKey,
 } from "@/lib/order-store";
+// PHASE 2 — referral attribution captured on the landing page.
+import { getPartnerRef } from "@/lib/partner-ref";
 import { ArrowLeft, CreditCard, Shield } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
@@ -68,6 +70,8 @@ export default function Step5PaymentPage() {
           email,
           name: coupleName,
           draft: updatedDraft,
+          // PHASE 2 — null for direct orders; server ignores unknown/inactive slugs.
+          partnerRef: getPartnerRef(),
         }),
       });
 

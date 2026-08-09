@@ -8,6 +8,8 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import ChatWidget from "@/components/ChatWidget";
 import { StickyMobileCTA } from "@/components/StickyMobileCTA";
 import { TRPCProvider } from "@/components/providers/TRPCProvider";
+// PHASE 2 — captures ?ref=<partner-slug> on any landing page.
+import { PartnerRefCapture } from "@/components/PartnerRefCapture";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -50,6 +52,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${syne.variable} ${newsreader.variable} antialiased`}
       >
         <TRPCProvider>
+          <PartnerRefCapture />
           {children}
           <Toaster position="top-right" richColors />
           <Analytics />

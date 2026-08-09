@@ -9,11 +9,13 @@ import { createTRPCRouter } from "@/server/trpc";
 import { ordersRouter } from "./orders";
 import { reviewsRouter } from "./reviews";
 import { adminRouter } from "./admin";
+import { partnersRouter } from "./partners";
 
 export const appRouter = createTRPCRouter({
   orders: ordersRouter,
   reviews: reviewsRouter,
   admin: adminRouter,
+  partners: partnersRouter,
 });
 
 /** Type exported for the client — never import the full router on the client side. */

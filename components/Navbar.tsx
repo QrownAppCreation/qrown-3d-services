@@ -13,6 +13,9 @@ const NAV_LINKS = [
   { label: "Track my order",    href: "/track-order" },
 ];
 
+/** Shown in desktop nav as a subtle gold link, not a ghost button. */
+const PARTNER_HREF = "/partner/pricing";
+
 /** Main marketing site navigation — responsive with mobile hamburger menu. */
 export function Navbar() {
   const [open, setOpen] = useState(false);
@@ -31,6 +34,14 @@ export function Navbar() {
               </Button>
             </Link>
           ))}
+          {/* Partner program — styled in gold to stand out without a full button */}
+          <Link
+            href={PARTNER_HREF}
+            className="text-sm font-semibold px-2 hover:opacity-80 transition-opacity"
+            style={{ color: "var(--wp-gold)" }}
+          >
+            For professionals
+          </Link>
           <Link href="/order/step1-style">
             <Button size="sm" className="btn-cta border-0 hover:opacity-90 ml-1">
               Start your order
@@ -74,6 +85,14 @@ export function Navbar() {
             className="block py-2.5 px-3 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           >
             Share your moment
+          </Link>
+          <Link
+            href={PARTNER_HREF}
+            onClick={() => setOpen(false)}
+            className="block py-2.5 px-3 rounded-lg text-sm font-semibold transition-colors"
+            style={{ color: "var(--wp-gold)" }}
+          >
+            For professionals
           </Link>
         </div>
       )}

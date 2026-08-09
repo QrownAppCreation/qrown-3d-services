@@ -3,6 +3,8 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { sendOrderCompleteEmail, sendOperatorNotification } from "@/lib/email";
 import { formatUsdCents } from "@/lib/format-currency";
+// PHASE 2 — partner commission ledger.
+import { accrueCommissionForOrder } from "@/lib/partner";
 
 interface Context {
   params: Promise<{ id: string }>;
@@ -22,6 +24,14 @@ export async function POST(_req: NextRequest, { params }: Context) {
       data:  { status: "COMPLETE" },
       include: { couple: true },
     });
+
+    // PHASE 2 — credit the referring partner's commission. Idempotent, and a
+    // failure here must not roll back the completion the operator just made.
+    try {
+      await accrueCommissionForOrder(order.id);
+    } catch (commissionErr) {
+      console.error("[complete] Commission accrual error:", commissionErr);
+    }
 
     // Send completion email to the couple
     try {

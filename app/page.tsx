@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/Navbar";
 import { Logo } from "@/components/Logo";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
+import { RefCapture } from "@/components/RefCapture";
 import { db } from "@/lib/db";
 import {
   Star,
@@ -41,6 +42,8 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Captures ?ref=partner-slug on landing and stores it for order attribution */}
+      <RefCapture />
       <Navbar />
 
       {/* ══════════════════════════════════════════════════════════════
@@ -431,6 +434,41 @@ export default async function HomePage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════════
+          PARTNER BANNER — slim callout for wedding professionals
+          ══════════════════════════════════════════════════════════════ */}
+      <section style={{ backgroundColor: "var(--wp-charcoal)" }}>
+        <div className="max-w-5xl mx-auto px-5 sm:px-8 py-10 sm:py-12 flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div>
+            <p
+              className="text-xs font-semibold uppercase tracking-[0.2em] mb-1.5"
+              style={{ color: "var(--wp-gold)" }}
+            >
+              For wedding professionals
+            </p>
+            <h3
+              className="text-xl sm:text-2xl font-bold text-white"
+              style={{ fontFamily: "var(--font-syne), sans-serif" }}
+            >
+              Are you a photographer or planner?
+            </h3>
+            <p className="text-white/60 text-sm mt-1.5 max-w-lg">
+              Refer couples to WedPrint and earn 8% commission on every order —
+              automatically, with no extra work on your end.
+            </p>
+          </div>
+          <Link href="/partner/pricing" className="flex-shrink-0">
+            <Button
+              className="gap-2 px-6 py-2.5 text-sm font-semibold rounded-xl border-0 hover:opacity-90 whitespace-nowrap"
+              style={{ backgroundColor: "var(--wp-gold)", color: "var(--wp-charcoal)" }}
+            >
+              See partner plans
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════════
           FOOTER
           ══════════════════════════════════════════════════════════════ */}
       <footer style={{ backgroundColor: "var(--wp-charcoal)" }}>
@@ -472,6 +510,7 @@ export default async function HomePage() {
                   { label: "Start your order",  href: "/order/step1-style" },
                   { label: "Track my order",    href: "/track-order" },
                   { label: "Contact us",        href: "/contact" },
+                  { label: "Partner program",   href: "/partner/pricing" },
                 ].map((l) => (
                   <li key={l.label}>
                     <Link href={l.href} className="text-white/50 text-xs sm:text-sm hover:text-white/90 transition-colors">

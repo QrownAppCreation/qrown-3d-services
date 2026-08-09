@@ -13,6 +13,9 @@ import { AddOnType, StyleTier } from "@prisma/client";
 import type Stripe from "stripe";
 import { Resend } from "resend";
 import { notEdibleDisclaimerEmailHtml } from "@/lib/disclaimer";
+// PHASE 2 — partner referral attribution.
+import { resolvePartnerIdFromRef, commissionCents } from "@/lib/partner";
+import { sendPartnerNewOrderEmail } from "@/lib/partner-email";
 
 const OPERATOR_EMAIL = process.env.OPERATOR_EMAIL ?? "hello@wedprint3d.com";
 const APP_URL        = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
@@ -35,10 +38,12 @@ function resolveAddonPrice(
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { email, name, draft } = body as {
+    const { email, name, draft, partnerRef } = body as {
       email: string;
       name: string;
       draft: OrderDraft;
+      /** PHASE 2 — partner slug from ?ref=, optional. */
+      partnerRef?: string | null;
     };
 
     // ── Validate required top-level fields ───────────────────────────────────
@@ -77,6 +82,10 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // ── PHASE 2: resolve referral slug → partner id ──────────────────────────
+    // Returns null for unknown/inactive slugs so a bad ?ref= never blocks an order.
+    const partnerId = await resolvePartnerIdFromRef(partnerRef);
+
     // ── Magic link token (generated once, stored on the Couple record) ────────
     const magicToken  = randomBytes(32).toString("hex");
     const tokenExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
@@ -103,8 +112,26 @@ export async function POST(req: NextRequest) {
           weddingDate:  draft.weddingDate ? new Date(draft.weddingDate) : null,
           colorPalette: draft.colorPalette ?? null,
           styleNotes:   draft.styleNotes   ?? null,
+          partnerId,    // PHASE 2 — null for direct orders
         },
       });
+
+      // PHASE 2 — record the referred customer against the partner.
+      // Upsert keeps one row per (partner, email) across repeat orders.
+      if (partnerId) {
+        await tx.partnerCustomer.upsert({
+          where: { partnerId_email: { partnerId, email } },
+          // Never overwrite firstOrderAt — it marks the original conversion.
+          update: { name },
+          create: {
+            partnerId,
+            email,
+            name,
+            source: "referral_link",
+            firstOrderAt: new Date(),
+          },
+        });
+      }
 
       // Create the design record (MVP: always a cake topper)
       await tx.design.create({
@@ -354,6 +381,32 @@ export async function POST(req: NextRequest) {
       console.log("[orders/create] Operator email result:", JSON.stringify(operatorResult));
     } catch (emailErr) {
       console.error("[orders/create] Operator email FAILED:", emailErr);
+    }
+
+    // 3. PHASE 2 — notify the referring partner (best effort, never blocks)
+    if (partnerId) {
+      try {
+        const partner = await db.partner.findUnique({
+          where: { id: partnerId },
+          select: { email: true, contactName: true, commissionBps: true },
+        });
+
+        if (partner) {
+          await sendPartnerNewOrderEmail({
+            email:       partner.email,
+            contactName: partner.contactName,
+            orderId:     order.id,
+            orderTotalCents: totalCents,
+            // "Estimated" — it is only credited when the order hits COMPLETE.
+            estimatedCommissionCents: commissionCents(
+              totalCents,
+              partner.commissionBps
+            ),
+          });
+        }
+      } catch (partnerErr) {
+        console.error("[orders/create] Partner notification FAILED:", partnerErr);
+      }
     }
 
     // ── Response ─────────────────────────────────────────────────────────────

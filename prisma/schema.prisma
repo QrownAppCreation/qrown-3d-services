@@ -89,6 +89,39 @@ enum AddOnType {
   RESIN_COAT
 }
 
+// ── PHASE 2: PARTNER ENUMS ───────────────────────────────────────────────────
+
+/// Lifecycle of a partner account. New applications land in PENDING_APPROVAL.
+enum PartnerStatus {
+  PENDING_APPROVAL
+  ACTIVE
+  SUSPENDED
+  REJECTED
+}
+
+/// Subscription tier. Phase 2 onboards STARTER only (free, manual approval).
+enum PartnerPlan {
+  STARTER
+  PROFESSIONAL
+  STUDIO
+  ENTERPRISE
+}
+
+/// Ledger entry type. COMMISSION credits, WITHDRAWAL/ADJUSTMENT can debit.
+enum CreditTxnType {
+  COMMISSION
+  ADJUSTMENT
+  WITHDRAWAL
+}
+
+/// Invoice lifecycle — unused in Phase 2, present so Phase 3 needs no migration.
+enum PartnerInvoiceStatus {
+  DRAFT
+  OPEN
+  PAID
+  VOID
+}
+
 // ── TABLES ───────────────────────────────────────────────────────────────────
 
 model Couple {
@@ -130,9 +163,16 @@ model Order {
   /// Operator-uploaded cleaned STL public URL (Supabase stl-files; denormalized with Design.stlUrl).
   stlFileUrl          String? @map("cleanedStlUrl")
 
+  /// PHASE 2 — referring partner, resolved from the ?ref= slug at checkout. Null = direct order.
+  partnerId           String?
+
   couple              Couple      @relation(fields: [coupleId], references: [id])
   designs             Design[]
   addOns              AddOn[]
+  partner             Partner?    @relation(fields: [partnerId], references: [id])
+  creditTransactions  CreditTransaction[]
+
+  @@index([partnerId])
 }
 
 model Design {
@@ -228,6 +268,97 @@ model Review {
   @@map("reviews")
 }
 
+// ── PHASE 2: PARTNER TABLES ──────────────────────────────────────────────────
+
+/// A reseller: wedding photographer, planner, or bridal boutique.
+model Partner {
+  id              String        @id @default(cuid())
+  /// Public-facing business name shown in the partner dashboard.
+  businessName    String
+  /// URL-safe identifier used in referral links: wedprint3d.com/?ref=<slug>
+  slug            String        @unique
+  contactName     String
+  /// Login identity — matches User.email so the magic-link session resolves the partner.
+  email           String        @unique
+  phone           String?
+  website         String?
+  /// Free text from the application form ("how did you hear about us").
+  referralSource  String?
+  /// Operator-only notes (rejection reason, call summary, etc).
+  internalNotes   String?
+  status          PartnerStatus @default(PENDING_APPROVAL)
+  planKey         PartnerPlan   @default(STARTER)
+  /// Commission in basis points. 800 = 8.00%. Integer avoids float rounding on money.
+  commissionBps   Int           @default(800)
+  /// Denormalized running balance in cents — kept in sync with the CreditTransaction ledger.
+  creditBalanceCents Int        @default(0)
+  /// Optional link to the Auth.js User row (set on first login).
+  ownerId         String?       @unique
+  approvedAt      DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  owner           User?              @relation(fields: [ownerId], references: [id])
+  orders          Order[]
+  customers       PartnerCustomer[]
+  creditTransactions CreditTransaction[]
+  invoices        PartnerInvoice[]
+
+  @@index([status])
+}
+
+/// Every end customer a partner has referred. One row per (partner, email).
+model PartnerCustomer {
+  id            String   @id @default(cuid())
+  partnerId     String
+  email         String
+  name          String?
+  /// Attribution channel — "referral_link" today; "manual" / "api" later.
+  source        String   @default("referral_link")
+  firstOrderAt  DateTime?
+  createdAt     DateTime @default(now())
+
+  partner       Partner  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  @@unique([partnerId, email])
+  @@index([partnerId])
+}
+
+/// Append-only commission ledger. Positive = credit to partner, negative = debit.
+model CreditTransaction {
+  id          String        @id @default(cuid())
+  partnerId   String
+  /// Set for COMMISSION rows; null for manual adjustments and withdrawals.
+  orderId     String?
+  amountCents Int
+  type        CreditTxnType
+  note        String?
+  createdAt   DateTime      @default(now())
+
+  partner     Partner       @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  order       Order?        @relation(fields: [orderId], references: [id])
+
+  /// Idempotency guard — an order can only ever accrue one COMMISSION row.
+  @@unique([orderId, type])
+  @@index([partnerId])
+}
+
+/// Subscription billing — scaffolded for Phase 3, unused in Phase 2.
+model PartnerInvoice {
+  id              String               @id @default(cuid())
+  partnerId       String
+  periodStart     DateTime
+  periodEnd       DateTime
+  amountCents     Int
+  status          PartnerInvoiceStatus @default(DRAFT)
+  stripeInvoiceId String?
+  createdAt       DateTime             @default(now())
+
+  partner         Partner              @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  @@index([partnerId])
+}
+
 // NextAuth required tables
 model Account {
   id                String  @id @default(cuid())
@@ -268,6 +399,8 @@ model User {
 
   accounts      Account[]
   sessions      Session[]
+  /// PHASE 2 — set when a partner account is linked to this login.
+  partner       Partner?
 }
 
 model VerificationToken {
