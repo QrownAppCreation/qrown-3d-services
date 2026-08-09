@@ -5,6 +5,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import Script from "next/script";
 import ChatWidget from "@/components/ChatWidget";
 import { StickyMobileCTA } from "@/components/StickyMobileCTA";
 import { TRPCProvider } from "@/components/providers/TRPCProvider";
@@ -48,6 +49,27 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        {/* Meta Pixel — Quincy_Facebook_test (ID: 3689367491227874) */}
+        <Script id="meta-pixel" strategy="afterInteractive">{`
+          !function(f,b,e,v,n,t,s)
+          {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+          n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+          if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+          n.queue=[];t=b.createElement(e);t.async=!0;
+          t.src=v;s=b.getElementsByTagName(e)[0];
+          s.parentNode.insertBefore(t,s)}(window, document,'script',
+          'https://connect.facebook.net/en_US/fbevents.js');
+          fbq('init', '3689367491227874');
+          fbq('track', 'PageView');
+        `}</Script>
+        <noscript>
+          <img height="1" width="1" style={{display:"none"}}
+            src="https://www.facebook.com/tr?id=3689367491227874&ev=PageView&noscript=1"
+            alt=""
+          />
+        </noscript>
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${syne.variable} ${newsreader.variable} antialiased`}
       >
