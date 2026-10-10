@@ -128,7 +128,7 @@ const FAQS = [
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 
-export default function PartnerPricingPage() {
+export default function PartnerPage() {
   return (
     <div className="min-h-screen" style={{ background: "var(--wp-ivory)" }}>
 

@@ -14,7 +14,7 @@ const NAV_LINKS = [
 ];
 
 /** Shown in desktop nav as a subtle gold link, not a ghost button. */
-const PARTNER_HREF = "/partner/pricing";
+const PARTNER_HREF = "/partner";
 
 /** Main marketing site navigation — responsive with mobile hamburger menu. */
 export function Navbar() {
